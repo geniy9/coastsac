@@ -42,7 +42,7 @@ export default defineAppConfig({
         body: 'flex-1 overflow-y-auto px-4 py-0 sm:py-0',
         title: 'text-black font-semibold',
         content: 'bg-white divide-none',
-        close: 'text-black hover:text-white'
+        close: 'text-black hover:text-white dark:text-black dark:hover:text-white'
       }
     },
 

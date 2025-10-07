@@ -1,8 +1,5 @@
 <script setup>
-import { computed } from 'vue'
 const { t } = useI18n()
-
-const colorMode = useColorMode()
 
 const timelineItems = computed(() => [
   {
@@ -134,21 +131,17 @@ const statePermits = computed(() => [
             <p v-if="item.note" class="mt-4 text-sm text-gray-500 dark:text-gray-400 border-l-4 border-yellow-400 pl-4 py-1 bg-yellow-50 dark:bg-yellow-900/20">
               {{ item.note }}
             </p>
-
-            <ClientOnly>
-              <Agreement>
-                <!-- {{ $t('text.pick_plan_apply') }} -->
-                <UButton
-                  icon="hugeicons:edit-01"
-                  size="lg"
-                  class="mt-6"
-                  color="secondary"
-                  trailing
-                >
-                  {{ $t('text.sign_carrier_packet') }}
-                </UButton>
-              </Agreement>
-            </ClientOnly>
+            <Agreement>
+              <!-- {{ $t('text.pick_plan_apply') }} -->
+              <UButton
+                icon="hugeicons:edit-01"
+                size="lg"
+                class="mt-4"
+                color="secondary"
+                trailing>
+                {{ $t('text.sign_carrier_packet') }}
+              </UButton>
+            </Agreement>
           </div>
         </template>
       </UTimeline>
@@ -175,13 +168,9 @@ const statePermits = computed(() => [
             <p class="text-gray-600 dark:text-gray-300 flex-grow">
               {{ permit.description }}
             </p>
-            <ClientOnly>
-              <Agreement>
-                <UButton size="lg">
-                  {{ $t('text.pick_plan_apply') }}
-                </UButton>
-              </Agreement>
-            </ClientOnly>
+            <Agreement>
+              <UButton size="lg">{{ $t('text.pick_plan_apply') }}</UButton>
+            </Agreement>
           </div>
         </div>
       </UContainer>
