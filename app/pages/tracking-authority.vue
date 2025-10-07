@@ -137,15 +137,15 @@ const statePermits = computed(() => [
 
             <ClientOnly>
               <Agreement>
-                <!-- {{ $t('text.sign_carrier_packet') }} -->
+                <!-- {{ $t('text.pick_plan_apply') }} -->
                 <UButton
-                  icon="hugeicons:hand-pointing-right-02"
+                  icon="hugeicons:edit-01"
                   size="lg"
                   class="mt-6"
                   color="secondary"
                   trailing
                 >
-                  {{ $t('text.pick_plan_apply') }}
+                  {{ $t('text.sign_carrier_packet') }}
                 </UButton>
               </Agreement>
             </ClientOnly>
