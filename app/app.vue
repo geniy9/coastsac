@@ -1,7 +1,7 @@
 <script setup>
 useHead({
   titleTemplate: (title) => {
-    return title ? `${title} | COASTSAC` : "COASTSAC"
+    return title ? `${title} | LIGHT FREIGHT` : "LIGHT FREIGHT"
   }
 })
 </script>

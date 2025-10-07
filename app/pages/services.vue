@@ -101,25 +101,24 @@ useSeoMeta({
 </script>
 <template>
   <div>
-    <div class="relative">
+    <div class="relative w-full overflow-hidden">
       <div class="absolute inset-0">
-        <img src="/img/bg_services.jpg" alt="Truck driving on a highway at sunset" 
-          class="w-full h-full object-cover object-[80%]">
-        <!-- <div class="absolute inset-0 bg-black/20"></div> -->
+        <img src="/img/bg_services.jpg" 
+          alt="Truck driving on a highway at sunset" 
+          class="w-full h-full object-cover">
+        <div class="absolute inset-0 bg-black/50"></div>
         <div class="absolute inset-0 bg-gradient-to-b from-black/80 to-transparent"></div>
       </div>
 
-      <div class="relative py-24 md:py-32 text-center md:text-left text-white flex flex-col items-stretch justify-end">
-        <UContainer>
-          <div class="max-w-3xl mx-auto text-center">
-            <h1 class="text-4xl font-bold tracking-tight text-white sm:text-6xl">
-              {{ $t('text.our_services_title') }}
-            </h1>
-            <p class="mt-6 text-lg leading-8 text-gray-300">
-              {{ $t('text.our_services_desc') }}
-            </p>
-          </div>
-        </UContainer>
+      <div class="relative py-24 md:py-32 text-white flex items-center justify-center">
+        <div class="max-w-3xl mx-auto text-center">
+          <h1 class="text-4xl font-bold tracking-tight sm:text-6xl">
+            {{ $t('text.our_services_title') }}
+          </h1>
+          <p class="mt-6 text-lg leading-8 text-gray-300">
+            {{ $t('text.our_services_desc') }}
+          </p>
+        </div>
       </div>
     </div>
 
