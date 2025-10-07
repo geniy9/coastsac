@@ -88,13 +88,17 @@ const formSchema = {
   }
 }
 
-async function onSubmit(event) {
-  console.log('Submitted:', event.data)
-  isOpen.value = false
-  alert('Thank you for your application! We will contact you shortly.')
-}
+// async function onSubmit(event) {
+//   console.log('Submitted:', event.data)
+//   isOpen.value = false
+//   alert('Thank you for your application! We will contact you shortly.')
+// }
+useSeoMeta({
+  title: computed(() => t('seo.services.title')),
+  description: computed(() => t('seo.services.description')),
+  keywords: computed(() => t('seo.services.keywords'))
+})
 </script>
-
 <template>
   <div>
     <div class="relative">

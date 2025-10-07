@@ -15,6 +15,23 @@
     "privacy_policy": "Privacy Policy",
     "cookie_policy": "Cookie Policy"
   },
+  "seo": {
+    "home": {
+      "title": "Full Service Freight Dispatch & Consulting",
+      "description": "LIGHT FREIGHT is your full-service dispatch and consulting firm, offering dispatching, driving, brokering, factoring, company setup, and much more for trucking companies.",
+      "keywords": "freight dispatch, trucking consulting, freight factoring, company setup, truck dispatch, logistics, brokering"
+    },
+    "services": {
+      "title": "Comprehensive Trucking Services for Your Business",
+      "description": "Discover LIGHT FREIGHT's complete range of trucking services: CDL dispatching, factoring, company setup, and business financing to optimize your operations.",
+      "keywords": "trucking services, CDL dispatch, freight factoring, company formation, business financing, trucking solutions"
+    },
+    "tracking_authority": {
+      "title": "Simplify Your Trucking Authority & Permits",
+      "description": "Get your trucking authority and state permits with LIGHT FREIGHT's 7-step process. We handle MC, DOT, BOC-3, UCR, and state-specific permit applications.",
+      "keywords": "trucking authority, DOT number, MC number, BOC-3, UCR, state permits, trucking compliance"
+    }
+  },
   "text": {
     "full_name": "Full name",
     "phone_number": "Phone number",
@@ -103,7 +120,6 @@
     "company_name": "Company name",
     "date": "Date",
     "send": "Send",
-
     "firm_description_title": "WE ARE A FULL SERVICE DISPATCH AND CONSULTING FIRM",
     "firm_description_text": "When it comes to transportation, we’ve done it all — dispatching, driving, brokering, working with shippers, factoring, fuel card programs, compliance, setting up authorities, launching companies, designing truck decals — you name it.",
     "dedicated_dispatcher": "Dedicated Dispatcher",
@@ -111,7 +127,6 @@
     "best_paying_freight": "Best Paying Freight",
     "invoicing": "Invoicing",
     "partnership_discounts": "Partnership Discounts",
-
     "light_freight_difference_title": "The LIGHT FREIGHT Difference",
     "difference_1_title": "Trust more, stress less with dedicated expertise.",
     "difference_1_desc": "Our logistics expertise runs deep. We offer tailored solutions for your business.",
@@ -119,7 +134,6 @@
     "difference_2_desc": "We’ll help you find solutions for any type of freight or warehousing need — project based, contract based, on demand.",
     "difference_3_title": "Power your business with purposeful tech.",
     "difference_3_desc": "Save time, streamline your transportation operations and find the best rates with the Beon Shipper platform.",
-
     "coverage_title": "Comprehensive Coverage Across All Modes",
     "full_truckload_tab": "Full Truckload",
     "less_than_truckload_tab": "Less-than-Truckload",
@@ -131,22 +145,17 @@
     "full_truckload_section_title": "Full Truckload",
     "full_truckload_section_text": "Move your next shipment with confidence. From flatbed to dry-van, we have you covered.",
     "learn_more": "Learn More",
-
     "join_team_title": "Join the LIGHT FREIGHT team",
     "join_team_text": "Whether you’re a recent college grad or a tenured logistics professional, you can move the world forward with LIGHT FREIGHT.",
     "join_our_team": "Join Our Team",
-
     "truck_on_road": "Truck on a winding road",
     "start_trucking_company": "Start Your Trucking Company With Us",
     "start_trucking_company_desc": "Launching your business can be confusing and time-consuming. We simplify the process so you can focus on getting on the road. Let us guide you every step of the way.",
-
     "roadmap_title": "Your 7-Step Roadmap to Authority",
     "roadmap_desc": "Follow our proven process to get your trucking authority quickly and correctly.",
     "pick_plan_apply": "Pick Your Plan & Apply Now",
-
     "state_permits_title": "State Permits Made Simple",
     "state_permits_desc": "We also handle specific state-level permits to keep you compliant everywhere you go.",
-
     "timeline_step_1": "Step 1",
     "timeline_step_1_title": "Company State Filings & Setup",
     "timeline_step_1_desc": "The first step is deciding your business structure: Sole Proprietor, LLC, Partnership, or Corporation. We always recommend consulting with your accountant or attorney. Light Freight can assist you with filing your paperwork with the state and getting your company officially registered.",
@@ -171,20 +180,16 @@
     "timeline_step_7": "Step 7",
     "timeline_step_7_title": "Unified Carrier Registration (UCR)",
     "timeline_step_7_desc": "Anyone operating commercial motor vehicles across state lines must register with the UCR program. This includes motor carriers, brokers, freight forwarders, and leasing companies. Light Freight can coordinate your UCR filing quickly and easily.",
-
     "permit_kyu_title": "KYU Number (Kentucky)",
     "permit_kyu_desc": "Required if your vehicle (combined with trailer and load) exceeds 59,999 lbs while traveling in Kentucky. Quarterly reports must be filed with the state.",
     "permit_ny_hut_title": "New York HUT",
     "permit_ny_hut_desc": "If you operate vehicles with a GVW of 18,001 lbs or more in New York State, you must obtain a Highway Use Tax (HUT) permit. Quarterly taxes are based on miles driven and vehicle weight.",
     "permit_nm_wd_title": "New Mexico WD",
     "permit_nm_wd_desc": "Carriers operating in New Mexico with vehicles 26,001 lbs or more must secure a Weight Distance Permit. Quarterly taxes apply based on mileage and weight, and annual renewal is required.",
-
     "our_services_title": "Comprehensive Services for Your Trucking Business",
     "our_services_desc": "From dispatching to financing, we provide end-to-end solutions to support your growth and streamline your operations.",
-
     "cdl_dispatching_title": "CDL Dispatching Services",
     "cdl_dispatching_desc": "At LIGHT FREIGHT, we take pride in delivering top-tier tractor dispatching services. Count on our team to be professional, prompt, and efficient — ensuring your satisfaction every mile of the way.",
-
     "factoring_services_title": "Factoring Services",
     "factoring_services_desc": "Factoring made simple. Get paid as soon as same day on your loads. Enjoy hassle-free cash flow with no hidden fees or long-term commitments.",
     "factoring_detail_no_monthly_min": "No monthly minimum requirements",
@@ -196,13 +201,10 @@
     "factoring_detail_free_broker_checks": "Free broker credit checks",
     "factoring_detail_dedicated_manager": "Dedicated account manager to handle all invoicing, billing, and collections",
     "factoring_detail_fund_copies": "Fund with scanned/faxed copies - no originals unless required by the brokerage",
-
     "authority_setup_title": "Authority Set-up & Company Startups",
     "authority_setup_desc": "CoastSac is your trusted partner to help get your new trucking company started on the right foot from day 1. We will file all state and federal paperwork to start your company and trucking authority right the first time.",
-
     "business_financing_title": "Business Financing",
     "business_financing_desc": "CoastSac Dispatch is your first stop for business financing. We have all types of options, good credit or bad credit, to help you secure the capital you need for growth.",
-
     "apply_here": "Apply Here!",
     "apply_for_service": "Apply for",
     "your_full_name": "Your full name",

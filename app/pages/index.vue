@@ -1,4 +1,5 @@
 <script setup>
+const { t } = useI18n()
 // import { useApiStore } from '@/store/api'
 
 // const { locale } = useI18n()
@@ -25,11 +26,10 @@
 
 // watch(() => locale.value, async () => { await getHome() })
 
-useHead({
-  title: 'Light Freight',
-  meta: [
-    { name: 'description', content: 'Our site is currently under maintenance. We will be back shortly.' }
-  ]
+useSeoMeta({
+  title: computed(() => t('seo.home.title')),
+  description: computed(() => t('seo.home.description')),
+  keywords: computed(() => t('seo.home.keywords'))
 })
 </script>
 <template>

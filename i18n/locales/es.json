@@ -15,6 +15,23 @@
     "privacy_policy": "Política de privacidad",
     "cookie_policy": "Política de cookies"
   },
+  "seo": {
+    "home": {
+      "title": "Servicio Completo de Despacho y Consultoría de Carga",
+      "description": "LIGHT FREIGHT es su empresa de despacho y consultoría de servicio completo, que ofrece despacho, conducción, corretaje, factoring, configuración de empresas y mucho más para empresas de transporte.",
+      "keywords": "despacho de carga, consultoría de transporte, factoring de carga, configuración de empresa, despacho de camiones, logística, corretaje"
+    },
+    "services": {
+      "title": "Servicios Integrales de Transporte para Su Negocio",
+      "description": "Descubra la gama completa de servicios de transporte de LIGHT FREIGHT: despacho CDL, factoring, configuración de empresa y financiación comercial para optimizar sus operaciones.",
+      "keywords": "servicios de transporte, despacho CDL, factoring de carga, formación de empresa, financiación empresarial, soluciones de transporte"
+    },
+    "tracking_authority": {
+      "title": "Simplifique Su Autoridad de Transporte y Permisos",
+      "description": "Obtenga su autoridad de transporte y permisos estatales con el proceso de 7 pasos de LIGHT FREIGHT. Manejamos solicitudes de MC, DOT, BOC-3, UCR y permisos estatales específicos.",
+      "keywords": "autoridad de transporte, número DOT, número MC, BOC-3, UCR, permisos estatales, cumplimiento de transporte"
+    }
+  },
   "text": {
     "full_name": "Nombre completo",
     "phone_number": "Número de teléfono",
@@ -103,7 +120,6 @@
     "company_name": "Nombre de la empresa",
     "date": "Fecha",
     "send": "Enviar",
-
     "firm_description_title": "SOMOS UNA FIRMA DE CONSULTORÍA Y DESPACHO DE SERVICIO COMPLETO",
     "firm_description_text": "Cuando se trata de transporte, lo hemos hecho todo: despacho, conducción, corretaje, trabajo con cargadores, factoring, programas de tarjetas de combustible, cumplimiento, establecimiento de autoridades, lanzamiento de empresas, diseño de calcomanías para camiones, lo que sea.",
     "dedicated_dispatcher": "Despachador dedicado",
@@ -111,7 +127,6 @@
     "best_paying_freight": "Mejor carga pagada",
     "invoicing": "Facturación",
     "partnership_discounts": "Descuentos por asociación",
-
     "light_freight_difference_title": "La diferencia de LIGHT FREIGHT",
     "difference_1_title": "Confía más, estresate menos con experiencia dedicada.",
     "difference_1_desc": "Nuestra experiencia en logística es profunda. Ofrecemos soluciones a medida para su negocio.",
@@ -119,7 +134,6 @@
     "difference_2_desc": "Le ayudaremos a encontrar soluciones para cualquier tipo de necesidad de transporte o almacenamiento —basadas en proyectos, contratos o bajo demanda.",
     "difference_3_title": "Impulsa tu negocio con tecnología útil.",
     "difference_3_desc": "Ahorre tiempo, agilice sus operaciones de transporte y encuentre las mejores tarifas con la plataforma Beon Shipper.",
-
     "coverage_title": "Cobertura integral en todos los modos",
     "full_truckload_tab": "Carga completa",
     "less_than_truckload_tab": "Carga parcial",
@@ -131,22 +145,17 @@
     "full_truckload_section_title": "Carga completa",
     "full_truckload_section_text": "Mueve tu próximo envío con confianza. Desde plataforma hasta furgoneta seca, te cubrimos.",
     "learn_more": "Aprender más",
-
     "join_team_title": "Únete al equipo de LIGHT FREIGHT",
     "join_team_text": "Ya seas un recién graduado universitario o un profesional de la logística con experiencia, puedes hacer que el mundo avance con LIGHT FREIGHT.",
     "join_our_team": "Únete a nuestro equipo",
-
     "truck_on_road": "Camión en una carretera sinuosa",
     "start_trucking_company": "Inicie su Compañía de Camiones con Nosotros",
     "start_trucking_company_desc": "Lanzar su negocio puede ser confuso y llevar mucho tiempo. Simplificamos el proceso para que pueda concentrarse en salir a la carretera. Permítanos guiarle en cada paso del camino.",
-
     "roadmap_title": "Su Hoja de Ruta de 7 Pasos hacia la Autoridad",
     "roadmap_desc": "Siga nuestro proceso probado para obtener su autoridad de transporte de manera rápida y correcta.",
     "pick_plan_apply": "Elija su Plan y Aplique Ahora",
-
     "state_permits_title": "Permisos Estatales Simplificados",
     "state_permits_desc": "También gestionamos permisos específicos a nivel estatal para mantenerlo en cumplimiento dondequiera que vaya.",
-
     "timeline_step_1": "Paso 1",
     "timeline_step_1_title": "Presentaciones y Configuración Estatal de la Compañía",
     "timeline_step_1_desc": "El primer paso es decidir la estructura de su negocio: Propietario Único, LLC, Sociedad o Corporación. Siempre recomendamos consultar con su contador o abogado. Light Freight puede ayudarle a presentar su documentación ante el estado y a registrar oficialmente su empresa.",
@@ -171,20 +180,16 @@
     "timeline_step_7": "Paso 7",
     "timeline_step_7_title": "Registro Unificado de Transportistas (UCR)",
     "timeline_step_7_desc": "Cualquier persona que opere vehículos motorizados comerciales a través de las líneas estatales debe registrarse en el programa UCR. Esto incluye autotransportistas, corredores, transitarios y compañías de arrendamiento. Light Freight puede coordinar su presentación de UCR de manera rápida y fácil.",
-
     "permit_kyu_title": "Número KYU (Kentucky)",
     "permit_kyu_desc": "Requerido si su vehículo (combinado con remolque y carga) excede las 59,999 lbs mientras viaja en Kentucky. Se deben presentar informes trimestrales al estado.",
     "permit_ny_hut_title": "HUT de Nueva York",
     "permit_ny_hut_desc": "Si opera vehículos con un GVW de 18,001 lbs o más en el estado de Nueva York, debe obtener un permiso de Impuesto sobre el Uso de Carreteras (HUT). Los impuestos trimestrales se basan en las millas recorridas y el peso del vehículo.",
     "permit_nm_wd_title": "WD de Nuevo México",
     "permit_nm_wd_desc": "Los transportistas que operan en Nuevo México con vehículos de 26,001 lbs o más deben obtener un Permiso de Peso y Distancia. Se aplican impuestos trimestrales basados en el kilometraje y el peso, y se requiere renovación anual.",
-
     "our_services_title": "Servicios Integrales para su Negocio de Camiones",
     "our_services_desc": "Desde el despacho hasta la financiación, ofrecemos soluciones de principio a fin para apoyar su crecimiento y optimizar sus operaciones.",
-
     "cdl_dispatching_title": "Servicios de Despacho de CDL",
     "cdl_dispatching_desc": "En LIGHT FREIGHT, nos enorgullece ofrecer servicios de despacho de tractores de primera categoría. Cuente con nuestro equipo para ser profesional, rápido y eficiente, asegurando su satisfacción en cada milla del camino.",
-
     "factoring_services_title": "Servicios de Factoraje",
     "factoring_services_desc": "Factoraje simplificado. Reciba el pago el mismo día por sus cargas. Disfrute de un flujo de caja sin complicaciones, sin tarifas ocultas ni compromisos a largo plazo.",
     "factoring_detail_no_monthly_min": "Sin requisitos mínimos mensuales",
@@ -196,13 +201,10 @@
     "factoring_detail_free_broker_checks": "Verificaciones de crédito de corredor gratuitas",
     "factoring_detail_dedicated_manager": "Gerente de cuenta dedicado para manejar toda la facturación, cobros y liquidaciones",
     "factoring_detail_fund_copies": "Financie con copias escaneadas/faxeadas - no se requieren originales a menos que lo exija la correduría",
-
     "authority_setup_title": "Configuración de Autoridad e Inicio de Empresas",
     "authority_setup_desc": "CoastSac es su socio de confianza para ayudar a que su nueva empresa de transporte por carretera comience con el pie derecho desde el primer día. Tramitaremos todo el papeleo estatal y federal para iniciar su empresa y su autoridad de transporte por carretera correctamente la primera vez.",
-
     "business_financing_title": "Financiamiento Empresarial",
     "business_financing_desc": "CoastSac Dispatch es su primera parada para el financiamiento empresarial. Tenemos todo tipo de opciones, buen o mal crédito, para ayudarle a asegurar el capital que necesita para el crecimiento.",
-
     "apply_here": "¡Solicitar Aquí!",
     "apply_for_service": "Solicitar para",
     "your_full_name": "Su nombre completo",

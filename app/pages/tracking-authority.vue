@@ -68,8 +68,13 @@ const statePermits = computed(() => [
     description: t('text.permit_nm_wd_desc'),
   },
 ])
-</script>
 
+useSeoMeta({
+  title: computed(() => t('seo.tracking_authority.title')),
+  description: computed(() => t('seo.tracking_authority.description')),
+  keywords: computed(() => t('seo.tracking_authority.keywords'))
+})
+</script>
 <template>
   <div>
     <div class="relative">
