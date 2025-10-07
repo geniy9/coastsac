@@ -136,17 +136,14 @@ useSeoMeta({
             <p v-if="item.note" class="mt-4 text-sm text-gray-500 dark:text-gray-400 border-l-4 border-yellow-400 pl-4 py-1 bg-yellow-50 dark:bg-yellow-900/20">
               {{ item.note }}
             </p>
-            <Agreement>
-              <!-- {{ $t('text.pick_plan_apply') }} -->
-              <UButton
-                icon="hugeicons:edit-01"
-                size="lg"
-                class="mt-4"
-                color="secondary"
-                trailing>
-                {{ $t('text.sign_carrier_packet') }}
-              </UButton>
-            </Agreement>
+            <UButton
+              icon="hugeicons:edit-01"
+              size="lg"
+              class="mt-4"
+              color="secondary"
+              trailing>
+              {{ $t('text.pick_plan_apply') }}
+            </UButton>
           </div>
         </template>
       </UTimeline>
@@ -173,9 +170,7 @@ useSeoMeta({
             <p class="text-gray-600 dark:text-gray-300 flex-grow">
               {{ permit.description }}
             </p>
-            <Agreement>
-              <UButton size="lg">{{ $t('text.pick_plan_apply') }}</UButton>
-            </Agreement>
+            <UButton size="lg">{{ $t('text.pick_plan_apply') }}</UButton>
           </div>
         </div>
       </UContainer>

@@ -45,7 +45,7 @@ onUnmounted(() => {
 
         <div class="flex items-center gap-4">
 
-          <ToggleTheme />
+          <ToggleTheme class="text-white dark:text-white" />
           <ToggleLocale />
 
           <USlideover v-model:open="isOpen" 
@@ -65,20 +65,27 @@ onUnmounted(() => {
 
             <template #body>
               <div class="relative flex flex-col justify-start gap-12">
-                <div @click="isOpen = false" class="relative max-w-full flex items-start justify-between">
-                  <ToggleLocale class="flex md:hidden" />
+                <div class="relative max-w-full flex items-start justify-between">
+                  <ToggleLocale />
+                  <ToggleTheme class="text-primary dark:text-white" />
                 </div>
 
                 <nav @click="isOpen = false">
                   <ul class="flex flex-col items-start">
                     <li v-for="(m, i) in menuMain" :key="i">
-                      <NuxtLinkLocale :to="m.to" class="block text-sm font-black tracking-widest select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none uppercase">
+                      <NuxtLinkLocale :to="m.to" class="block text-sm font-bold tracking-widest select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none uppercase">
                         {{ $t(`nav.${m.name}`) }}
                       </NuxtLinkLocale>
                     </li>
                   </ul>
                 </nav>
 
+              </div>
+            </template>
+
+            <template #footer>
+              <div @click="isOpen = false" class="flex items-center justify-center w-full">
+                <Socials class="flex gap-4 mt-3 text-3xl" />
               </div>
             </template>
           </USlideover>

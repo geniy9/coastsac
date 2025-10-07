@@ -9,12 +9,9 @@ async function changeLocale(code) {
 <template>
   <div>
     <div v-for="(loc, i) in locales" :key="i" @click="changeLocale(loc.code)">
-      <UButton
-        v-if="locale !== loc.code" 
-        class="uppercase cursor-pointer"
-        :label="loc.code" 
-        variant="link" 
-        color="white" />
+      <div v-if="locale !== loc.code" class="uppercase cursor-pointer font-bold p-2">
+        {{ loc.code }}
+      </div>
     </div>
   </div>
 </template>

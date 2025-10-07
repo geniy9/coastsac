@@ -55,7 +55,7 @@ useSeoMeta({
     
     <section class="-mt-8">
       <div class="py-8 px-10 max-w-xs xs:max-w-sm sm:max-w-lg md:max-w-3xl mx-auto backdrop-blur-md bg-white/20 dark:bg-black/50 rounded-2xl shadow-2xl">
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 text-center">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 text-center">
           <div class="flex flex-col items-center">
             <Icon name="hugeicons:customer-support" class="text-3xl sm:text-5xl text-accent mb-3" />
             <span class="font-semibold text-gray-900 dark:text-white">
@@ -84,6 +84,12 @@ useSeoMeta({
             <Icon name="hugeicons:discount-tag-02" class="text-3xl sm:text-5xl text-accent mb-3" />
             <span class="font-semibold text-gray-900 dark:text-white">
               {{ $t('text.partnership_discounts') }}
+            </span>
+          </div>
+          <div class="flex flex-col items-center">
+            <Icon name="hugeicons:fuel-02" class="text-3xl sm:text-5xl text-accent mb-3" />
+            <span class="font-semibold text-gray-900 dark:text-white">
+              {{ $t('text.fuel_card') }}
             </span>
           </div>
         </div>

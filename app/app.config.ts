@@ -46,6 +46,12 @@ export default defineAppConfig({
       }
     },
 
+    slideover: {
+      slots: {
+        overlay: 'fixed inset-0 bg-black/75 dark:bg-black/50 backdrop-blur-xs',
+      }
+    },
+
     inputNumber: {
       slots: {
         increment: '[&>button]:cursor-pointer',

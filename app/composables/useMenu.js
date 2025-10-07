@@ -7,8 +7,8 @@ export default () => {
       name: 'services',
       to: '/services'
     },{
-      name: 'tracking_authority',
-      to: '/tracking-authority'
+      name: 'trucking_authority',
+      to: '/trucking-authority'
     },{
       name: 'contacts',
       to: '/#contacts'

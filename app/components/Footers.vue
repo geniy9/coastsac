@@ -41,17 +41,7 @@ const logo = computed(() => {
               </li>
             </ul>
           </div>
-          <div class="flex gap-4 mt-3">
-            <a href="#" class="text-secondary">
-              <Icon name="hugeicons:linkedin-01" class="text-3xl" />
-            </a>
-            <a href="#" class="text-secondary">
-              <Icon name="hugeicons:facebook-01" class="text-3xl" />
-            </a>
-            <a href="#" class="text-secondary">
-              <Icon name="hugeicons:instagram" class="text-3xl" />
-            </a>
-          </div>
+          <Socials class="flex gap-4 mt-3" />
         </div>
       </div>
       

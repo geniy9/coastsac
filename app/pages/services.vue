@@ -151,16 +151,16 @@ useSeoMeta({
                 <span>{{ detail }}</span>
               </li>
             </ul>
-            <UButton
-              icon="hugeicons:hand-pointing-right-02"
-              size="lg"
-              class="mt-8"
-              color="secondary"
-              trailing
-              @click="openFeedbackForm(service.title)"
-            >
-              {{ service.buttonText }}
-            </UButton>
+            <Agreement>
+              <UButton
+                icon="hugeicons:hand-pointing-right-02"
+                size="lg"
+                class="mt-8"
+                color="secondary"
+                trailing>
+                {{ service.buttonText }}
+              </UButton>
+            </Agreement>
           </div>
           <div v-if="index % 2 === 1" class="relative rounded-lg overflow-hidden shadow-xl">
             <!-- <img :src="service.image" :alt="service.imageAlt" class="w-full h-full object-cover max-h-[400px]"> -->
