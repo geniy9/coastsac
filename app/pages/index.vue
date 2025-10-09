@@ -102,7 +102,7 @@ useSeoMeta({
       </h2>
       <div class="mt-12 grid md:grid-cols-3 gap-4 lg:gap-8">
         <div v-for="i in 3" :key="i" class="group relative rounded-lg overflow-hidden aspect-square xl:w-90">
-          <img :src="`/img/difference_${i}.jpg`" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="Dedicated expertise">
+          <img :src="`/img/differ_${i}.jpg`" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="Dedicated expertise">
           <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent"></div>
           <div class="relative p-6 lg:p-8 h-full flex flex-col justify-end text-white">
             <span class="text-sm font-bold text-gray-400">0{{ i }}</span>
@@ -170,20 +170,20 @@ useSeoMeta({
 
     <section class="text-white relative">
       <div class="section bg-primary rounded-xl py-8 md:py-16">
-        <div class="grid md:grid-cols-2 gap-12 items-center px-8 md:px-16">
+        <div class="grid md:grid-cols-2 gap-12 items-center px-8 lg:px-16">
           <div class="relative w-full h-80 md:h-full min-h-[300px] overflow-hidden">
-            <img src="/img/bg_team.jpg" alt="Team members collaborating in an office" 
+            <img src="/img/dispatchers.jpg" alt="Dispatchers collaborating" 
               class="absolute w-full h-full object-cover rounded-lg">
-            <div class="hidden md:block absolute right-0 w-1/2 h-full bg-gradient-to-l from-primary to-transparent"></div>
+            <div class="hidden md:block absolute right-0 md:w-1/2 lg:w-1/3 h-full bg-gradient-to-l from-primary to-primary/70 rounded-l-full"></div>
           </div>
-          <div class="md:-ml-10 text-center md:text-left z-10">
-            <h2 class="text-3xl md:text-4xl font-bold">
+          <div class="md:-ml-20 lg:-ml-30 text-center md:text-left z-10">
+            <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold">
               {{ $t('text.join_team_title') }}
             </h2>
             <p class="mt-4 text-gray-300 text-lg">
               {{ $t('text.join_team_text') }}
             </p>
-            <a href="#" class="mt-8 inline-block bg-secondary text-white px-8 py-3 rounded-full font-semibold hover:bg-secondary transition-colors">
+            <a href="#" class="mt-4 inline-block bg-secondary text-white px-8 py-3 rounded-full font-semibold hover:bg-secondary transition-colors">
               {{ $t('text.join_our_team') }}
             </a>
           </div>
