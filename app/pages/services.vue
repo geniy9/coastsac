@@ -14,7 +14,7 @@ const services = computed(() => [
     description: t('text.cdl_dispatching_desc'),
     // image: '/img/service_dispatching.jpg',
     imageAlt: 'Truck dispatcher working',
-    buttonText: t('text.apply_here'),
+    buttonText: t('text.sign_our_carrier_packet'),
     id: 'dispatching'
   },
   {
@@ -150,7 +150,17 @@ useSeoMeta({
                 <span>{{ detail }}</span>
               </li>
             </ul>
-            <Agreement>
+            <Agreement v-if="index === 0">
+              <UButton
+                icon="hugeicons:edit-01"
+                size="lg"
+                class="mt-8"
+                color="secondary"
+                trailing>
+                {{ service.buttonText }}
+              </UButton>
+            </Agreement>
+            <Feedback v-if="index === 1" :subject="service.title">
               <UButton
                 icon="hugeicons:hand-pointing-right-02"
                 size="lg"
@@ -159,7 +169,7 @@ useSeoMeta({
                 trailing>
                 {{ service.buttonText }}
               </UButton>
-            </Agreement>
+            </Feedback>
           </div>
           <div v-if="index % 2 === 1" class="relative rounded-lg overflow-hidden shadow-xl">
             <!-- <img :src="service.image" :alt="service.imageAlt" class="w-full h-full object-cover max-h-[400px]"> -->

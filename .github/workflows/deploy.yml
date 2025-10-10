@@ -24,6 +24,7 @@ jobs:
         env:
           ORIGIN: ${{ secrets.ORIGIN }}
           STRAPI_URL: ${{ secrets.STRAPI_URL }}
+          NUXT_PUBLIC_RECAPTCHA_SITE_KEY: ${{ secrets.NUXT_PUBLIC_RECAPTCHA_SITE_KEY }}
 
       - name: Deploy to Server
         uses: easingthemes/ssh-deploy@v5.0.0
@@ -34,4 +35,5 @@ jobs:
           REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.REMOTE_USER }}
           TARGET: ${{ secrets.TARGET_DIR }}
+          RECAPTCHA_SECRET_KEY: ${{ secrets.RECAPTCHA_SECRET_KEY }}
           EXCLUDE: "/dist/, /node_modules/"

@@ -33,6 +33,8 @@
     }
   },
   "text": {
+    "message": "Message",
+    "feedback": "Feedback",
     "full_name": "Full name",
     "phone_number": "Phone number",
     "shipping_address": "Shipping address",
@@ -229,7 +231,7 @@
     "no_code_reset_password": "There is no code to reset the password. Please request the link again",
     "letter_successfully_sent": "The letter is successfully sent!",
     "failed_to_send_letter": "It was not possible to send a letter",
-    "order_placed_success": "Order placed success",
-    "order_placed_error": "Order placed error"
+    "feedback_success": "Feedback sent success",
+    "feedback_error": "Feedback sent error"
   }
 }

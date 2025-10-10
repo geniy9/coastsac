@@ -33,6 +33,8 @@
     }
   },
   "text": {
+    "message": "Mensaje",
+    "feedback": "Comentarios",
     "full_name": "Nombre completo",
     "phone_number": "Número de teléfono",
     "shipping_address": "Dirección de envío",
@@ -229,7 +231,7 @@
     "no_code_reset_password": "No hay código para restablecer la contraseña. Por favor, solicita el enlace de nuevo",
     "letter_successfully_sent": "¡El correo se ha enviado con éxito!",
     "failed_to_send_letter": "No fue posible enviar el correo",
-    "order_placed_success": "Pedido realizado correctamente",
-    "order_placed_error": "Pedido realizado con error"
+    "feedback_success": "Comentarios enviados correctamente",
+    "feedback_error": "Comentarios enviados con error"
   }
 }
