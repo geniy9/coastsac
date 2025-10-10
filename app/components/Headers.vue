@@ -45,12 +45,11 @@ onUnmounted(() => {
 
         <div class="flex items-center gap-4">
 
-          <Socials class="hidden md:flex items-center gap-4 text-2xl" />
+          <Socials class="hidden md:flex items-center gap-4 text-2xl mr-3" />
           <ToggleTheme class="text-white dark:text-white" />
           <ToggleLocale />
 
           <USlideover v-model:open="isOpen" 
-            close-icon="material-symbols:close-rounded" 
             :ui="{ content: 'w-8/9'}" 
             class="flex md:hidden">
             <Icon name="solar:hamburger-menu-broken" @click="isOpen = true" class="w-9 h-9 cursor-pointer  transition-all text-white hover:text-accent" />
@@ -60,7 +59,7 @@ onUnmounted(() => {
                 <NuxtLinkLocale to="/">
                   <img :src="logo" alt="logo" class="w-24 h-auto" />        
                 </NuxtLinkLocale>
-                <Icon name="material-symbols:close-rounded" @click="isOpen = false" class="w-7 h-7 cursor-pointer scale-100 hover:scale-110 transition-all text-secondary" />
+                <Icon name="hugeicons:cancel-02" @click="isOpen = false" class="w-7 h-7 cursor-pointer scale-100 hover:scale-110 transition-all dark:text-white text-primary" />
               </div>
             </template>
 

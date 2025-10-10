@@ -2,7 +2,7 @@
 import { z } from 'zod'
 
 const toast = useToast()
-const open = ref(false)
+const isOpen = ref(false)
 // const router = useRouter()
 
 const schema = z.object({
@@ -55,14 +55,19 @@ async function onSubmit(event) {
     state.carrierMc = undefined
     state.phone = undefined
     state.email = undefined
-    open.value = false
+    isOpen.value = false
     loading.value = false
   }
 }
 </script>
 <template>
-  <UModal v-model:open="open" :title="$t('text.sign_our_carrier_packet')" 
+  <UModal v-model:open="isOpen" :title="$t('text.sign_our_carrier_packet')" 
     :ui="{content: 'max-w-md'}">
+    <template #header>
+      <div @click="isOpen = false" class="absolute top-4 end-4">
+        <Icon name="hugeicons:cancel-02" @click="isOpen = false" class="w-7 h-7 cursor-pointer scale-100 hover:scale-110 transition-all dark:text-primary text-primary" />
+      </div>
+    </template>
     <div>
       <slot />
     </div>

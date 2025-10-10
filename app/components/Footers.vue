@@ -59,5 +59,13 @@ const logo = computed(() => {
         </p>
       </div>
     </div>
+
+    <div class="fixed bottom-4 right-6 z-10">
+      <a href="https://wa.me/19163988398" target="_blank" >
+        <UTooltip text="Get in touch">
+          <Icon name="hugeicons:whatsapp" class="text-green-500 text-4xl xs:text-5xl" />
+        </UTooltip>
+      </a>
+    </div>
   </footer>
 </template>

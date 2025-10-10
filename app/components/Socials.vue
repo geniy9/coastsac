@@ -1,6 +1,6 @@
 <template>
   <div>
-    <a href="https://wa.me/13025509154" target="_blank" class="link_social">
+    <a href="https://wa.me/19163988398" target="_blank" class="link_social">
       <Icon name="hugeicons:whatsapp" />
     </a>
     <a href="https://www.facebook.com/LightFreights" target="_blank" class="link_social">
