@@ -28,26 +28,28 @@ const state = reactive({
   email: undefined,
   message: undefined,
   recaptcha: undefined,
+  response: null
 })
 const captchaComponent = ref(null)
 const loading = ref(false);
+const isOpen = ref(false);
 
 async function onSubmit(event) {
   loading.value = true;
   try {
     const { recaptcha, ...formData } = event.data
     const payload = { ...formData }
-    await client('/feedbacks', {
+    const res = await client('/feedbacks', {
       method: 'POST',
       body: { data: payload },
       headers: { 'g-recaptcha-response': state.recaptcha }
     })
-
     toast.add({ 
       title: t('error.feedback_success'), 
       color: 'success', 
       icon: 'i-heroicons-check-circle'
     });
+    if (res) state.response = res.data
 
   } catch (e) {
     toast.add({ 
@@ -57,16 +59,25 @@ async function onSubmit(event) {
       icon: 'i-heroicons-x-circle'
     })
     captchaComponent.value?.reset()
+    clearFeedback()
   } finally {
     loading.value = false;
+    clearFeedback()
   }
+}
+
+function clearFeedback() {
+  state.name = undefined
+  state.phone = undefined
+  state.email = undefined
+  state.message = undefined
 }
 const isDisabled = computed(() => {
   return !state.name || !state.phone || !state.email || !state.message || !state.recaptcha
 })
 </script>
 <template>
-  <UModal v-model:open="open" 
+  <UModal v-model:open="isOpen" 
     :ui="{ 
       content: 'max-w-md p-0 bg-transparent', 
       header: 'p-0 sm:px-0 min-h-0', 
@@ -81,7 +92,14 @@ const isDisabled = computed(() => {
           <h2 class="text-2xl dark:text-white font-bold">{{ props.subject }}</h2>
         </template>
 
-        <UForm :schema="schema" :state="state" class="space-y-3" @submit.prevent="onSubmit">
+        <div v-if="true" class="flex flex-col gap-4">
+          <div>
+            <h3 class="text-xl">{{ $t('text.feedback_response_title') }}</h3>
+            <p>{{ $t('text.feedback_response_desc') }}</p>
+          </div>
+          <UButton block color="primary" @click="isOpen = false">Ok</UButton>
+        </div>
+        <UForm v-else :schema="schema" :state="state" class="space-y-3" @submit.prevent="onSubmit">
           <UFormField :label="$t('text.full_name')" name="name" required>
             <UInput v-model="state.name" class="w-xs" />
           </UFormField>

@@ -214,7 +214,9 @@
     "your_full_name": "Your full name",
     "your_email": "Your email address",
     "your_phone": "Your phone number",
-    "submit_application": "Submit Application"
+    "submit_application": "Submit Application",
+    "feedback_response_title": "Thank you for writing to us",
+    "feedback_response_desc": "We will contact you shortly as soon as possible"
   },
   "error": {
     "registration": "An error occurred during registration",
