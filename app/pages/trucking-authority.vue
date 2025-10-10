@@ -162,7 +162,16 @@ useSeoMeta({
             <p class="text-gray-600 dark:text-gray-300 flex-grow">
               {{ permit.description }}
             </p>
-            <UButton size="lg">{{ $t('text.pick_plan_apply') }}</UButton>
+            <Feedback :subject="permit.title">
+              <UButton
+                icon="hugeicons:hand-pointing-right-02"
+                size="lg"
+                class="mt-8"
+                color="secondary"
+                trailing>
+                {{ $t('text.apply_here') }}
+              </UButton>
+            </Feedback>
           </div>
         </div>
       </UContainer>

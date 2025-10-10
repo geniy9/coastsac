@@ -183,9 +183,11 @@ useSeoMeta({
             <p class="mt-4 text-gray-300 text-lg">
               {{ $t('text.join_team_text') }}
             </p>
-            <a href="#" class="mt-4 inline-block bg-secondary text-white px-8 py-3 rounded-full font-semibold hover:bg-secondary transition-colors">
-              {{ $t('text.join_our_team') }}
-            </a>
+            <Agreement>
+              <span class="mt-4 inline-block bg-secondary text-white px-8 py-3 rounded-full font-semibold hover:bg-secondary transition-colors cursor-pointer">
+              {{ $t('text.sign_up') }}
+              </span>
+            </Agreement>
           </div>
         </div>
       </div>
