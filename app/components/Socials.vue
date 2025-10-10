@@ -1,12 +1,12 @@
 <template>
   <div>
-    <a href="#" class="text-secondary">
-      <Icon name="hugeicons:linkedin-01" />
+    <a href="https://wa.me/13025509154" target="_blank" class="link_social">
+      <Icon name="hugeicons:whatsapp" />
     </a>
-    <a href="#" class="text-secondary">
+    <a href="https://www.facebook.com/LightFreights" target="_blank" class="link_social">
       <Icon name="hugeicons:facebook-01" />
     </a>
-    <a href="#" class="text-secondary">
+    <a href="https://www.instagram.com/light_freight_dispatch" target="_blank" class="link_social">
       <Icon name="hugeicons:instagram" />
     </a>
   </div>

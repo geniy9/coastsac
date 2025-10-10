@@ -151,8 +151,8 @@ useSeoMeta({
             {{ $t('text.state_permits_desc') }}
           </p>
         </div>
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          <div v-for="(permit, index) in statePermits" :key="index" class="flex flex-col gap-6 p-4 rounded-xl bg-gray-300 dark:bg-primary/20">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          <div v-for="(permit, index) in statePermits" :key="index" class="flex flex-col gap-6 p-6 rounded-xl bg-gray-300 dark:bg-primary/20">
             <div class="flex items-center gap-4">
               <UIcon :name="permit.icon" class="h-8 w-8 text-primary dark:text-white" />
               <h3 class="text-lg font-bold text-gray-900 dark:text-white">

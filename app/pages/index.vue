@@ -123,7 +123,7 @@ useSeoMeta({
         </h2>
         <div class="grid lg:grid-cols-2 gap-12 items-center">
           <div class="relative">
-            <img src="/img/bg_comprehensive_coverage.jpg" alt="truck" class="rounded-lg shadow-xl w-full">
+            <img src="/img/bg_coverage.jpg" :alt="$t('text.full_truckload_tab')" class="rounded-lg shadow-xl w-full">
             
             <div class="relative lg:absolute lg:-bottom-16 lg:left-1/4 w-full lg:w-72 bg-white/30 dark:bg-black/30 backdrop-blur-xs p-8 rounded-lg shadow-xl mt-8 lg:mt-0">
               <ul class="space-y-3 text-black dark:text-white">

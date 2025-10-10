@@ -45,6 +45,7 @@ onUnmounted(() => {
 
         <div class="flex items-center gap-4">
 
+          <Socials class="hidden md:flex items-center gap-4 text-2xl" />
           <ToggleTheme class="text-white dark:text-white" />
           <ToggleLocale />
 

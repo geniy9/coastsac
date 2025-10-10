@@ -14,8 +14,11 @@ export default () => {
       to: '/#contacts'
     }],
     menuPhones: [{
-      name: '<span class="text-secondary">+1 (916)</span> 398-8398',
+      name: '<span class="text-primary dark:text-gray-600">+1 (916)</span> 398-8398',
       to: 'tel:19163988398'
+    },{
+      name: '<span class="text-primary dark:text-gray-600">+1 (302)</span> 550-9154',
+      to: 'tel:13025509154' 
     }],
     menuSecond: [{
       name: 'about',

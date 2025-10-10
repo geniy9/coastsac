@@ -1,5 +1,5 @@
 <script setup>
-const { menuSecond, menuRules } = useMenu()
+const { menuPhones, menuSecond, menuRules } = useMenu()
 const colorMode = useColorMode()
 
 const logo = computed(() => {
@@ -7,7 +7,7 @@ const logo = computed(() => {
 })
 </script>
 <template>
-  <footer class="bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400">
+  <footer id="contacts" class="bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400">
     <div class="section pt-16 pb-8">
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div class="flex flex-col items-center lg:items-start gap-6">
@@ -18,6 +18,14 @@ const logo = computed(() => {
           <div class="flex items-center gap-2 max-w-60">
             <Icon name="hugeicons:location-01" class="w-8 h-8 text-secondary flex-shrink-0" />
             <p class="text-sm" v-html="$t('text.full_address')"></p>
+          </div>
+
+          <div class="flex flex-col items-center">
+            <div v-for="(m, i) in menuPhones" :key="i">
+              <a :href="m.to" target="_blank" class="block text-sm select-none py-1 leading-none">
+                <span v-html="m.name"></span>
+              </a>
+            </div>
           </div>
         </div>
 
@@ -41,7 +49,7 @@ const logo = computed(() => {
               </li>
             </ul>
           </div>
-          <Socials class="flex gap-4 mt-3" />
+          <Socials class="flex gap-4 mt-3 text-3xl" />
         </div>
       </div>
       

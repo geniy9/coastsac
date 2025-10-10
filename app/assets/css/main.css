@@ -81,10 +81,16 @@
 
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
   .section {
     @apply relative w-full xs:max-w-2xl md:max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto px-4 xs:px-6 lg:px-0;
   }
   .main_title {
     @apply text-xl xs:text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold uppercase;
+  }
+  .link_social {
+    @apply scale-100 hover:scale-120 transition-all duration-200 leading-0;
   }
 }
