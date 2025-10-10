@@ -56,7 +56,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       ORIGIN: process.env.ORIGIN,
-      STRAPI_URL: process.env.STRAPI_URL
+      STRAPI_URL: process.env.STRAPI_URL,
+      RECAPTCHA_SITE_KEY: process.env.NUXT_PUBLIC_RECAPTCHA_SITE_KEY
     }
   },
 
