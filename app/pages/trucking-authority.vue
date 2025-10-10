@@ -166,7 +166,6 @@ useSeoMeta({
               <UButton
                 icon="hugeicons:hand-pointing-right-02"
                 size="lg"
-                class="mt-8"
                 color="secondary"
                 trailing>
                 {{ $t('text.apply_here') }}

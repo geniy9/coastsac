@@ -152,7 +152,7 @@ useSeoMeta({
             </ul>
             <Agreement v-if="index === 0">
               <UButton
-                icon="hugeicons:edit-01"
+                icon="hugeicons:contracts"
                 size="lg"
                 class="mt-8"
                 color="secondary"
