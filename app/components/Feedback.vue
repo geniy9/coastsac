@@ -92,7 +92,7 @@ const isDisabled = computed(() => {
           <h2 class="text-2xl dark:text-white font-bold">{{ props.subject }}</h2>
         </template>
 
-        <div v-if="true" class="flex flex-col gap-4">
+        <div v-if="state.response" class="flex flex-col gap-4">
           <div>
             <h3 class="text-xl">{{ $t('text.feedback_response_title') }}</h3>
             <p>{{ $t('text.feedback_response_desc') }}</p>
