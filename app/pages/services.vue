@@ -179,6 +179,8 @@ useSeoMeta({
       </div>
     </section>
 
+    <Signature />
+
     <!-- <UModal v-model="isOpen">
       <UCard :ui="{ ring: '', divide: 'divide-y divide-gray-100 dark:divide-gray-800' }">
         <template #header>

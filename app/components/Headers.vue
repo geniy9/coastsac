@@ -25,7 +25,7 @@ onUnmounted(() => {
 <template>
   <header class="fixed top-0 w-full z-20">
     <div class="flex flex-col transition-all duration-500 py-3 gap-3" 
-      :class="[ isScrolled ? 'bg-black/80' : '']">
+      :class="[ isScrolled ? 'bg-black/80' : 'bg-black/0']">
       <div class="section flex justify-between text-white items-center">
         
         <div class="flex items-center font-bold gap-4">

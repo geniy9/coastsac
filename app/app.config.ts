@@ -35,14 +35,23 @@ export default defineAppConfig({
       }
     },
 
+    stepper: {
+      slots: {
+        trigger: 'group-data-[state=completed]:text-white group-data-[state=active]:dark:bg-white group-data-[state=active]:text-inverted text-primary dark:text-white bg-elevated focus-visible:outline-2 focus-visible:outline-offset-2',
+        separator: 'group-data-[disabled]:opacity-75 bg-accented',
+        title: 'text-default',
+        description: 'text-muted',
+      }
+    },
+
     modal: {
       slots: {
         overlay: 'fixed inset-0 bg-black/75 dark:bg-black/50 backdrop-blur-xs',
-        header: 'flex items-center gap-1.5 p-4 sm:px-6 min-h-12',
-        body: 'flex-1 overflow-y-auto px-4 py-0 sm:py-0',
-        title: 'text-black font-semibold',
-        content: 'bg-white divide-none',
-        close: 'text-black hover:text-white dark:text-black dark:hover:text-white'
+        // header: 'flex items-center gap-1.5 p-4 sm:px-6 min-h-12',
+        // body: 'flex-1 overflow-y-auto px-4 py-0 sm:py-0',
+        // title: 'text-black font-semibold',
+        // content: 'bg-white divide-none',
+        // close: 'text-black hover:text-white dark:text-black dark:hover:text-white'
       }
     },
 

@@ -9,6 +9,7 @@ export default defineNuxtConfig({
     '@nuxtjs/i18n',
     '@nuxtjs/strapi',
     '@pinia/nuxt',
+    'nuxt-signature-pad',
     // './modules/prerender',
   ],
 

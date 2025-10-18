@@ -5,12 +5,27 @@ const toast = useToast()
 const isOpen = ref(false)
 // const router = useRouter()
 
+const items = [{
+  title: 'Contacts',
+  description: 'Add your contacts here',
+  icon: 'hugeicons:document-attachment',
+  slot: 'contacts'
+},{
+  title: 'Signature',
+  description: 'Sign dispatch agreement',
+  icon: 'hugeicons:signature',
+  slot: 'signature'
+}]
+const stepper = useTemplateRef('stepper')
+
 const schema = z.object({
   date: z.date(),
   companyName: z.string().min(1, 'companyName Required'),
   carrierMc: z.string().min(1, 'carrierMc Required'),
   phone: z.string().min(10, 'Must be at least 10 characters'),
-  email: z.string().email('Invalid email'),
+  email: z.email('Invalid email'),
+  contactName: z.string().min(1, 'contactName Required'),
+  signature: z.string().min(1, 'Signature Required'),
 })
 
 const state = reactive({
@@ -19,6 +34,8 @@ const state = reactive({
   carrierMc: undefined,
   phone: undefined,
   email: undefined,
+  contactName: undefined,
+  signature: undefined,
 })
 const loading = ref(false);
 
@@ -51,55 +68,102 @@ async function onSubmit(event) {
       color: 'error'
     });
   } finally {
-    state.companyName = undefined
-    state.carrierMc = undefined
-    state.phone = undefined
-    state.email = undefined
+    clearFields()
     isOpen.value = false
     loading.value = false
   }
 }
+function clearFields() {
+  state.companyName = undefined
+  state.carrierMc = undefined
+  state.phone = undefined
+  state.email = undefined
+  state.contactName = undefined
+  state.signature = undefined
+}
+const isDisabled = computed(() => {
+  return !!(!state.date ||
+  !state.companyName ||
+  !state.carrierMc ||
+  !state.phone ||
+  !state.email ||
+  !state.contactName ||
+  !state.signature)
+})
+onUnmounted(() => clearFields())
 </script>
 <template>
-  <UModal v-model:open="isOpen" :title="$t('text.sign_our_carrier_packet')" 
-    :ui="{content: 'max-w-md'}">
+  <UModal :dismissible="false" v-model:open="isOpen" :ui="{content: 'max-w-md'}">
     <template #header>
+      <div class="flex flex-col gap-1 text-primary dark:text-white">
+        <h1 class="text-xl font-bold">
+          {{ $t('text.sign_our_carrier_packet') }}
+        </h1>
+        <a href="/docs/agreement.pdf" target="_blank" 
+          class="flex gap-2 items-center leading-0">
+          <span>{{ $t('text.view_agreement_template') }}</span>
+          <UIcon name="hugeicons:link-square-02" class="w-5 h-5" />
+        </a>
+      </div>
       <div @click="isOpen = false" class="absolute top-4 end-4">
-        <Icon name="hugeicons:cancel-02" @click="isOpen = false" class="w-7 h-7 cursor-pointer scale-100 hover:scale-110 transition-all dark:text-primary text-primary" />
+        <Icon name="hugeicons:cancel-01" @click="isOpen = false" class="w-8 h-8 cursor-pointer scale-100 hover:scale-110 transition-all dark:text-white text-primary" />
       </div>
     </template>
     <div>
       <slot />
     </div>
     <template #body>
-      <div class="w-full bg-[url('/img/bg_agreement.jpg')] bg-no-repeat pt-30 rounded-tl-xl border-t-2 border-l-2 border-dashed border-gray-400">
-        <UForm :schema="schema" :state="state" @submit="onSubmit" class="space-y-[5px]">
-          <div class="ml-16 text-black">
-            {{ state.date.toISOString().split('T')[0] }}
-          </div>
-          <UFormField name="companyName" class="ml-28">
-            <UInput v-model="state.companyName" 
-              placeholder="Acme Corporation" 
-              required size="xs" variant="agreement" />
-          </UFormField>
-          <UFormField name="carrierMc" class="ml-28" required>
-            <UInput v-model="state.carrierMc" placeholder="MC-123456" size="xs" variant="agreement" />
-          </UFormField>
-          <UFormField name="phone" class="ml-16" required>
-            <UInput v-model="state.phone" placeholder="+1(555)123-4567" size="xs" variant="agreement" />
-          </UFormField>
-          <UFormField name="email" class="w-full flex justify-end" required>
-            <UInput v-model="state.email" type="email" placeholder="invoices@company.com" size="xs" variant="agreement" class="w-40" />
-          </UFormField>
-          <div class="flex flex-col items-center xs:flex-row justify-center xs:justify-between mt-30 mb-6">
+      <div class="w-full">
+        <UForm :schema="schema" :state="state" @submit="onSubmit">
+          <UStepper ref="stepper" :items="items">
+            <template #contacts>
+              <div class="w-full space-y-2 py-4">
+                <UFormField label="Company Name" name="companyName">
+                  <UInput v-model="state.companyName" 
+                    placeholder="Acme Corporation" required />
+                </UFormField>
+                <UFormField label="Carrier`s MC #" name="carrierMc" required>
+                  <UInput v-model="state.carrierMc" placeholder="MC-123456" />
+                </UFormField>
+                <UFormField label="Phone" name="phone" required>
+                  <UInput v-model="state.phone" placeholder="+1(555)123-4567" />
+                </UFormField>
+                <UFormField label="Company email to receive invoices" name="email" required>
+                  <UInput v-model="state.email" type="email" placeholder="invoices@company.com" class="w-80" />
+                </UFormField>
+              </div>
+            </template>
+
+            <template #signature>
+              <div class="w-full space-y-2 py-4">
+                <UFormField label="Contact Name" name="contactName">
+                  <UInput v-model="state.contactName" placeholder="Your full name" class="w-80" required />
+                </UFormField>
+                <UFormField label="Your Signature" name="signature">
+                  <Signature v-model="state.signature" />
+                </UFormField>
+                <div class="flex flex-col items-center xs:flex-row justify-center xs:justify-between mt-6">
+                  <UButton type="submit" :disabled="isDisabled" :loading="loading" color="primary" size="xl" class="text-white" block>
+                    {{ $t('text.sign_carrier_packet') }}
+                  </UButton>
+                </div>
+              </div>
+            </template>
+          </UStepper>
+
+          <div class="flex gap-2 justify-between mt-4">
             <div>
-              <a href="/docs/agreement.pdf" target="_blank" class="text-primary font-bold text-sm p-2">
-                {{ $t('text.view_agreement_template') }}
-              </a>
+              <UButton v-if="stepper?.hasPrev" 
+                label="Prev"
+                icon="hugeicons:arrow-left-01"
+                @click="stepper?.prev()" />
             </div>
-            <UButton type="submit" size="lg" :loading="loading" color="primary" class="text-white">
-              {{ $t('text.sign_carrier_packet') }}
-            </UButton>
+            <div>
+              <UButton v-if="stepper?.hasNext" 
+                label="Next"
+                icon="hugeicons:arrow-right-01"
+                @click="stepper?.next()" trailing />
+            </div>
           </div>
         </UForm>
       </div>
