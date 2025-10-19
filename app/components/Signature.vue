@@ -12,7 +12,7 @@ const colors = [
 ]
 const options = ref({
   penColor: colors[0].color,
-  backgroundColor: 'rgb(255, 255, 255)',
+  backgroundColor: 'rgba(255,255,255,0)',
   maxWidth: 4,
   minWidth: 2,
 })
@@ -32,7 +32,7 @@ function handleSaveSignature() {
     emit('update:modelValue', '')
     return
   }
-  const signatureData = signaturePadRef.value?.saveSignature()
+  const signatureData = signaturePadRef.value?.saveSignature('image/png')
   emit('update:modelValue', signatureData) 
 }
 </script>
