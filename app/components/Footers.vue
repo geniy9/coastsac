@@ -12,7 +12,9 @@ const logo = computed(() => {
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div class="flex flex-col items-center lg:items-start gap-6">
           <NuxtLinkLocale to="/">
-            <img class="h-12 w-auto" :src="logo" alt="Light Freight Logo">
+            <ClientOnly>
+              <img class="h-12 w-auto" :src="logo" alt="Light Freight Logo" />
+            </ClientOnly>
           </NuxtLinkLocale>
           
           <div class="flex items-center gap-2 max-w-60">

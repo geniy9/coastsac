@@ -12,13 +12,18 @@ const colors = [
 ]
 const options = ref({
   penColor: colors[0].color,
-  backgroundColor: 'rgba(255,255,255,0)',
+  backgroundColor: 'rgba(0,0,0,0)',
   maxWidth: 4,
   minWidth: 2,
 })
-const signaturePadRef = ref()
+const signaturePadRef = ref(null)
 
-// function handleUndo() { return signaturePadRef.value?.undo() }
+onMounted(() => {
+  if (props.modelValue) {
+    signaturePadRef.value?.fromDataURL(props.modelValue);
+  }
+});
+
 function changeColorCanvas(color) { 
   options.value.penColor = color
   return signaturePadRef.value?.clearCanvas()
@@ -28,21 +33,22 @@ function handleClearCanvas() {
   emit('update:modelValue', '')
 }
 function handleSaveSignature() {
-  if (signaturePadRef.value?.isCanvasEmpty()) {
+  if (!signaturePadRef.value?.isCanvasEmpty()) {
+    const signatureData = signaturePadRef.value?.saveSignature()
+    emit('update:modelValue', signatureData)
+  } else {
     emit('update:modelValue', '')
-    return
   }
-  const signatureData = signaturePadRef.value?.saveSignature('image/png')
-  emit('update:modelValue', signatureData) 
 }
 </script>
 <template>
   <div class='flex flex-col space-y-2'>
     <div class='p-2 bg-white rounded-md border-2 border-dashed border-gray-400'>
-      <div class='relative flex flex-col items-center justify-center border-2 border-dashed border-gray-400 rounded-md'>
+      <div class='relative flex flex-col items-center justify-center border border-dashed border-gray-400 rounded-md'>
         <NuxtSignaturePad 
+          @endStroke="handleSaveSignature"
           ref="signaturePadRef"
-          height="320px"
+          height="240px"
           width="320px"
           :max-width="options.maxWidth"
           :min-width="options.minWidth"
@@ -51,7 +57,7 @@ function handleSaveSignature() {
             backgroundColor: options.backgroundColor,
           }"
         />
-        <div class=' flex items-center justify-center gap-2 bottom-0 w-full'>
+        <div class='flex items-center justify-center gap-2 bottom-0 w-full'>
           <div class='flex items-center gap-1'>
             <div v-for='color in colors' :key='color.color'>
               <div :style='{ background: color.color }'
@@ -63,14 +69,8 @@ function handleSaveSignature() {
               </div>
             </div>
           </div>
-          <!-- <UButton @click='handleUndo' icon="hugeicons:undo-03" size="sm" color="primary" variant="solid">
-            Back
-          </UButton> -->
-          <UButton @click='handleClearCanvas' icon="hugeicons:eraser" size="sm" color="error" variant="solid">
-            Clear
-          </UButton>
-          <UButton @click='handleSaveSignature' icon="hugeicons:signature" size="sm" color="primary" variant="solid">
-            Save
+          <UButton @click='handleClearCanvas' icon="hugeicons:signature" size="sm">
+            Clear signature
           </UButton>
         </div>
       </div>
