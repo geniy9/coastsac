@@ -14,11 +14,14 @@ export default () => {
       to: '/#contacts'
     }],
     menuPhones: [{
-      name: '<span class="text-primary dark:text-gray-600">+1 (916)</span> 968-7082',
-      to: 'tel:19169687082'
+      name: '<span class="text-primary dark:text-gray-600">East Coast, South and Midwest </span>+1 (302) 366-4436',
+      to: 'tel:13023664436'
     },{
-      name: '<span class="text-primary dark:text-gray-600">+1 (302)</span> 550-9154',
-      to: 'tel:13025509154' 
+      name: '<span class="text-primary dark:text-gray-600">West Coast </span> +1 (916) 739-2940 (ext 103)',
+      to: 'tel:19167392940' 
+    },{
+      name: '<span class="text-primary dark:text-gray-600">Fax </span> +1 (659)209-3337',
+      to: 'tel:16592093337' 
     }],
     menuSecond: [{
       name: 'about',

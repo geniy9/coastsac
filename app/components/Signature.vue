@@ -43,8 +43,8 @@ function handleSaveSignature() {
 </script>
 <template>
   <div class='flex flex-col space-y-2'>
-    <div class='p-2 bg-white rounded-md border-2 border-dashed border-gray-400'>
-      <div class='relative flex flex-col items-center justify-center border border-dashed border-gray-400 rounded-md'>
+    <div class='p-2 bg-white rounded-md border-2 border-dashed border-primary/50'>
+      <div class='relative flex flex-col items-center justify-center border-2 border-dashed border-primary/50 rounded-md'>
         <NuxtSignaturePad 
           @endStroke="handleSaveSignature"
           ref="signaturePadRef"
@@ -57,7 +57,7 @@ function handleSaveSignature() {
             backgroundColor: options.backgroundColor,
           }"
         />
-        <div class='flex items-center justify-center gap-2 bottom-0 w-full'>
+        <div class='flex items-center justify-center gap-2 mb-1 w-full'>
           <div class='flex items-center gap-1'>
             <div v-for='color in colors' :key='color.color'>
               <div :style='{ background: color.color }'

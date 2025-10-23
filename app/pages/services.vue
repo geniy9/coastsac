@@ -1,18 +1,16 @@
 <script setup>
 const { t } = useI18n()
-
-useHead({
-  title: 'Services - Light Freight',
-  meta: [
-    { name: 'description', content: 'Explore the range of services offered by Light Freight: CDL Dispatching, Factoring, Authority Set-up, and Business Financing.' }
-  ]
+useSeoMeta({
+  title: computed(() => t('seo.services.title')),
+  description: computed(() => t('seo.services.description')),
+  keywords: computed(() => t('seo.services.keywords'))
 })
 
 const services = computed(() => [
   {
     title: t('text.cdl_dispatching_title'),
     description: t('text.cdl_dispatching_desc'),
-    // image: '/img/service_dispatching.jpg',
+    image: '/img/cdl_dispatching.jpg',
     imageAlt: 'Truck dispatcher working',
     buttonText: t('text.sign_our_carrier_packet'),
     id: 'dispatching'
@@ -39,8 +37,8 @@ const services = computed(() => [
   {
     title: t('text.authority_setup_title'),
     description: t('text.authority_setup_desc'),
-    // image: '/img/service_authority.jpg',
-    imageAlt: 'Documents and pen on a desk',
+    image: '/img/authority_setup.jpg',
+    imageAlt: 'Authority Set-up',
     buttonText: t('text.apply_here'),
     id: 'authority'
   },
@@ -53,51 +51,6 @@ const services = computed(() => [
     id: 'financing'
   },
 ])
-
-const isOpen = ref(false)
-const formTitle = ref('')
-
-function openFeedbackForm(title) {
-  formTitle.value = title
-  isOpen.value = true
-}
-
-const formState = reactive({
-  fullName: undefined,
-  email: undefined,
-  phone: undefined
-})
-
-const formSchema = {
-  fullName: {
-    type: 'string',
-    min: 3,
-    required: true,
-    message: 'Please enter your full name'
-  },
-  email: {
-    type: 'email',
-    required: true,
-    message: 'Please enter a valid email address'
-  },
-  phone: {
-    type: 'string',
-    min: 10,
-    required: true,
-    message: 'Please enter your phone number'
-  }
-}
-
-// async function onSubmit(event) {
-//   console.log('Submitted:', event.data)
-//   isOpen.value = false
-//   alert('Thank you for your application! We will contact you shortly.')
-// }
-useSeoMeta({
-  title: computed(() => t('seo.services.title')),
-  description: computed(() => t('seo.services.description')),
-  keywords: computed(() => t('seo.services.keywords'))
-})
 </script>
 <template>
   <div>
@@ -133,8 +86,7 @@ useSeoMeta({
             'lg:pr-16': index % 2 === 0, 
             'lg:pl-16 ': index % 2 === 1 }">
           <div v-if="index % 2 === 0" class="relative rounded-lg overflow-hidden shadow-xl">
-            <!-- <img :src="service.image" :alt="service.imageAlt" class="w-full h-full object-cover max-h-[400px]"> -->
-            <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+            <img :src="service.image" :alt="service.imageAlt" class="w-full h-full object-cover max-h-[400px]">
           </div>
 
           <div :class="{ 'lg:order-first': index % 2 === 1 }">
@@ -150,16 +102,22 @@ useSeoMeta({
                 <span>{{ detail }}</span>
               </li>
             </ul>
-            <Agreement v-if="index === 0">
-              <UButton
-                icon="hugeicons:contracts"
-                size="lg"
-                class="mt-8"
-                color="secondary"
-                trailing>
-                {{ service.buttonText }}
-              </UButton>
-            </Agreement>
+            <div v-if="index === 0" class="flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-2 mt-8">
+              <Agreement>
+                <UButton
+                  icon="hugeicons:contracts"
+                  size="lg"
+                  color="secondary">
+                  {{ service.buttonText }}
+                </UButton>
+              </Agreement>
+              <a href="/docs/agreement.pdf" target="_blank" 
+                class="flex gap-2 items-center">
+                <UIcon name="hugeicons:pdf-02" class="w-10 h-10" />
+                <span class="max-w-40 leading-5">{{ $t('text.view_agreement_template') }}</span>
+              </a>
+            </div>
+            
             <Feedback v-if="index === 1" :subject="service.title">
               <UButton
                 icon="hugeicons:hand-pointing-right-02"
@@ -171,43 +129,12 @@ useSeoMeta({
               </UButton>
             </Feedback>
           </div>
-          <div v-if="index % 2 === 1" class="relative rounded-lg overflow-hidden shadow-xl">
-            <!-- <img :src="service.image" :alt="service.imageAlt" class="w-full h-full object-cover max-h-[400px]"> -->
+          <div v-if="index % 2 === 1 && service.image" class="relative rounded-lg overflow-hidden shadow-xl">
+            <img :src="service.image" :alt="service.imageAlt" class="w-full h-full object-cover max-h-[400px]">
             <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
           </div>
         </div>
       </div>
     </section>
-
-    <!-- <UModal v-model="isOpen">
-      <UCard :ui="{ ring: '', divide: 'divide-y divide-gray-100 dark:divide-gray-800' }">
-        <template #header>
-          <div class="flex items-center justify-between">
-            <h3 class="text-base font-semibold leading-6 text-gray-900 dark:text-white">
-              {{ $t('text.apply_for_service') }} {{ formTitle }}
-            </h3>
-            <UButton color="gray" variant="ghost" icon="i-heroicons-x-mark-20-solid" class="my-0" @click="isOpen = false" />
-          </div>
-        </template>
-
-        <UForm :schema="formSchema" :state="formState" class="space-y-4" @submit="onSubmit">
-          <UFormGroup :label="$t('text.full_name')" name="fullName">
-            <UInput v-model="formState.fullName" :placeholder="$t('text.your_full_name')" />
-          </UFormGroup>
-
-          <UFormGroup :label="$t('text.email')" name="email">
-            <UInput v-model="formState.email" type="email" :placeholder="$t('text.your_email')" />
-          </UFormGroup>
-
-          <UFormGroup :label="$t('text.phone')" name="phone">
-            <UInput v-model="formState.phone" type="tel" :placeholder="$t('text.your_phone')" />
-          </UFormGroup>
-
-          <UButton type="submit" color="primary" block>
-            {{ $t('text.submit_application') }}
-          </UButton>
-        </UForm>
-      </UCard>
-    </UModal> -->
   </div>
 </template>

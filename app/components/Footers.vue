@@ -22,7 +22,7 @@ const logo = computed(() => {
             <p class="text-sm" v-html="$t('text.full_address')"></p>
           </div>
 
-          <div class="flex flex-col items-center">
+          <div class="flex flex-col items-center lg:items-start">
             <div v-for="(m, i) in menuPhones" :key="i">
               <a :href="m.to" target="_blank" class="block text-sm select-none py-1 leading-none">
                 <span v-html="m.name"></span>
