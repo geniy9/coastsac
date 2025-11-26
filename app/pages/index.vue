@@ -96,28 +96,55 @@ useSeoMeta({
       </div>
     </section>
 
-    <section class="section py-16 md:py-24">
-      <h2 class="text-2xl xs:text-3xl md:text-4xl font-bold text-center text-gray-900 dark:text-white">
-        {{ $t('text.light_freight_difference_title') }}
-      </h2>
-      <div class="mt-12 grid md:grid-cols-3 gap-4 lg:gap-8">
-        <div v-for="i in 3" :key="i" class="group relative rounded-lg overflow-hidden aspect-square xl:w-90">
-          <img :src="`/img/differ_${i}.jpg`" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="Dedicated expertise">
-          <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent"></div>
-          <div class="relative p-6 lg:p-8 h-full flex flex-col justify-end text-white">
-            <span class="text-sm font-bold text-gray-400">0{{ i }}</span>
-            <h3 class="text-xl lg:text-2xl font-bold mt-2">{{ $t(`text.difference_${i}_title`) }}</h3>
-            <div class="w-16 h-1 group-hover:w-full duration-300 transition-all bg-secondary mt-4"></div>
-            <p class="mt-2 max-h-0 scale-y-0 group-hover:max-h-full group-hover:scale-y-100 delay-300 duration-500 transition-all origin-top">
-              {{ $t(`text.difference_${i}_desc`) }}
+    <section class="text-white relative">
+      <div class="section bg-primary rounded-xl py-8 md:py-16">
+        <div class="grid md:grid-cols-2 gap-12 items-center px-8 lg:px-16">
+          <div class="relative w-full h-80 md:h-full min-h-[300px] overflow-hidden">
+            <img src="/img/dispatchers.jpg" alt="Dispatchers collaborating" 
+              class="absolute w-full h-full object-cover rounded-lg">
+            <div class="hidden md:block absolute right-0 md:w-1/2 lg:w-1/3 h-full bg-gradient-to-l from-primary to-primary/70 rounded-l-full"></div>
+          </div>
+          <div class="md:-ml-20 lg:-ml-30 text-center md:text-left z-10">
+            <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold">
+              {{ $t('text.join_team_title') }}
+            </h2>
+            <p class="mt-4 text-gray-300 text-lg">
+              {{ $t('text.join_team_text') }}
             </p>
+            <Agreement>
+              <span class="mt-4 inline-block bg-secondary text-white px-8 py-3 rounded-full font-semibold hover:bg-secondary transition-colors cursor-pointer">
+              {{ $t('text.sign_up') }}
+              </span>
+            </Agreement>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="bg-gray-100 dark:bg-gray-900">
-      <div class="section py-16 md:py-24">
+    <section class="bg-gray-100 dark:bg-gray-900 py-16 md:py-14">
+      <div class="section">
+        <h2 class="text-2xl xs:text-3xl md:text-4xl font-bold text-center text-gray-900 dark:text-white">
+          {{ $t('text.light_freight_difference_title') }}
+        </h2>
+        <div class="mt-12 grid md:grid-cols-3 gap-4 lg:gap-8">
+          <div v-for="i in 3" :key="i" class="group relative rounded-lg overflow-hidden aspect-square xl:w-90">
+            <img :src="`/img/differ_${i}.jpg`" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="Dedicated expertise">
+            <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent"></div>
+            <div class="relative p-6 lg:p-8 h-full flex flex-col justify-end text-white">
+              <span class="text-sm font-bold text-gray-400">0{{ i }}</span>
+              <h3 class="text-xl lg:text-2xl font-bold mt-2">{{ $t(`text.difference_${i}_title`) }}</h3>
+              <div class="w-16 h-1 group-hover:w-full duration-300 transition-all bg-secondary mt-4"></div>
+              <p class="mt-2 max-h-0 scale-y-0 group-hover:max-h-full group-hover:scale-y-100 delay-300 duration-500 transition-all origin-top">
+                {{ $t(`text.difference_${i}_desc`) }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-16 md:py-24">
+      <div class="section">
         <h2 class="text-2xl xs:text-3xl md:text-4xl font-bold text-center text-gray-900 dark:text-white mb-16">
           {{ $t('text.coverage_title') }}
         </h2>
@@ -163,31 +190,6 @@ useSeoMeta({
             <a href="#" class="mt-8 inline-block bg-secondary text-white px-8 py-3 rounded-full font-semibold hover:bg-secondary transition-colors">
               {{ $t('text.learn_more') }}
             </a>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="text-white relative">
-      <div class="section bg-primary rounded-xl py-8 md:py-16">
-        <div class="grid md:grid-cols-2 gap-12 items-center px-8 lg:px-16">
-          <div class="relative w-full h-80 md:h-full min-h-[300px] overflow-hidden">
-            <img src="/img/dispatchers.jpg" alt="Dispatchers collaborating" 
-              class="absolute w-full h-full object-cover rounded-lg">
-            <div class="hidden md:block absolute right-0 md:w-1/2 lg:w-1/3 h-full bg-gradient-to-l from-primary to-primary/70 rounded-l-full"></div>
-          </div>
-          <div class="md:-ml-20 lg:-ml-30 text-center md:text-left z-10">
-            <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold">
-              {{ $t('text.join_team_title') }}
-            </h2>
-            <p class="mt-4 text-gray-300 text-lg">
-              {{ $t('text.join_team_text') }}
-            </p>
-            <Agreement>
-              <span class="mt-4 inline-block bg-secondary text-white px-8 py-3 rounded-full font-semibold hover:bg-secondary transition-colors cursor-pointer">
-              {{ $t('text.sign_up') }}
-              </span>
-            </Agreement>
           </div>
         </div>
       </div>
