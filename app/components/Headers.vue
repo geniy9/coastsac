@@ -45,9 +45,9 @@ onUnmounted(() => {
 
         <div class="flex items-center gap-4">
 
-          <Socials class="hidden md:flex items-center gap-4 text-2xl mr-3" />
-          <ToggleTheme class="text-white dark:text-white" />
-          <ToggleLocale />
+          <Socials class="flex items-center gap-4 text-2xl mr-3" />
+          <!-- <ToggleTheme class="text-white dark:text-white" />
+          <ToggleLocale /> -->
 
           <USlideover v-model:open="isOpen" 
             :ui="{ content: 'w-8/9'}" 
@@ -59,12 +59,12 @@ onUnmounted(() => {
                 <NuxtLinkLocale to="/">
                   <img :src="logo" alt="logo" class="w-24 h-auto" />        
                 </NuxtLinkLocale>
-                <Icon name="hugeicons:cancel-02" @click="isOpen = false" class="w-7 h-7 cursor-pointer scale-100 hover:scale-110 transition-all dark:text-white text-primary" />
+                <Icon name="hugeicons:cancel-01" @click="isOpen = false" class="w-7 h-7 cursor-pointer scale-100 hover:scale-110 transition-all dark:text-white text-primary" />
               </div>
             </template>
 
             <template #body>
-              <div class="relative flex flex-col justify-start gap-12">
+              <div class="relative flex flex-col justify-between items-stretch h-full max-h-full gap-12">
                 <div class="relative max-w-full flex items-start justify-between">
                   <ToggleLocale />
                   <ToggleTheme class="text-primary dark:text-white" />
@@ -80,12 +80,10 @@ onUnmounted(() => {
                   </ul>
                 </nav>
 
-              </div>
-            </template>
+                <div @click="isOpen = false" class="flex items-center justify-center  w-full">
+                  <Socials class="flex gap-6 text-3xl" />
+                </div>
 
-            <template #footer>
-              <div @click="isOpen = false" class="flex items-center justify-center w-full">
-                <Socials class="flex gap-4 mt-3 text-3xl" />
               </div>
             </template>
           </USlideover>

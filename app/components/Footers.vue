@@ -18,8 +18,8 @@ const logo = computed(() => {
           </NuxtLinkLocale>
           
           <div class="flex items-center gap-2 max-w-60">
-            <Icon name="hugeicons:location-01" class="w-8 h-8 text-secondary flex-shrink-0" />
-            <p class="text-sm" v-html="$t('text.full_address')"></p>
+            <Icon name="hugeicons:location-01" class="hidden xs:block w-8 h-8 text-secondary flex-shrink-0" />
+            <p class="text-sm text-center xs:text-left" v-html="$t('text.full_address')"></p>
           </div>
 
           <div class="flex flex-col items-center lg:items-start">
