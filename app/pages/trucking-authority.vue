@@ -1,5 +1,18 @@
 <script setup>
 const { t } = useI18n()
+const { originUrl } = useConfig()
+
+useSeoMeta({
+  title: computed(() => t('seo.tracking_authority.title')),
+  description: computed(() => t('seo.tracking_authority.description')),
+  keywords: computed(() => t('seo.tracking_authority.keywords')),
+  ogTitle: () => t('seo.tracking_authority.title'),
+  ogDescription: () => t('seo.tracking_authority.description'),
+  ogType: 'website',
+  ogUrl: `${originUrl}/trucking-authority`,
+  ogImage: `${originUrl}/img/og/tracking_authority.jpg`,
+  twitterCard: 'summary_large_image'
+})
 
 const timelineItems = computed(() => [
   {
@@ -68,12 +81,6 @@ const statePermits = computed(() => [
     description: t('text.permit_nm_wd_desc'),
   },
 ])
-
-useSeoMeta({
-  title: computed(() => t('seo.tracking_authority.title')),
-  description: computed(() => t('seo.tracking_authority.description')),
-  keywords: computed(() => t('seo.tracking_authority.keywords'))
-})
 </script>
 <template>
   <div>

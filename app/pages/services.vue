@@ -1,9 +1,17 @@
 <script setup>
 const { t } = useI18n()
+const { originUrl } = useConfig()
+
 useSeoMeta({
   title: computed(() => t('seo.services.title')),
   description: computed(() => t('seo.services.description')),
-  keywords: computed(() => t('seo.services.keywords'))
+  keywords: computed(() => t('seo.services.keywords')),
+  ogTitle: () => t('seo.services.title'),
+  ogDescription: () => t('seo.services.description'),
+  ogType: 'website',
+  ogUrl: `${originUrl}/services`,
+  ogImage: `${originUrl}/img/og/services.jpg`,
+  twitterCard: 'summary_large_image'
 })
 
 const services = computed(() => [

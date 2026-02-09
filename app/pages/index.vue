@@ -1,35 +1,17 @@
 <script setup>
 const { t } = useI18n()
-// import { useApiStore } from '@/store/api'
-
-// const { locale } = useI18n()
-// const apiStore = useApiStore()
-
-// const data = reactive({
-//   loading: false,
-//   currentPage: 1,
-// })
-
-// async function getHome() {
-//   try {
-//     data.loading = true
-//     await apiStore.getCategories(locale.value)
-//   } catch (error) {
-//     console.log(error)
-//   } finally {
-//     data.loading = false
-//   }
-// }
-// onMounted(async () => { await getHome() })
-
-// const categories = computed(() => apiStore.categories)
-
-// watch(() => locale.value, async () => { await getHome() })
+const { originUrl } = useConfig()
 
 useSeoMeta({
   title: computed(() => t('seo.home.title')),
   description: computed(() => t('seo.home.description')),
-  keywords: computed(() => t('seo.home.keywords'))
+  keywords: computed(() => t('seo.home.keywords')),
+  ogTitle: () => t('seo.home.title'),
+  ogDescription: () => t('seo.home.description'),
+  ogType: 'website',
+  ogUrl: `${originUrl}`,
+  ogImage: `${originUrl}/img/og/home.jpg`,
+  twitterCard: 'summary_large_image'
 })
 </script>
 <template>
