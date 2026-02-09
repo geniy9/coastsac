@@ -10,7 +10,7 @@ useSeoMeta({
   ogDescription: () => t('seo.tracking_authority.description'),
   ogType: 'website',
   ogUrl: `${originUrl}/trucking-authority`,
-  ogImage: `${originUrl}/img/og/tracking_authority.jpg`,
+  ogImage: `${originUrl}/img/og/trucking-authority.jpg`,
   twitterCard: 'summary_large_image'
 })
 
