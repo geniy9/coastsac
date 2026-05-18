@@ -24,8 +24,7 @@ useHead({
   ],
   noscript: [
     {
-      innerHTML: `<img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1982855955827405&ev=PageView&noscript=1" />`,
-      body: true
+      innerHTML: `<img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1982855955827405&ev=PageView&noscript=1" />`
     }
   ]
 })
