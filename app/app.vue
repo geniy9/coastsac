@@ -48,7 +48,7 @@ watch(() => route.fullPath, () => {
     </div>
   </UApp>
 </template>
-<!-- <style>
+<style>
 .page-enter-active,
 .page-leave-active {
   transition: all 0.5s;
@@ -56,6 +56,5 @@ watch(() => route.fullPath, () => {
 .page-enter-from,
 .page-leave-to {
   opacity: 0;
-  transform: translateY(24px);
 }
-</style> -->
+</style>
