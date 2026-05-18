@@ -31,7 +31,7 @@ useHead({
 })
 
 watch(() => route.fullPath, () => {
-  if (typeof window !== 'undefined' && window.fbq) {
+  if (import.meta.client && window.fbq) {
     window.fbq('track', 'PageView')
   }
 })
