@@ -46,6 +46,9 @@ module.exports = {
           DEFAULT: '#fe0000',
           foreground: '#b5bbc8',
         },
+        coast: {
+          default: '#399A30'
+        }
       },
       transitionDuration: {
         '2000': '2000ms',

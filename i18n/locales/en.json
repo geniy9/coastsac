@@ -6,6 +6,7 @@
     "trucking_authority": "Trucking Authority",
     "categories": "Categories",
     "contacts": "Contacts",
+    "bookkeeping": "Bookkeeping",
     "about": "About",
     "request_a_quote": "Request A Quote",
     "credit_application": "Credit Application",
@@ -30,6 +31,11 @@
       "title": "Simplify Your Trucking Authority and Permits",
       "description": "Get your trucking authority and state permits with LIGHT FREIGHT's 7-step process. We handle MC, DOT, BOC-3, UCR, and state-specific permit applications.",
       "keywords": "trucking authority, DOT number, MC number, BOC-3, UCR, state permits, trucking compliance"
+    },
+    "bookkeeping": {
+      "title": "Coast to Coast Bookkeeping & Accounting Services",
+      "description": "Professional, reliable bookkeeping, account reconciliation, financial reporting, and payroll support for small and medium businesses.",
+      "keywords": "bookkeeping, account reconciliation, financial reporting, payroll support, accounting services, small business accounting"
     }
   },
   "text": {
@@ -217,6 +223,69 @@
     "submit_application": "Submit Application",
     "feedback_response_title": "Thank you for writing to us",
     "feedback_response_desc": "We will contact you shortly as soon as possible"
+  },
+  "bookkeeping": {
+    "hero": {
+      "title": "COAST TO COAST",
+      "subtitle": "BOOKKEEPING & ACCOUNTING SERVICES",
+      "slogan": "Accurate Records. Clear Insights. Better Business.",
+      "services": {
+        "bookkeeping": "Bookkeeping",
+        "reconciliation": "Account Reconciliation",
+        "reporting": "Financial Reporting",
+        "payroll": "Payroll Support"
+      }
+    },
+    "reliable": {
+      "headline": "Professional Support",
+      "title": "Bookkeeping & Accounting services",
+      "subtitle": "For Small and Medium Businesses",
+      "description": "Professional bookkeeping and accounting services. We help businesses stay organized with accurate financial records, expense tracking, account reconciliation, and ongoing bookkeeping support."
+    },
+    "video": {
+      "title": "See How We Work",
+      "subtitle": "Our short 15-second overview demonstrates how easily we handle your transactions, balance your sheets, and keep your daily financial operations running without a hitch."
+    },
+    "pricing": {
+      "title": "Simple, Transparent Pricing Plans",
+      "description": "Choose a bookkeeping plan tailored to your business scale. No contracts, cancel anytime, 100% satisfaction guaranteed.",
+      "free_consult": "Get a Free Consult",
+      "billed_annually": "Billed annually, you save {save}",
+      "bottom_note": "No contracts • Cancel anytime • 100% satisfaction guarantee",
+      "features": {
+        "bank_accounts": "Up to {count} bank/credit card accounts",
+        "weekly_bookkeeping": "Weekly bookkeeping",
+        "dedicated_team": "Dedicated bookkeeping team",
+        "cash_basis": "Cash basis",
+        "one_integration": "1 integration",
+        "plus_header": "Everything in Essential, plus:",
+        "cash_or_modified": "Cash or modified accrual basis",
+        "semi_annual_tax": "Semi-annual tax consult",
+        "two_integrations": "2 integrations",
+        "advanced_header": "Everything in Plus, plus:",
+        "custom_chart": "Custom chart of accounts",
+        "bi_weekly_calls": "Bi-weekly calls",
+        "four_integrations": "Up to 4 integrations"
+      },
+      "plans": {
+        "essential": {
+          "title": "Essential",
+          "desc": "Bookkeeping for up to $50K in monthly expenses",
+          "save": "$480"
+        },
+        "plus": {
+          "title": "Plus",
+          "badge": "Most Popular",
+          "desc": "Bookkeeping for up to $75K in monthly expenses",
+          "save": "$840"
+        },
+        "advanced": {
+          "title": "Advanced",
+          "desc": "Bookkeeping for up to $125K in monthly expenses",
+          "save": "$1,200"
+        }
+      }
+    }
   },
   "error": {
     "registration": "An error occurred during registration",

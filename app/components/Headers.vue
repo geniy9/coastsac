@@ -3,6 +3,12 @@ const { menuMain } = useMenu()
 const isOpen = ref(false)
 const isScrolled = ref(false)
 const colorMode = useColorMode()
+const route = useRoute()
+
+const bookkeepingPage = computed(() => {
+  const routeMeta = route.meta
+  return routeMeta.bookkeepingPage || false
+})
 
 const logo = computed(() => {
   return colorMode.value === 'dark' ? '/logo_white.png' : '/logo.png'
@@ -25,11 +31,14 @@ onUnmounted(() => {
 <template>
   <header class="fixed top-0 w-full z-20">
     <div class="flex flex-col transition-all duration-500 py-3 gap-3" 
-      :class="[ isScrolled ? 'bg-black/80' : 'bg-black/0']">
-      <div class="section flex justify-between text-white items-center">
+      :class="[ 
+        isScrolled ? bookkeepingPage ? 'bg-coast/50' : 'bg-black/80' : 'bg-black/0', 
+        bookkeepingPage ? 'text-black' : 'text-white'
+        ]">
+      <div class="section flex justify-between items-center">
         
         <div class="flex items-center font-bold gap-4">
-          <NuxtLinkLocale to="/">
+          <NuxtLinkLocale v-if="!bookkeepingPage" to="/">
             <img src="/logo_white.png" alt="logo" class="h-10 w-auto transition-all" />
           </NuxtLinkLocale>
           <nav class="hidden md:flex">
@@ -52,7 +61,7 @@ onUnmounted(() => {
           <USlideover v-model:open="isOpen" 
             :ui="{ content: 'w-8/9'}" 
             class="flex md:hidden">
-            <Icon name="solar:hamburger-menu-broken" @click="isOpen = true" class="w-9 h-9 cursor-pointer  transition-all text-white hover:text-accent" />
+            <Icon name="solar:hamburger-menu-broken" @click="isOpen = true" class="w-9 h-9 cursor-pointer" :class="[bookkeepingPage ? 'text-black' : 'text-white']"/>
 
             <template #header>
               <div @click="isOpen = false" class="flex items-center justify-between w-full">

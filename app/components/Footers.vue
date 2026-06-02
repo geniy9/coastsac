@@ -1,13 +1,20 @@
 <script setup>
 const { menuPhones, menuSecond, menuRules } = useMenu()
 const colorMode = useColorMode()
+const route = useRoute()
 
+const bookkeepingPage = computed(() => {
+  const routeMeta = route.meta
+  return routeMeta.bookkeepingPage || false
+})
 const logo = computed(() => {
   return colorMode.value === 'dark' ? '/logo_white.png' : '/logo.png'
 })
 </script>
 <template>
-  <footer id="contacts" class="bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400">
+  <footer id="contacts" :class="[
+    bookkeepingPage ? 'bg-coast text-black' : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400'
+    ]" class="">
     <div class="section pt-16 pb-8">
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div class="flex flex-col items-center lg:items-start gap-6">

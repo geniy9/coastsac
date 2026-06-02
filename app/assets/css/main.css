@@ -79,6 +79,19 @@
   --ui-border-inverted: var(--color-white);
 }
 
+@theme static {
+
+  --ui-primary: #002b58;
+  --ui-secondary: #fe0000;
+  --ui-accent: #fe0000;
+  --ui-coast: #399A30;
+
+  --color-primary: #002b58;
+  --color-secondary: #fe0000;
+  --color-accent: #fe0000;
+  --color-coast: #399A30;
+
+}
 
 @layer base {
   html {

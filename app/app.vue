@@ -29,6 +29,15 @@ useHead({
   ]
 })
 
+const bgColor = computed(() => {
+  const routeMeta = route.meta
+  return routeMeta.bgColorPage || 'dark:bg-primary dark:text-white'
+})
+const bookkeepingPage = computed(() => {
+  const routeMeta = route.meta
+  return routeMeta.bookkeepingPage || false
+})
+
 watch(() => route.fullPath, () => {
   if (import.meta.client && window.fbq) {
     window.fbq('track', 'PageView')
@@ -37,7 +46,7 @@ watch(() => route.fullPath, () => {
 </script>
 <template>
   <UApp>
-    <div class="flex flex-col min-h-screen overflow-hidden bg-white text-gray-900 dark:bg-primary dark:text-white">
+    <div :class="bgColor" class="flex flex-col min-h-screen overflow-hidden bg-white text-gray-900">
       <Headers />
       <div class="flex-grow">
         <NuxtLayout>

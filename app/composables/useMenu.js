@@ -12,15 +12,18 @@ export default () => {
     },{
       name: 'contacts',
       to: '/#contacts'
+    },{
+      name: 'bookkeeping',
+      to: '/bookkeeping'
     }],
     menuPhones: [{
-      name: '<span class="text-primary dark:text-gray-600">East Coast, South and Midwest </span>+1 (302) 366-4436',
+      name: '<span>East Coast, South and Midwest: </span>+1 (302) 366-4436',
       to: 'tel:13023664436'
     },{
-      name: '<span class="text-primary dark:text-gray-600">West Coast </span> +1 (916) 739-2940 (ext 103)',
+      name: '<span>West Coast: </span> +1 (916) 739-2940 (ext 103)',
       to: 'tel:19167392940' 
     },{
-      name: '<span class="text-primary dark:text-gray-600">Fax </span> +1 (659)209-3337',
+      name: '<span>Fax: </span> +1 (659)209-3337',
       to: 'tel:16592093337' 
     }],
     menuSecond: [{
