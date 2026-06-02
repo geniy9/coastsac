@@ -15,7 +15,7 @@ useSeoMeta({
   ogDescription: () => t('seo.bookkeeping.description'),
   ogType: 'website',
   ogUrl: `${originUrl}/bookkeeping`,
-  // ogImage: `${originUrl}/img/og/bookkeeping.jpg`,
+  ogImage: `${originUrl}/img/og/bookkeeping.jpg`,
   twitterCard: 'summary_large_image'
 })
 
