@@ -27,10 +27,7 @@ const plans = computed(() => [
     billingCycle: '/mo',
     billingPeriod: t('bookkeeping.pricing.billed_annually', { save: '$480' }),
     button: {
-      label: t('bookkeeping.pricing.free_consult'),
-      color: 'primary',
-      variant: 'solid',
-      class: 'bg-coast hover:bg-emerald-800 text-white font-semibold py-3 rounded-xl transition-all'
+      label: t('bookkeeping.pricing.free_consult')
     },
     features: [
       { title: t('bookkeeping.pricing.features.bank_accounts', { count: 4 }), icon: 'i-hugeicons-checkmark-circle-01' },
@@ -50,10 +47,7 @@ const plans = computed(() => [
     scale: true,
     highlight: true,
     button: {
-      label: t('bookkeeping.pricing.free_consult'),
-      color: 'primary',
-      variant: 'solid',
-      class: 'bg-coast hover:bg-emerald-800 text-white font-semibold py-3 rounded-xl transition-all'
+      label: t('bookkeeping.pricing.free_consult')
     },
     features: [
       { title: t('bookkeeping.pricing.features.plus_header'), icon: 'i-hugeicons-checkmark-circle-01', class: 'font-semibold text-gray-900 dark:text-white' },
@@ -70,10 +64,7 @@ const plans = computed(() => [
     billingCycle: '/mo',
     billingPeriod: t('bookkeeping.pricing.billed_annually', { save: '$1,200' }),
     button: {
-      label: t('bookkeeping.pricing.free_consult'),
-      color: 'primary',
-      variant: 'solid',
-      class: 'bg-coast hover:bg-emerald-800 text-white font-semibold py-3 rounded-xl transition-all'
+      label: t('bookkeeping.pricing.free_consult')
     },
     features: [
       { title: t('bookkeeping.pricing.features.advanced_header'), icon: 'i-hugeicons-checkmark-circle-01', class: 'font-semibold text-gray-900 dark:text-white' },
@@ -94,8 +85,16 @@ const plans = computed(() => [
         <!-- LEFT -->
         <div class="lg:col-span-7 flex flex-col justify-center items-center gap-8 px-6 sm:px-24 z-10 mt-20">
           <img src="/logo_ctc.svg" alt="Coast to Coast Logo" class="w-80 lg:w-120" />
-          <h1 class="text-xl sm:text-2xl font-bold tracking-tight leading-tight relative after:content-[''] after:absolute after:w-20 after:h-1 after:bg-coast after:left-0 after:-bottom-2">
-            {{ $t('bookkeeping.hero.slogan') }}
+          <h1 class="flex flex-wrap gap-2 justify-center text-xl sm:text-2xl font-bold tracking-tight leading-tight text-center">
+            <span class="text-nowrap">
+              {{ $t('bookkeeping.hero.slogan1') }}
+            </span>
+            <span class="text-nowrap">
+              {{ $t('bookkeeping.hero.slogan2') }}
+            </span>
+            <span class="text-nowrap">
+              {{ $t('bookkeeping.hero.slogan3') }}
+            </span>
           </h1>
 
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-6">
@@ -163,7 +162,18 @@ const plans = computed(() => [
 
         <UPricingPlans compact class="gap-8">
           <UPricingPlan v-for="(plan, index) in plans" :key="index" v-bind="plan" 
-            class="bg-white" />
+            class="bg-white">
+            <template #button>
+              <Feedback :subject="'Pricing plan: ' + plan.title">
+                <UButton
+                  :label="plan.button.label"
+                  size="lg"
+                  color="coast"
+                  class="bg-coast hover:bg-green-600 text-white font-bold py-3 rounded-2xl transition-all"
+                />
+              </Feedback>
+            </template>
+          </UPricingPlan>
         </UPricingPlans>
 
         <div class="flex items-center justify-center gap-3 mt-12 text-sm sm:text-base text-gray-700">
@@ -174,26 +184,26 @@ const plans = computed(() => [
     </section>
 
     <!-- VIDEO -->
-    <section class="py-16 bg-white dark:bg-zinc-900">
+    <section class="py-16 bg-zinc-900">
       <div class="max-w-6xl mx-auto px-6">
         <div class="grid md:grid-cols-2 gap-12 items-center">
           <div class="space-y-6">
-            <h3 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">
+            <h3 class="text-2xl sm:text-3xl font-extrabold text-white">
               {{ $t('bookkeeping.reliable.title') }}
             </h3>
-            <p class="text-gray-600 dark:text-gray-400 text-lg leading-relaxed">
+            <p class="text-gray-400 text-lg leading-relaxed">
               {{ $t('bookkeeping.reliable.description') }}
             </p>
             <div class="flex flex-col gap-3">
               <div class="flex items-center gap-3">
                 <UIcon name="hugeicons:checkmark-circle-03" class="text-coast text-2xl" />
-                <span class="text-gray-700 dark:text-gray-300 font-medium">
+                <span class="text-gray-300 font-medium">
                   Clear live reporting metrics
                 </span>
               </div>
               <div class="flex items-center gap-3">
                 <UIcon name="hugeicons:checkmark-circle-03" class="text-coast text-2xl" />
-                <span class="text-gray-700 dark:text-gray-300 font-medium">
+                <span class="text-gray-300 font-medium">
                   Interactive balance tracking
                 </span>
               </div>

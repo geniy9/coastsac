@@ -44,7 +44,7 @@ onUnmounted(() => {
           <nav class="hidden md:flex">
             <ul class="flex items-start">
               <li v-for="(m, i) in menuMain" :key="i">
-                <NuxtLinkLocale :to="m.to" class="block text-base tracking-widest select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none">
+                <NuxtLinkLocale :to="m.to" class="block text-base tracking-widest select-none space-y-1 p-3 leading-none no-underline outline-none" :class="m.className">
                   {{ $t(`nav.${m.name}`) }}
                 </NuxtLinkLocale>
               </li>
@@ -82,7 +82,7 @@ onUnmounted(() => {
                 <nav @click="isOpen = false">
                   <ul class="flex flex-col items-start">
                     <li v-for="(m, i) in menuMain" :key="i">
-                      <NuxtLinkLocale :to="m.to" class="block text-sm font-bold tracking-widest select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none uppercase">
+                      <NuxtLinkLocale :to="m.to" :class="m.className" class="block text-sm font-bold tracking-widest select-none space-y-1 p-3 leading-none no-underline outline-none uppercase">
                         {{ $t(`nav.${m.name}`) }}
                       </NuxtLinkLocale>
                     </li>

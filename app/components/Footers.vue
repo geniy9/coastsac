@@ -8,7 +8,7 @@ const bookkeepingPage = computed(() => {
   return routeMeta.bookkeepingPage || false
 })
 const logo = computed(() => {
-  return colorMode.value === 'dark' ? '/logo_white.png' : '/logo.png'
+  return bookkeepingPage.value ? '/logo_ctc.svg' : colorMode.value === 'dark' ? '/logo_white.png' : '/logo.png'
 })
 </script>
 <template>

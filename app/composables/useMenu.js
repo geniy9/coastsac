@@ -2,19 +2,24 @@ export default () => {
   return {
     menuMain: [{
       name: 'home',
-      to: '/'
+      to: '/',
+      className: ''
     },{
       name: 'services',
-      to: '/services'
+      to: '/services',
+      className: ''
     },{
       name: 'trucking_authority',
-      to: '/trucking-authority'
+      to: '/trucking-authority',
+      className: ''
     },{
       name: 'contacts',
-      to: '/#contacts'
+      to: '/#contacts',
+      className: ''
     },{
       name: 'bookkeeping',
-      to: '/bookkeeping'
+      to: '/bookkeeping',
+      className: 'coast_to_toast'
     }],
     menuPhones: [{
       name: '<span>East Coast, South and Midwest: </span>+1 (302) 366-4436',

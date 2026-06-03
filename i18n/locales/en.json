@@ -228,7 +228,9 @@
     "hero": {
       "title": "COAST TO COAST",
       "subtitle": "BOOKKEEPING & ACCOUNTING SERVICES",
-      "slogan": "Accurate Records. Clear Insights. Better Business.",
+      "slogan1": "Accurate Records.",
+      "slogan2": "Clear Insights.",
+      "slogan3": "Better Business.",
       "services": {
         "bookkeeping": "Bookkeeping",
         "reconciliation": "Account Reconciliation",
