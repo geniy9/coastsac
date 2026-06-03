@@ -31,6 +31,10 @@ export default () => {
       name: '<span>Fax: </span> +1 (659)209-3337',
       to: 'tel:16592093337' 
     }],
+    menuPhonesCoast: [{
+      name: '<span>Coast to Coast: </span>+1 (916) 968-7082',
+      to: 'tel:19169687082'
+    }],
     menuSecond: [{
       name: 'about',
       to: '/#about'

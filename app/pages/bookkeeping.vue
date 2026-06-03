@@ -26,9 +26,7 @@ const plans = computed(() => [
     price: '$395',
     billingCycle: '/mo',
     billingPeriod: t('bookkeeping.pricing.billed_annually', { save: '$480' }),
-    button: {
-      label: t('bookkeeping.pricing.free_consult')
-    },
+    buttonLabel: t('bookkeeping.pricing.free_consult'),
     features: [
       { title: t('bookkeeping.pricing.features.bank_accounts', { count: 4 }), icon: 'i-hugeicons-checkmark-circle-01' },
       { title: t('bookkeeping.pricing.features.weekly_bookkeeping'), icon: 'i-hugeicons-checkmark-circle-01' },
@@ -46,9 +44,7 @@ const plans = computed(() => [
     badge: t('bookkeeping.pricing.plans.plus.badge'),
     scale: true,
     highlight: true,
-    button: {
-      label: t('bookkeeping.pricing.free_consult')
-    },
+    buttonLabel: t('bookkeeping.pricing.free_consult'),
     features: [
       { title: t('bookkeeping.pricing.features.plus_header'), icon: 'i-hugeicons-checkmark-circle-01', class: 'font-semibold text-gray-900 dark:text-white' },
       { title: t('bookkeeping.pricing.features.bank_accounts', { count: 6 }), icon: 'i-hugeicons-checkmark-circle-01' },
@@ -63,9 +59,7 @@ const plans = computed(() => [
     price: '$995',
     billingCycle: '/mo',
     billingPeriod: t('bookkeeping.pricing.billed_annually', { save: '$1,200' }),
-    button: {
-      label: t('bookkeeping.pricing.free_consult')
-    },
+    buttonLabel: t('bookkeeping.pricing.free_consult'),
     features: [
       { title: t('bookkeeping.pricing.features.advanced_header'), icon: 'i-hugeicons-checkmark-circle-01', class: 'font-semibold text-gray-900 dark:text-white' },
       { title: t('bookkeeping.pricing.features.bank_accounts', { count: 12 }), icon: 'i-hugeicons-checkmark-circle-01' },
@@ -166,7 +160,7 @@ const plans = computed(() => [
             <template #button>
               <Feedback :subject="'Pricing plan: ' + plan.title">
                 <UButton
-                  :label="plan.button.label"
+                  :label="plan.buttonLabel"
                   size="lg"
                   color="coast"
                   class="bg-coast hover:bg-green-600 text-white font-bold py-3 rounded-2xl transition-all"
