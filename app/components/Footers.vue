@@ -17,14 +17,14 @@ const phonesByPage = computed(() => {
 </script>
 <template>
   <footer id="contacts" :class="[
-    bookkeepingPage ? 'bg-white text-black' : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400'
+    bookkeepingPage ? 'bg-gray-100 text-black' : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400'
     ]" class="">
     <div class="section pt-16 pb-8">
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div class="flex flex-col items-center lg:items-start gap-6">
           <NuxtLinkLocale to="/">
             <ClientOnly>
-              <img class="h-12 w-auto" :src="logo" alt="Light Freight Logo" />
+              <img class="w-80" :src="logo" alt="Light Freight Logo" />
             </ClientOnly>
           </NuxtLinkLocale>
           
@@ -42,15 +42,7 @@ const phonesByPage = computed(() => {
           </div>
         </div>
 
-        <div>
-          <!-- <ul class="flex flex-col items-center">
-            <li v-for="(m, i) in menuSecond" :key="i">
-              <NuxtLinkLocale :to="m.to" class="block text-sm font-medium py-2 leading-none">
-                {{ $t(`nav.${m.name}`) }}
-              </NuxtLinkLocale>
-            </li>
-          </ul> -->
-        </div>
+        <div></div>
 
         <div class="flex flex-col items-center">
           <div>
@@ -62,7 +54,8 @@ const phonesByPage = computed(() => {
               </li>
             </ul>
           </div>
-          <Socials class="flex gap-4 mt-3 text-3xl" />
+          <SocialsCoast v-if="bookkeepingPage" class="flex gap-4 mt-3 text-3xl px-3 py-2 text-white bg-coast rounded-full" />
+          <Socials v-else class="flex gap-4 mt-3 text-3xl" />
         </div>
       </div>
       

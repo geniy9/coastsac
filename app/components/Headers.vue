@@ -32,7 +32,7 @@ onUnmounted(() => {
   <header class="fixed top-0 w-full z-20">
     <div class="flex flex-col transition-all duration-500 py-3 gap-3" 
       :class="[ 
-        isScrolled ? bookkeepingPage ? 'bg-coast/50' : 'bg-black/80' : 'bg-black/0', 
+        isScrolled ? bookkeepingPage ? 'bg-white/80' : 'bg-black/80' : 'bg-black/0', 
         bookkeepingPage ? 'text-black' : 'text-white'
         ]">
       <div class="section flex justify-between items-center">
@@ -54,9 +54,8 @@ onUnmounted(() => {
 
         <div class="flex items-center gap-4">
 
-          <Socials class="flex items-center gap-4 text-2xl mr-3" />
-          <!-- <ToggleTheme class="text-white dark:text-white" />
-          <ToggleLocale /> -->
+          <SocialsCoast v-if="bookkeepingPage" class="flex items-center gap-4 text-2xl px-3 py-2 mr-3 text-white bg-coast rounded-full" />
+          <Socials v-else class="flex items-center gap-4 text-2xl mr-3" />
 
           <USlideover v-model:open="isOpen" 
             :ui="{ content: 'w-8/9'}" 

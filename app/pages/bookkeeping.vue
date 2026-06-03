@@ -204,33 +204,19 @@ const plans = computed(() => [
             </div>
           </div>
 
-          <div class="relative rounded-2xl overflow-hidden shadow-2xl border border-gray-100 dark:border-gray-800">
+          <div class="relative rounded-2xl overflow-hidden border border-gray-900">
             <video src="/video/bookkeeping_preview.mp4" 
               autoplay loop muted playsinline
               class="w-full aspect-video object-cover"
             ></video>
             <div class="absolute top-4 left-4 bg-black/70 backdrop-blur-md px-3 py-1 rounded-full flex items-center gap-2 text-xs text-white">
               <span class="w-2.5 h-2.5 rounded-full bg-coast animate-pulse"></span>
-              <span>15-Sec Feature Tour</span>
+              <span>15-Sec Tour</span>
             </div>
           </div>
         </div>
       </div>
     </section>
-
-    <!-- Reliable Bookkeeping -->
-    <!-- <section>
-      <UPageSection 
-        class="max-w-4xl mx-auto px-6 text-center" 
-        :title="t('bookkeeping.reliable.title')"
-        :description="t('bookkeeping.reliable.description')"
-        :headline="t('bookkeeping.reliable.subtitle')" 
-        :ui="{ headline: 'text-muted', title: 'text-coast', leadingIcon: 'text-coast', description: 'text-black' }"
-      />
-    </section> -->
-
-    
-
     
   </div>
 </template>
