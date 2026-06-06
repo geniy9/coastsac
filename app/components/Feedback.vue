@@ -9,11 +9,16 @@ const props = defineProps({
   subject: {
     type: String,
     default: ''
+  },
+  template: {
+    type: String,
+    default: 'default'
   }
 })
 
 const schema = z.object({
   subject: z.string(),
+  template: z.string().optional(),
   name: z.string().min(3, 'Must be at least 3 characters'),
   phone: z.string().min(10, 'Must be at least 10 characters'),
   email: z.email('Invalid email'),
@@ -22,7 +27,8 @@ const schema = z.object({
 })
 
 const state = reactive({
-  subject: props.subject,
+  subject: props.subject || 'Your Feedback on Light Freight has been received',
+  template: props.template || 'light-freight',
   name: undefined,
   phone: undefined,
   email: undefined,
@@ -34,11 +40,18 @@ const captchaComponent = ref(null)
 const loading = ref(false);
 const isOpen = ref(false);
 
+watch(() => props.subject, (newSubject) => {
+  state.subject = newSubject || 'Your Feedback on Light Freight has been received'
+})
+watch(() => props.template, (newTemplate) => {
+  state.template = newTemplate || 'default'
+})
+
 async function onSubmit(event) {
   loading.value = true;
   try {
     const { recaptcha, ...formData } = event.data
-    const payload = { ...formData }
+    const payload = { ...formData, subject: state.subject, template: state.template }
     const res = await client('/feedbacks', {
       method: 'POST',
       body: { data: payload },

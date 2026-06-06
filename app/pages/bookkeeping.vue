@@ -158,7 +158,7 @@ const plans = computed(() => [
           <UPricingPlan v-for="(plan, index) in plans" :key="index" v-bind="plan" 
             class="bg-white">
             <template #button>
-              <Feedback :subject="'Pricing plan: ' + plan.title">
+              <Feedback :subject="'Pricing plan: ' + plan.title" template="coast-to-coast">
                 <UButton
                   :label="plan.buttonLabel"
                   size="lg"
