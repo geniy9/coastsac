@@ -33,8 +33,8 @@ function select(index) {
       :items="items"
       :prev="{ onClick: onClickPrev, color: 'primary' }"
       :next="{ onClick: onClickNext, color: 'primary' }"
-      prev-icon="material-symbols:arrow-back-ios-new-rounded"
-      next-icon="material-symbols:arrow-forward-ios-rounded"
+      prev-icon="hugeicons:arrow-left-01"
+      next-icon="hugeicons:arrow-right-01"
       class="w-full max-[500px] mx-auto"
       @select="onSelect" 
       :ui="{ prev: 'start-0 sm:start-0 hidden sm:flex', next: 'end-0 sm:end-0 hidden sm:flex'}">

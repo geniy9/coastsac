@@ -54,7 +54,7 @@ async function onSubmit(event) {
     toast.add({
       title: 'Successful',
       description: 'The agreement was successfully sent and pdf generated.',
-      icon: 'i-heroicons-check-circle',
+      icon: 'hugeicons:checkmark-circle-02',
       color: 'success'
     })
     // router.push('/success-page');
@@ -64,7 +64,7 @@ async function onSubmit(event) {
     toast.add({
       title: 'Error!',
       description: error.data?.message || 'Failed to send an agreement.',
-      icon: 'i-heroicons-x-circle',
+      icon: 'hugeicons:cancel-circle',
       color: 'error'
     });
   } finally {

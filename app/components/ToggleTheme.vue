@@ -8,5 +8,5 @@ const iconName = computed(() => {
 })
 </script>
 <template>
-  <Icon @click="toggleTheme" :name="iconName" class="w-6 h-6 leading-0 cursor-pointer" />
+  <UIcon @click="toggleTheme" :name="iconName" class="w-6 h-6 leading-0 cursor-pointer" />
 </template>

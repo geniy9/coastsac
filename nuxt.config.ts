@@ -10,6 +10,7 @@ export default defineNuxtConfig({
     '@nuxtjs/strapi',
     '@pinia/nuxt',
     'nuxt-signature-pad',
+    'nuxt-gtag',
     // './modules/prerender',
   ],
 
@@ -60,6 +61,10 @@ export default defineNuxtConfig({
       STRAPI_URL: process.env.STRAPI_URL,
       RECAPTCHA_SITE_KEY: process.env.NUXT_PUBLIC_RECAPTCHA_SITE_KEY
     }
+  },
+
+  gtag: {
+    id: 'G-H7P1D4NVD4'
   },
 
   css: ['~/assets/css/main.css', '~/assets/scss/app.scss'],

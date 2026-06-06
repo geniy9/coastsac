@@ -28,11 +28,11 @@ const plans = computed(() => [
     billingPeriod: t('bookkeeping.pricing.billed_annually', { save: '$480' }),
     buttonLabel: t('bookkeeping.pricing.free_consult'),
     features: [
-      { title: t('bookkeeping.pricing.features.bank_accounts', { count: 4 }), icon: 'i-hugeicons-checkmark-circle-01' },
-      { title: t('bookkeeping.pricing.features.weekly_bookkeeping'), icon: 'i-hugeicons-checkmark-circle-01' },
-      { title: t('bookkeeping.pricing.features.dedicated_team'), icon: 'i-hugeicons-checkmark-circle-01' },
-      { title: t('bookkeeping.pricing.features.cash_basis'), icon: 'i-hugeicons-checkmark-circle-01' },
-      { title: t('bookkeeping.pricing.features.one_integration'), icon: 'i-hugeicons-checkmark-circle-01' }
+      { title: t('bookkeeping.pricing.features.bank_accounts', { count: 4 }), icon: 'hugeicons:checkmark-circle-01' },
+      { title: t('bookkeeping.pricing.features.weekly_bookkeeping'), icon: 'hugeicons:checkmark-circle-01' },
+      { title: t('bookkeeping.pricing.features.dedicated_team'), icon: 'hugeicons:checkmark-circle-01' },
+      { title: t('bookkeeping.pricing.features.cash_basis'), icon: 'hugeicons:checkmark-circle-01' },
+      { title: t('bookkeeping.pricing.features.one_integration'), icon: 'hugeicons:checkmark-circle-01' }
     ]
   },
   {
@@ -46,11 +46,11 @@ const plans = computed(() => [
     highlight: true,
     buttonLabel: t('bookkeeping.pricing.free_consult'),
     features: [
-      { title: t('bookkeeping.pricing.features.plus_header'), icon: 'i-hugeicons-checkmark-circle-01', class: 'font-semibold text-gray-900 dark:text-white' },
-      { title: t('bookkeeping.pricing.features.bank_accounts', { count: 6 }), icon: 'i-hugeicons-checkmark-circle-01' },
-      { title: t('bookkeeping.pricing.features.cash_or_modified'), icon: 'i-hugeicons-checkmark-circle-01' },
-      { title: t('bookkeeping.pricing.features.semi_annual_tax'), icon: 'i-hugeicons-checkmark-circle-01' },
-      { title: t('bookkeeping.pricing.features.two_integrations'), icon: 'i-hugeicons-checkmark-circle-01' }
+      { title: t('bookkeeping.pricing.features.plus_header'), icon: 'hugeicons:checkmark-circle-01', class: 'font-semibold text-gray-900 dark:text-white' },
+      { title: t('bookkeeping.pricing.features.bank_accounts', { count: 6 }), icon: 'hugeicons:checkmark-circle-01' },
+      { title: t('bookkeeping.pricing.features.cash_or_modified'), icon: 'hugeicons:checkmark-circle-01' },
+      { title: t('bookkeeping.pricing.features.semi_annual_tax'), icon: 'hugeicons:checkmark-circle-01' },
+      { title: t('bookkeeping.pricing.features.two_integrations'), icon: 'hugeicons:checkmark-circle-01' }
     ]
   },
   {
@@ -61,11 +61,11 @@ const plans = computed(() => [
     billingPeriod: t('bookkeeping.pricing.billed_annually', { save: '$1,200' }),
     buttonLabel: t('bookkeeping.pricing.free_consult'),
     features: [
-      { title: t('bookkeeping.pricing.features.advanced_header'), icon: 'i-hugeicons-checkmark-circle-01', class: 'font-semibold text-gray-900 dark:text-white' },
-      { title: t('bookkeeping.pricing.features.bank_accounts', { count: 12 }), icon: 'i-hugeicons-checkmark-circle-01' },
-      { title: t('bookkeeping.pricing.features.custom_chart'), icon: 'i-hugeicons-checkmark-circle-01' },
-      { title: t('bookkeeping.pricing.features.bi_weekly_calls'), icon: 'i-hugeicons-checkmark-circle-01' },
-      { title: t('bookkeeping.pricing.features.four_integrations'), icon: 'i-hugeicons-checkmark-circle-01' }
+      { title: t('bookkeeping.pricing.features.advanced_header'), icon: 'hugeicons:checkmark-circle-01', class: 'font-semibold text-gray-900 dark:text-white' },
+      { title: t('bookkeeping.pricing.features.bank_accounts', { count: 12 }), icon: 'hugeicons:checkmark-circle-01' },
+      { title: t('bookkeeping.pricing.features.custom_chart'), icon: 'hugeicons:checkmark-circle-01' },
+      { title: t('bookkeeping.pricing.features.bi_weekly_calls'), icon: 'hugeicons:checkmark-circle-01' },
+      { title: t('bookkeeping.pricing.features.four_integrations'), icon: 'hugeicons:checkmark-circle-01' }
     ]
   }
 ])

@@ -47,7 +47,7 @@ async function onSubmit(event) {
     toast.add({ 
       title: t('error.feedback_success'), 
       color: 'success', 
-      icon: 'i-heroicons-check-circle'
+      icon: 'hugeicons:checkmark-circle-02'
     });
     if (res) state.response = res.data
 
@@ -56,7 +56,7 @@ async function onSubmit(event) {
       title: t('error.feedback_error'), 
       description: 'Please try again.', 
       color: 'error', 
-      icon: 'i-heroicons-x-circle'
+      icon: 'hugeicons:cancel-circle'
     })
     captchaComponent.value?.reset()
     clearFeedback()

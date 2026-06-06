@@ -60,14 +60,14 @@ onUnmounted(() => {
           <USlideover v-model:open="isOpen" 
             :ui="{ content: 'w-8/9'}" 
             class="flex md:hidden">
-            <Icon name="solar:hamburger-menu-broken" @click="isOpen = true" class="w-9 h-9 cursor-pointer" :class="[bookkeepingPage ? 'text-black' : 'text-white']"/>
+            <UIcon name="hugeicons:menu-01" @click="isOpen = true" class="w-9 h-9 cursor-pointer" :class="[bookkeepingPage ? 'text-black' : 'text-white']"/>
 
             <template #header>
               <div @click="isOpen = false" class="flex items-center justify-between w-full">
                 <NuxtLinkLocale to="/">
                   <img :src="logo" alt="logo" class="w-24 h-auto" />        
                 </NuxtLinkLocale>
-                <Icon name="hugeicons:cancel-01" @click="isOpen = false" class="w-7 h-7 cursor-pointer scale-100 hover:scale-110 transition-all dark:text-white text-primary" />
+                <UIcon name="hugeicons:cancel-01" @click="isOpen = false" class="w-7 h-7 cursor-pointer scale-100 hover:scale-110 transition-all dark:text-white text-primary" />
               </div>
             </template>
 
