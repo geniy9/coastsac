@@ -12,7 +12,7 @@ const props = defineProps({
   },
   template: {
     type: String,
-    default: 'default'
+    default: 'light-freight'
   }
 })
 
