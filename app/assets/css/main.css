@@ -1,16 +1,7 @@
-@import "tailwindcss";
+/* app/assets/css/main.css */
+@import "tailwindcss" theme(static);
 @import "@nuxt/ui";
-@tailwind utilities;
 
-@config "../../tailwind.config.js";
-
-@font-face {
-  font-family: 'manolo';
-  src: url('/fonts/Manolo-Mono.woff2') format('woff2'), url('/fonts/Nunito-Regular.woff') format('woff');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
 @font-face {
   font-family: 'regular';
   src: url('/fonts/Ubuntu-Regular.woff2') format('woff2'), url('/fonts/Ubuntu-Regular.woff') format('woff');
@@ -32,64 +23,32 @@
   font-style: normal;
   font-display: swap;
 }
-@font-face {
-  font-family: 'italic';
-  src: url('/fonts/Ubuntu-Light-Italic.woff2') format('woff2'), url('/fonts/Ubuntu-Light-Italic.woff') format('woff');
-  font-weight: 900;
-  font-style: normal;
-  font-display: swap;
-}
-
-:root {
-  --ui-text-dimmed: var(--ui-color-neutral-400);
-  --ui-text-muted: var(--ui-color-neutral-500);
-  --ui-text-toned: var(--ui-color-neutral-600);
-  --ui-text: var(--ui-color-neutral-700);
-  --ui-text-highlighted: var(--ui-color-neutral-900);
-  --ui-text-inverted: var(--color-white);
-
-  --ui-bg: var(--color-white);
-  --ui-bg-muted: var(--ui-color-neutral-50);
-  --ui-bg-elevated: var(--ui-color-neutral-100);
-  --ui-bg-accented: var(--ui-color-neutral-200);
-  --ui-bg-inverted: var(--ui-color-neutral-900);
-
-  --ui-border: var(--ui-color-neutral-200);
-  --ui-border-muted: var(--ui-color-neutral-200);
-  --ui-border-accented: var(--ui-color-neutral-300);
-  --ui-border-inverted: var(--ui-color-neutral-900);
-}
-.dark {
-  --ui-text-dimmed: var(--ui-color-neutral-500);
-  --ui-text-muted: var(--ui-color-neutral-400);
-  --ui-text-toned: var(--ui-color-neutral-300);
-  --ui-text: var(--ui-color-neutral-200);
-  --ui-text-highlighted: var(--color-white);
-  --ui-text-inverted: var(--ui-color-neutral-900);
-
-  --ui-bg: var(--ui-color-neutral-900);
-  --ui-bg-muted: var(--ui-color-neutral-800);
-  --ui-bg-elevated: var(--ui-color-neutral-800);
-  --ui-bg-accented: var(--ui-color-neutral-700);
-  --ui-bg-inverted: var(--color-white);
-
-  --ui-border: var(--ui-color-neutral-800);
-  --ui-border-muted: var(--ui-color-neutral-700);
-  --ui-border-accented: var(--ui-color-neutral-700);
-  --ui-border-inverted: var(--color-white);
-}
 
 @theme static {
+  --font-regular: 'regular', sans-serif;
+  --font-bold: 'bold', sans-serif;
+  --font-light: 'light', sans-serif;
 
-  --ui-primary: #002b58;
-  --ui-secondary: #fe0000;
-  --ui-accent: #fe0000;
-  --ui-coast: #399A30;
+  --breakpoint-xs: 420px;
 
+  /* 1. СТАТИЧЕСКИЕ ЦВЕТА (для верстки дефолтных страниц) */
   --color-primary: #002b58;
   --color-secondary: #fe0000;
   --color-accent: #fe0000;
   --color-coast: #399A30;
+
+  /* 2. ДИНАМИЧЕСКИЕ ОТТЕНКИ COAST */
+  --color-coast-50: #f0fdf4;
+  --color-coast-100: #dcfce7;
+  --color-coast-200: #bbf7d0;
+  --color-coast-300: #86efac;
+  --color-coast-400: #4ade80;
+  --color-coast-500: #399A30;
+  --color-coast-600: #16a34a;
+  --color-coast-700: #15803d;
+  --color-coast-800: #166534;
+  --color-coast-900: #14532d;
+  --color-coast-950: #052e16;
 
 }
 
@@ -97,16 +56,21 @@
   html {
     scroll-behavior: smooth;
   }
-  .section {
-    @apply relative w-full xs:max-w-2xl md:max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto px-4 xs:px-6 lg:px-0;
-  }
-  .main_title {
-    @apply text-xl xs:text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold uppercase;
-  }
-  .link_social {
-    @apply scale-100 hover:scale-120 transition-all duration-200 leading-0;
-  }
-  .coast_to_toast {
-    @apply bg-coast hover:bg-green-700 px-4 py-1 rounded-xl text-white;
-  }
+}
+
+@utility section {
+  @apply relative w-full xs:max-w-2xl md:max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto px-4 xs:px-6 lg:px-0;
+}
+@utility main_title {
+  @apply text-xl xs:text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold uppercase;
+}
+@utility link_social {
+  @apply scale-100 hover:scale-120 transition-all duration-200 leading-0;
+}
+@utility coast_to_coast {
+  @apply bg-coast hover:bg-green-700 px-4 py-1 rounded-full text-white;
+}
+
+.dashboard, .auth {
+  --color-primary: var(--ui-primary) !important;
 }

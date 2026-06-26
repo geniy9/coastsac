@@ -97,7 +97,7 @@ const isDisabled = computed(() => {
       close: 'dark:text-white hover:text-black'
       }">
     <template #header>
-      <div @click="isOpen = false" class="absolute top-4 end-4">
+      <div @click="isOpen = false" class="absolute top-4 inset-e-4">
         <Icon name="hugeicons:cancel-01" @click="isOpen = false" class="w-7 h-7 cursor-pointer scale-100 hover:scale-110 transition-all dark:text-white text-primary" />
       </div>
     </template>

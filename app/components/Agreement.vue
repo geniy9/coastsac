@@ -105,7 +105,7 @@ onUnmounted(() => clearFields())
           <UIcon name="hugeicons:link-square-02" class="w-5 h-5" />
         </a>
       </div>
-      <div @click="isOpen = false" class="absolute top-4 end-4">
+      <div @click="isOpen = false" class="absolute top-4 inset-e-4">
         <Icon name="hugeicons:cancel-01" @click="isOpen = false" class="w-8 h-8 cursor-pointer scale-100 hover:scale-110 transition-all dark:text-white text-primary" />
       </div>
     </template>

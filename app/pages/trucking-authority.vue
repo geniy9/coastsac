@@ -88,7 +88,7 @@ const statePermits = computed(() => [
       <div class="absolute inset-0">
         <img src="/img/bg_trucking_authority.jpg" :alt="$t('text.truck_on_road')" class="w-full h-full object-cover">
         <div class="absolute inset-0 bg-black/20"></div>
-        <div class="absolute inset-0 bg-gradient-to-b from-black/80 to-transparent"></div>
+        <div class="absolute inset-0 bg-linear-to-b from-black/80 to-transparent"></div>
       </div>
 
       <div class="relative py-24 md:py-32 text-center md:text-left text-white flex flex-col items-stretch justify-end">
@@ -166,7 +166,7 @@ const statePermits = computed(() => [
                 {{ permit.title }}
               </h3>
             </div>
-            <p class="text-gray-600 dark:text-gray-300 flex-grow">
+            <p class="text-gray-600 dark:text-gray-300 grow">
               {{ permit.description }}
             </p>
           </div>

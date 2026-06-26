@@ -1,11 +1,10 @@
+// app.config.ts
 export default defineAppConfig({
   ui: {
 
     colors: {
-      primary: '#399A30',
-      secondary: '#fe0000',
-      accent: '#fe0000',
-      coast: '#399A30'
+      primary: 'coast',
+      neutral: 'slate'
     },
 
     icons: {
@@ -54,11 +53,6 @@ export default defineAppConfig({
     modal: {
       slots: {
         overlay: 'fixed inset-0 bg-black/75 dark:bg-black/50 backdrop-blur-xs',
-        // header: 'flex items-center gap-1.5 p-4 sm:px-6 min-h-12',
-        // body: 'flex-1 overflow-y-auto px-4 py-0 sm:py-0',
-        // title: 'text-black font-semibold',
-        // content: 'bg-white divide-none',
-        // close: 'text-black hover:text-white dark:text-black dark:hover:text-white'
       }
     },
 
@@ -96,7 +90,7 @@ export default defineAppConfig({
     tabs: {
       slots: {
         trigger: [
-          'grow cursor-pointer data-[state=active]:bg-secondary',
+          'grow cursor-pointer',
         ]
       }
     },

@@ -13,13 +13,9 @@ export default () => {
       to: '/trucking-authority',
       className: ''
     },{
-      name: 'contacts',
-      to: '/#contacts',
-      className: ''
-    },{
       name: 'bookkeeping',
       to: '/bookkeeping',
-      className: 'coast_to_toast'
+      className: 'coast_to_coast'
     }],
     menuPhones: [{
       name: '<span>East Coast, South and Midwest: </span>+1 (302) 366-4436',
@@ -34,35 +30,6 @@ export default () => {
     menuPhonesCoast: [{
       name: '<span>Coast to Coast: </span>+1 (916) 968-7082',
       to: 'tel:19169687082'
-    }],
-    menuSecond: [{
-      name: 'about',
-      to: '/#about'
-    },{
-      name: 'contacts',
-      to: '/#contacts'
-    },{
-      name: 'request_a_quote',
-      to: '/#request_a_quote'
-    },{
-      name: 'credit_application',
-      to: '/#credit_application'
-    },{
-      name: 'factoring_companies',
-      to: '/#factoring_companies'
-    }],
-    menuRules: [{
-      name: 'terms_of_use',
-      to: '/#terms_of_use'
-    },{
-      name: 'terms_and_conditions',
-      to: '/#terms_and_conditions'
-    },{
-      name: 'privacy_policy',
-      to: '/#privacy_policy'
-    },{
-      name: 'cookie_policy',
-      to: '/#cookie_policy'
     }],
   }
 }

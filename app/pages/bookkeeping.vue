@@ -74,7 +74,7 @@ const plans = computed(() => [
   <div>
     <!-- HERO -->
     <section class="relative overflow-hidden">
-      <div class="w-full grid grid-cols-1 lg:grid-cols-12 min-h-[500px] items-stretch">
+      <div class="w-full grid grid-cols-1 lg:grid-cols-12 min-h-175 items-stretch">
         
         <!-- LEFT -->
         <div class="lg:col-span-7 flex flex-col justify-center items-center gap-8 px-6 sm:px-24 z-10 mt-20">
@@ -132,7 +132,7 @@ const plans = computed(() => [
         </div>
 
         <!-- RIGHT -->
-        <div class="hidden lg:block lg:col-span-5 relative min-h-[300px] lg:min-h-full overflow-hidden">         
+        <div class="hidden lg:block lg:col-span-5 relative min-h-75 lg:min-h-full overflow-hidden">         
           <div class="absolute inset-y-0 right-0 w-full lg:w-[95%] h-full">
             <img src="/img/bookkeeping/desktop.jpg" alt="Bookkeeping workspace" 
               class="h-full object-contain object-top-right " />

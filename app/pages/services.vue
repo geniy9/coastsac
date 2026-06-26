@@ -68,7 +68,7 @@ const services = computed(() => [
           alt="Truck driving on a highway at sunset" 
           class="w-full h-full object-cover">
         <div class="absolute inset-0 bg-black/50"></div>
-        <div class="absolute inset-0 bg-gradient-to-b from-black/80 to-transparent"></div>
+        <div class="absolute inset-0 bg-linear-to-b from-black/80 to-transparent"></div>
       </div>
 
       <div class="relative py-24 md:py-32 text-white flex items-center justify-center">
@@ -94,7 +94,7 @@ const services = computed(() => [
             'lg:pr-16': index % 2 === 0, 
             'lg:pl-16 ': index % 2 === 1 }">
           <div v-if="index % 2 === 0" class="relative rounded-lg overflow-hidden shadow-xl">
-            <img :src="service.image" :alt="service.imageAlt" class="w-full h-full object-cover max-h-[400px]">
+            <img :src="service.image" :alt="service.imageAlt" class="w-full h-full object-cover max-h-100">
           </div>
 
           <div :class="{ 'lg:order-first': index % 2 === 1 }">
@@ -106,7 +106,7 @@ const services = computed(() => [
             </p>
             <ul v-if="service.details && service.details.length" class="mt-6 space-y-3 text-gray-700 dark:text-gray-200">
               <li v-for="detail in service.details" :key="detail" class="flex items-start gap-x-3">
-                <UIcon name="hugeicons:checkmark-circle-02" class="h-6 w-6 text-secondary flex-shrink-0 mt-1" />
+                <UIcon name="hugeicons:checkmark-circle-02" class="h-6 w-6 text-secondary shrink-0 mt-1" />
                 <span>{{ detail }}</span>
               </li>
             </ul>
@@ -138,8 +138,8 @@ const services = computed(() => [
             </Feedback>
           </div>
           <div v-if="index % 2 === 1 && service.image" class="relative rounded-lg overflow-hidden shadow-xl">
-            <img :src="service.image" :alt="service.imageAlt" class="w-full h-full object-cover max-h-[400px]">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+            <img :src="service.image" :alt="service.imageAlt" class="w-full h-full object-cover max-h-100">
+            <div class="absolute inset-0 bg-linear-to-t from-black/50 to-transparent"></div>
           </div>
         </div>
       </div>

@@ -1,17 +1,18 @@
-import tailwindcss from '@tailwindcss/vite'
-
 export default defineNuxtConfig({
-  compatibilityDate: '2025-07-15',
+  compatibilityDate: '2025-01-15',
+
   devtools: { enabled: false },
+
   modules: [
-    '@nuxt/ui',
+    '@nuxt/eslint', 
+    '@nuxt/ui', 
     '@nuxt/image', 
+    '@vueuse/nuxt', 
     '@nuxtjs/i18n',
     '@nuxtjs/strapi',
     '@pinia/nuxt',
     'nuxt-signature-pad',
     'nuxt-gtag',
-    // './modules/prerender',
   ],
 
   app: {
@@ -32,6 +33,10 @@ export default defineNuxtConfig({
     colorMode: true,
   },
 
+  routeRules: {
+    '/': { prerender: true }
+  },
+
   i18n: {
     locales: [
       { code: 'en', language: 'en-US', file: 'en.json', name: 'English' },
@@ -47,8 +52,14 @@ export default defineNuxtConfig({
     url: process.env.STRAPI_URL,
     prefix: '/api',
     version: 'v5',
-    cookie: {},
-    cookieName: 'strapi_jwt'
+    cookie: {
+      path: '/',
+      maxAge: 14 * 24 * 60 * 60, // 14 days
+    },
+    cookieName: 'strapi_jwt',
+    auth: {
+      populate: ['role']
+    }
   },
 
   pinia: {
@@ -67,11 +78,25 @@ export default defineNuxtConfig({
     id: 'G-H7P1D4NVD4'
   },
 
-  css: ['~/assets/css/main.css', '~/assets/scss/app.scss'],
+  css: ['~/assets/css/main.css'],
+
+  eslint: {
+    config: {
+      stylistic: {
+        commaDangle: 'never',
+        braceStyle: '1tbs'
+      }
+    }
+  },
 
   vite: {
-    plugins: [
-      tailwindcss()
-    ],
-  },
+    optimizeDeps: {
+      include: [
+        '@tanstack/table-core',
+        '@vue/devtools-core',
+        '@vue/devtools-kit',
+        'zod',
+      ]
+    }
+  }
 })

@@ -4,6 +4,7 @@ const isOpen = ref(false)
 const isScrolled = ref(false)
 const colorMode = useColorMode()
 const route = useRoute()
+const user = useStrapiUser()
 
 const bookkeepingPage = computed(() => {
   const routeMeta = route.meta
@@ -32,7 +33,7 @@ onUnmounted(() => {
   <header class="fixed top-0 w-full z-20">
     <div class="flex flex-col transition-all duration-500 py-3 gap-3" 
       :class="[ 
-        isScrolled ? bookkeepingPage ? 'bg-white/80' : 'bg-black/80' : 'bg-black/0', 
+        isScrolled ? bookkeepingPage ? 'bg-white/80' : 'bg-primary/80' : 'bg-primary/0', 
         bookkeepingPage ? 'text-black' : 'text-white'
         ]">
       <div class="section flex justify-between items-center">
@@ -54,8 +55,12 @@ onUnmounted(() => {
 
         <div class="flex items-center gap-4">
 
-          <SocialsCoast v-if="bookkeepingPage" class="flex items-center gap-4 text-2xl px-3 py-2 mr-3 text-white bg-coast rounded-full" />
-          <Socials v-else class="flex items-center gap-4 text-2xl mr-3" />
+          <SocialsCoast v-if="bookkeepingPage" class="flex items-center gap-4 text-2xl px-3 py-1 text-white bg-coast rounded-full" />
+          <Socials v-else class="flex items-center gap-4 text-2xl" />
+
+          <NuxtLink :to="user ? '/dashboard' : '/auth/login'" class="hidden md:flex coast_to_coast font-bold">
+            {{ user ? 'Dashboard' : 'Login' }}
+          </NuxtLink>
 
           <USlideover v-model:open="isOpen" 
             :ui="{ content: 'w-8/9'}" 
@@ -73,9 +78,14 @@ onUnmounted(() => {
 
             <template #body>
               <div class="relative flex flex-col justify-between items-stretch h-full max-h-full gap-12">
-                <div class="relative max-w-full flex items-start justify-between">
-                  <ToggleLocale />
-                  <ToggleTheme class="text-primary dark:text-white" />
+                <div class="relative max-w-full flex items-center justify-between">
+                  <div class="grid grid-cols-2 items-center gap-3">
+                    <ToggleLocale />
+                    <ToggleTheme class="text-black dark:text-white" />
+                  </div>
+                  <NuxtLink :to="user ? '/dashboard' : '/auth/login'" class="coast_to_coast font-bold">
+                    {{ user ? 'Dashboard' : 'Login' }}
+                  </NuxtLink>
                 </div>
 
                 <nav @click="isOpen = false">

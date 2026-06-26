@@ -9,7 +9,7 @@ async function changeLocale(code) {
 <template>
   <div>
     <div v-for="(loc, i) in locales" :key="i" @click="changeLocale(loc.code)">
-      <div v-if="locale !== loc.code" class="uppercase cursor-pointer font-bold p-2">
+      <div v-if="locale !== loc.code" class="uppercase cursor-pointer font-bold">
         {{ loc.code }}
       </div>
     </div>

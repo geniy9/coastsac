@@ -20,15 +20,23 @@ useSeoMeta({
       <div class="absolute inset-0">
         <img src="/img/bg_trucks.jpg" alt="Truck on a winding road" class="w-full h-full object-cover object-right">
         <div class="absolute inset-0 bg-black/50"></div>
-        <div class="absolute inset-0 bg-gradient-to-b from-black/50 to-transparent"></div>
+        <div class="absolute inset-0 bg-linear-to-b from-black/50 to-transparent"></div>
+      </div>
+
+      <div class="relative text-center md:text-left text-white flex flex-col items-center min-h-[30vh] justify-center">
+        <Feedback subject="Quick contact form">
+          <UButton size="xl" color="secondary" class="rounded-full py-3 px-6 uppercase shadow-2xl">
+            Quick contact form
+          </UButton>
+        </Feedback>
       </div>
       
-      <div class="relative text-center md:text-left text-white flex flex-col items-stretch min-h-screen justify-end">
-        <div class="section py-8 md:py-16">
-          <h1 class="max-w-2xl text-3xl md:text-4xl font-extrabold tracking-tight leading-tight">
+      <div class="relative text-center md:text-left text-white flex flex-col items-stretch min-h-[60vh] justify-center">
+        <div class="section tracking-tight leading-tight">
+          <h1 class="max-w-2xl text-2xl sm:text-3xl md:text-4xl font-extrabold">
             {{ $t('text.firm_description_title') }}
           </h1>
-          <p class="max-w-xl my-6 text-sm sm:text-lg md:text-xl text-gray-200">
+          <p class="max-w-xl my-6 text-base sm:text-lg md:text-xl text-gray-200">
             {{ $t('text.firm_description_text') }}
           </p>
         </div>
@@ -81,10 +89,10 @@ useSeoMeta({
     <section class="text-white relative">
       <div class="section bg-primary rounded-xl py-8 md:py-16">
         <div class="grid md:grid-cols-2 gap-12 items-center px-8 lg:px-16">
-          <div class="relative w-full h-80 md:h-full min-h-[300px] overflow-hidden">
+          <div class="relative w-full h-80 md:h-full min-h-75 overflow-hidden">
             <img src="/img/dispatchers.jpg" alt="Dispatchers collaborating" 
               class="absolute w-full h-full object-cover rounded-lg">
-            <div class="hidden md:block absolute right-0 md:w-1/2 lg:w-1/3 h-full bg-gradient-to-l from-primary to-primary/70 rounded-l-full"></div>
+            <div class="hidden md:block absolute right-0 md:w-1/2 lg:w-1/3 h-full bg-linear-to-l from-primary to-primary/70 rounded-l-full"></div>
           </div>
           <div class="md:-ml-20 lg:-ml-30 text-center md:text-left z-10">
             <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold">
@@ -111,7 +119,7 @@ useSeoMeta({
         <div class="mt-12 grid md:grid-cols-3 gap-4 lg:gap-8">
           <div v-for="i in 3" :key="i" class="group relative rounded-lg overflow-hidden aspect-square xl:w-90">
             <img :src="`/img/differ_${i}.jpg`" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="Dedicated expertise">
-            <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent"></div>
+            <div class="absolute inset-0 bg-linear-to-t from-black to-transparent"></div>
             <div class="relative p-6 lg:p-8 h-full flex flex-col justify-end text-white">
               <span class="text-sm font-bold text-gray-400">0{{ i }}</span>
               <h3 class="text-xl lg:text-2xl font-bold mt-2">{{ $t(`text.difference_${i}_title`) }}</h3>
@@ -169,9 +177,9 @@ useSeoMeta({
             <p class="mt-4 text-gray-600 dark:text-gray-400 text-lg text-center sm:text-left">
               {{ $t('text.full_truckload_section_text') }}
             </p>
-            <a href="#" class="mt-8 inline-block bg-secondary text-white px-8 py-3 rounded-full font-semibold hover:bg-secondary transition-colors">
+            <NuxtLinkLocale to="/services" class="mt-8 inline-block bg-secondary text-white px-8 py-3 rounded-full font-semibold hover:bg-secondary transition-colors">
               {{ $t('text.learn_more') }}
-            </a>
+            </NuxtLinkLocale>
           </div>
         </div>
       </div>
