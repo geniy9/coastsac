@@ -3,7 +3,7 @@
     <template #header>
       <div>
         <p class="text-xs text-muted uppercase mb-1.5">
-          Revenue
+          Gross
         </p>
         <p class="text-3xl text-highlighted font-semibold">
           ---
@@ -11,6 +11,6 @@
       </div>
     </template>
 
-    <div class="h-96" />
+    <div class="h-64" />
   </UCard>
 </template>

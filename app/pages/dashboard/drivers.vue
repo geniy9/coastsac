@@ -38,7 +38,7 @@ const handleRefresh = async () => {
 }
 </script>
 <template>
-  <div class="flex-1 flex flex-col min-h-0">
+  <div class="flex-1 flex flex-col min-h-0 min-w-0 w-full">
     <UDashboardPanel id="drivers">
       <template #header>
         <UDashboardNavbar title="Drivers">

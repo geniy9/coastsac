@@ -104,7 +104,7 @@ const toggleAccess = async (driver, isGranted) => {
         driver.user_account = newUser
 
         // Копируем креды в буфер обмена для удобства диспетчера
-        const credentialsText = `Login/Email: ${driver.email}\nTemporary Password: ${tempPassword}`
+        const credentialsText = `Login: ${driver.email}\n Temporary Password: ${tempPassword}`
         await navigator.clipboard.writeText(credentialsText)
 
         toast.add({
@@ -126,7 +126,7 @@ const toggleAccess = async (driver, isGranted) => {
         driver.user_account.blocked = true
         toast.add({
           title: 'Access Blocked',
-          description: `Access has been suspended for ${driver.first_name}.`,
+          description: `Access has been suspended for ${driver.first_name || driver.username}.`,
           color: 'warning'
         })
       }
@@ -181,8 +181,10 @@ const columns = [{
     const last = row.original.last_name || ''
     const displayName = `${first} ${last}`.trim() || row.original.user_account?.username || 'No Name'
     const avatarSrc = row.original.user_account?.avatar ? thumbImg(row.original.user_account?.avatar) : ''
+    const type = row.original.driver_type
+    const isOwner = (type === 'owner_operator' ? 'Owner Operator' : 'Company Driver') || false
 
-    return h("div", { class: "flex flex-col" }, [
+    return h("div", { class: "flex flex-col gap-1 items-start" }, [
       h("div", { class: "flex items-center gap-3" }, [
         h(UAvatar, { src: avatarSrc, alt: displayName, size: "md" }),
         h("div", undefined, [
@@ -190,7 +192,8 @@ const columns = [{
           h("p", { class: "text-xs text-gray-500" }, row.original.phone || 'No phone')
         ])
       ]),
-      h("span", { class: "text-xs text-gray-500" }, row.original.email || '')
+      h("span", { class: "text-xs text-gray-500" }, row.original.email || ''),
+      isOwner ? h(UBadge, { color: 'neutral', variant: 'soft', size: 'sm' }, () => isOwner) : ''
     ])
   }
 },{
@@ -205,18 +208,6 @@ const columns = [{
       h("p", undefined, `Truck #: ${truck}`),
       h("p", { class: "capitalize" }, `Trailer: ${trailer.replace('_', ' ')}`)
     ])
-  }
-},{
-  accessorKey: "driver_type",
-  header: "Driver Type",
-  cell: ({ row }) => {
-    const type = row.original.driver_type
-    if (!type) return '-'
-    const isOwner = type === 'owner_operator'
-    return h(UBadge, { 
-      color: 'neutral', 
-      variant: 'soft' 
-    }, () => isOwner ? 'Owner Operator' : 'Company Driver')
   }
 },{
   accessorKey: "dispatcher",
@@ -277,7 +268,11 @@ const columns = [{
         disabled: !driverEmail,
         'onUpdate:modelValue': (value) => toggleAccess(row.original, value)
       }),
-      !driverEmail ? h("span", { class: "text-xs text-red-500 font-medium" }, "No Email") : null
+      !driverEmail ? h("span", { class: "text-xs text-red-500 font-medium" }, "No Email") : null,
+      h("div", { class: "text-xs" }, [ hasAccess ? 
+        h("span", { class: "" },  'Has access') :
+        h("span", { class: "text-gray-500" },  'Blocked')
+      ])
     ])
   }
 },{

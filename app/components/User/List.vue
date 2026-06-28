@@ -1,6 +1,7 @@
 <!-- components/UserList.vue -->
 <script setup>
 import { getPaginationRowModel } from "@tanstack/table-core";
+const { getAvatar } = useConfig()
 
 const props = defineProps({
   users: {
@@ -140,9 +141,10 @@ const columns = [{
   header: "Name",
   cell: ({ row }) => {
     const displayName = row.original.name || row.original.username || 'No Name'
+    const avatar = getAvatar(row.original.avatar, row.original.name || row.original.username || 'No Name')
 
     return h("div", { class: "flex items-center gap-3" }, [
-      h(UAvatar, { alt: displayName, size: "md" }),
+      h(UAvatar, avatar),
       h("div", undefined, [
         h("p", { class: "font-medium text-highlighted" }, displayName),
         h("p", { class: "text-xs text-gray-500" }, `@${row.original.username}`)

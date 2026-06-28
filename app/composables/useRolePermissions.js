@@ -8,19 +8,22 @@ export function useRolePermissions() {
     const role = userRole.value
 
     return {
-      // Права на управление водителями
+      // Access to home stats
+      canViewStats: ['admin', 'dispatcher', 'accounting'].includes(role),
+
+      // Access to driver management
       canViewDrivers: ['admin', 'dispatcher', 'accounting'].includes(role),
       canCreateDrivers: ['admin', 'dispatcher', 'accounting'].includes(role),
       canEditDrivers: ['admin', 'dispatcher', 'accounting'].includes(role),
       canDeleteDrivers: ['admin'].includes(role), // Только администратор
 
-      // Права на управление грузами
+      // Access to loads management
       canViewLoads: ['admin', 'dispatcher', 'accounting'].includes(role),
       canCreateLoads: ['admin', 'dispatcher'].includes(role), // Бухгалтер не создает грузы
       canEditLoads: ['admin', 'dispatcher', 'accounting'].includes(role), // Бухгалтер правит факторинг
-      canDeleteLoads: ['admin'].includes(role), // Удаление админу
+      canDeleteLoads: ['admin'].includes(role),
 
-      // Дополнительные хелперы ролей
+      // role helpers
       isAdmin: role === 'admin',
       isDispatcher: role === 'dispatcher',
       isAccounting: role === 'accounting',

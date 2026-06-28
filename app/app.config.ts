@@ -90,7 +90,15 @@ export default defineAppConfig({
     tabs: {
       slots: {
         trigger: [
-          'grow cursor-pointer',
+          'cursor-pointer',
+        ]
+      }
+    },
+
+    switch: {
+      slots: {
+        base: [
+          'cursor-pointer'
         ]
       }
     },

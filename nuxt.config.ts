@@ -58,7 +58,7 @@ export default defineNuxtConfig({
     },
     cookieName: 'strapi_jwt',
     auth: {
-      populate: ['role']
+      populate: ['role', 'avatar']
     }
   },
 

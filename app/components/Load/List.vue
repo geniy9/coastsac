@@ -1,7 +1,7 @@
 <!-- components/LoadList.vue -->
 <script setup>
 import { getPaginationRowModel } from "@tanstack/table-core";
-const { imageUrl } = useConfig()
+const { imageUrl, truncate } = useConfig()
 
 const props = defineProps({
   loads: {
@@ -24,6 +24,8 @@ const UButton = resolveComponent("UButton");
 const UDropdownMenu = resolveComponent("UDropdownMenu");
 const UCheckbox = resolveComponent("UCheckbox");
 const UBadge = resolveComponent("UBadge");
+const UChip = resolveComponent("UChip");
+const UIcon = resolveComponent("UIcon");
 
 const table = useTemplateRef("table")
 const columnFilters = ref([{ id: "load_number", value: "" }])
@@ -50,6 +52,7 @@ const getStatusColor = (status) => {
     case 'loaded': return 'warning'
     case 'unloaded': return 'success'
     case 'cancelled': return 'error'
+    case 'tonu': return 'error'
     default: return 'neutral'
   }
 }
@@ -72,7 +75,7 @@ const columns = [{
     })
 },{
   accessorKey: "load_number",
-  header: "Load No.",
+  header: "No.",
   cell: ({ row }) => h("span", { class: "font-semibold text-highlighted" }, row.original.load_number)
 },{
   id: "route",
@@ -82,20 +85,29 @@ const columns = [{
     const receiver = row.original.receiver_address
     return h("div", { class: "text-xs" }, [
       h("p", { class: "font-medium" }, `From: ${shipper?.city || '-'}, ${shipper?.state || '-'}`),
-      h("p", { class: "text-gray-400" }, shipper?.full_address || ''),
+      h("p", { class: "text-gray-400" }, truncate(shipper?.full_address, 20) || ''),
       h("p", { class: "font-medium mt-1 text-primary" }, `To: ${receiver?.city || '-'}, ${receiver?.state || '-'}`),
-      h("p", { class: "text-gray-400" }, receiver?.full_address || '')
+      h("p", { class: "text-gray-400" }, truncate(receiver?.full_address, 20) || '')
     ])
   }
 },{
   id: "pickup",
-  header: "Pickup",
+  header: "Date",
   cell: ({ row }) => {
-    const date = row.original.pickup_date || '-'
-    const time = row.original.pickup_time || '-'
-    return h("div", { class: "text-xs" }, [
-      h("p", { class: "font-medium" }, date),
-      h("p", { class: "text-gray-500" }, time)
+    const pickup = row.original.pickup_date || '-'
+    const rawTime = row.original.pickup_time || '-'
+    const time = rawTime ? rawTime.slice(0, 5) : '-'
+    const delivery = row.original.delivery_date || '-'
+    return h("div", { class: "flex flex-col gap-1 text-xs font-mono" }, [
+      h("div", undefined, [
+        h("p", { class: "text-gray-500" }, "Pickup:"),
+        h("p", undefined, pickup),
+        h(UBadge, { label: time, size: 'xs' })
+      ]),
+      h("div", undefined, [
+        h("p", { class: "text-gray-500" }, "Delivery:"),
+        h("p", undefined, delivery),
+      ])
     ])
   }
 },{
@@ -129,17 +141,44 @@ const columns = [{
   }
 },{
   id: "rate_confirmation",
-  header: "Rate Con.",
+  header: "Docs.",
   cell: ({ row }) => {
-    const files = row.original.doc_rate_confirmation || []
-    if (!files.length) return h("span", { class: "text-gray-400 text-xs" }, "None")
-    return h("div", { class: "flex flex-wrap gap-1" }, files.map((file, idx) => 
-      h("a", { 
-        href: `${imageUrl}${file.url}`, 
-        target: "_blank", 
-        class: "text-xs text-primary underline font-medium hover:text-primary/80 mr-1" 
-      }, `File ${idx + 1}`)
-    ))
+    const rcFiles = row.original.doc_rate_confirmation || []
+    const pbFiles = row.original.doc_pod_bol || []
+
+    return h("div", { class: "flex flex-col gap-1 text-xs font-mono" }, [
+      
+      rcFiles.length ? h("div", { class: "flex gap-1" }, rcFiles.map(file => {
+        const fileType = (file.ext ? file.ext.replace(/^\./, '') : 'file').toUpperCase()
+        return h("a", { 
+          href: `${imageUrl}${file.url}`, 
+          target: "_blank",
+          class: "flex gap-1"
+        }, [
+          h(UIcon, { class: "w-8 h-8 text-gray-500", color: 'neutral', name: "hugeicons:document-attachment" }),
+          h("div", { class: "flex flex-col" }, [
+            h("span", { class: "text-gray-500" }, "Rate Con."),
+            h(UBadge, { label: fileType, size: 'xs', variant: 'link' })
+          ])
+        ])
+      })) : h("span", { class: "text-gray-500" }, "Rate Con. None"),
+
+      pbFiles.length ? h("div", { class: "flex flex-wrap gap-1" }, pbFiles.map(file => {
+        const fileType = (file.ext ? file.ext.replace(/^\./, '') : 'file').toUpperCase()
+        return h("a", { 
+          href: `${imageUrl}${file.url}`, 
+          target: "_blank",
+          class: "flex items-center gap-1 "
+        }, [
+          h(UIcon, { class: "w-8 h-8 text-gray-500", color: 'neutral', name: "hugeicons:document-attachment" }),
+          h("div", { class: "flex flex-col" }, [
+            h("span", { class: "text-gray-500" }, "POD/BOL"),
+            h(UBadge, { label: fileType, size: 'xs', variant: 'link' })
+          ])
+        ])
+      })) : h("span", { class: "text-gray-500" }, "POD/BOL: None")
+
+    ])
   }
 },{
   id: "actions",

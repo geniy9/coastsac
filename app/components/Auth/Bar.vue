@@ -27,7 +27,7 @@ const items = computed(() => [
   [{
     type: "label",
     label: user.value?.username || "Guest",
-    avatar: getAvatar(user.value?.name || user.value?.username)
+    avatar: getAvatar(user.value?.avatar, user.value?.name || user.value?.username)
   }],
   [{
     label: "Profile",
@@ -117,7 +117,7 @@ const items = computed(() => [
     :ui="{ content: collapsed ? 'w-48' : 'w-(--reka-dropdown-menu-trigger-width)' }">
     <UButton
       v-bind="{
-        avatar: getAvatar(user.name || user.username),
+        avatar: getAvatar(user.avatar, user.name || user.username),
         label: collapsed ? undefined : user?.username || 'Guest',
         trailingIcon: collapsed ? undefined : 'i-lucide-chevrons-up-down',
       }"

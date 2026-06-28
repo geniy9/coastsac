@@ -13,8 +13,8 @@ const selectedLoad = ref(null)
 
 const activeTab = ref('active')
 const tabs = [
-  { label: 'Active Loads', value: 'active', icon: 'hugeicons:truck-delivery' },
-  { label: 'Next Loads', value: 'next', icon: 'hugeicons:truck-return' },
+  { label: 'Active', value: 'active', icon: 'hugeicons:truck-delivery' },
+  { label: 'Next', value: 'next', icon: 'hugeicons:truck-return' },
   { label: 'Completed', value: 'completed', icon: 'hugeicons:checkmark-circle-03' }
 ]
 
@@ -54,7 +54,7 @@ const handleRefresh = async () => {
 }
 </script>
 <template>
-  <div class="flex-1 flex flex-col min-h-0">
+  <div class="flex-1 flex flex-col min-h-0 min-w-0 w-full">
     <UDashboardPanel id="loads">
       <template #header>
         <UDashboardNavbar title="Loads">

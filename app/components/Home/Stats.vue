@@ -20,7 +20,7 @@ function formatCurrency(value) {
 
 const baseStats = [{
   title: "Gross",
-  icon: "hugeicons:dollar-01",
+  icon: "hugeicons:briefcase-dollar",
   minValue: 200000,
   maxValue: 500000,
   minVariation: -20,
@@ -35,7 +35,7 @@ const baseStats = [{
   maxVariation: 20,
 },{
   title: "Loads completed",
-  icon: "hugeicons:pie-chart",
+  icon: "hugeicons:checkmark-circle-03",
   minValue: 100,
   maxValue: 300,
   minVariation: -5,

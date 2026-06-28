@@ -10,7 +10,7 @@ const client = useStrapiClient()
 const { data: users, status, refresh } = await useAsyncData('users', () => 
   client('/users', {
     query: {
-      populate: ['role', 'driver']
+      populate: ['role', 'driver', 'avatar']
     }
   }), {
     lazy: true,
@@ -23,7 +23,7 @@ const handleRefresh = async () => {
 }
 </script>
 <template>
-  <div class="flex-1 flex flex-col min-h-0">
+  <div class="flex-1 flex flex-col min-h-0 min-w-0 w-full">
     <UDashboardPanel id="users">
       <template #header>
         <UDashboardNavbar title="Team">

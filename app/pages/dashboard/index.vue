@@ -4,6 +4,7 @@ definePageMeta({
   layout: 'dashboard',
 })
 import { sub } from "date-fns";
+const { permissions } = useRolePermissions()
 
 const range = shallowRef({
   start: sub(new Date(), { days: 14 }),
@@ -36,9 +37,9 @@ const period = ref("daily");
       </template>
 
       <template #body>
-        <HomeStats :period="period" :range="range" />
-        <HomeChart :period="period" :range="range" />
-        <HomeLoads :period="period" :range="range" />
+        <HomeStats v-if="permissions.canViewStats" :period="period" :range="range" />
+        <!-- <HomeLoads :period="period" :range="range" /> -->
+        <!-- <HomeChart :period="period" :range="range" /> -->
       </template>
     </UDashboardPanel>
   </div>

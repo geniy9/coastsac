@@ -18,18 +18,10 @@ export default () => {
     red: "ef4444",
     dark: "000000",
   }
-  const activeColor = computed(() => appConfig.ui?.colors?.primary || "orange")
-  const getAvatar = (name) => {
-    if (name) {
-      const colorHex = tailwindColorsHex[activeColor.value] || "f97316";
-      return {
-        src: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}&backgroundColor=${colorHex}`,
-        alt: name || "User Avatar"
-      }
-    }
+  const getAvatar = (img, name) => {
     return {
-      src: "https://github.com/benjamincanac.png",
-      alt: "Guest",
+      src: img ? `${img.formats?.thumbnail ? imageUrl + img.formats?.thumbnail?.url : null}` : null,
+      alt: name || "User Avatar"
     }
   }
   return {
@@ -58,7 +50,8 @@ export default () => {
       { value: 'in_transit', label: 'In Transit' },
       { value: 'loaded', label: 'Loaded' },
       { value: 'unloaded', label: 'Unloaded' },
-      { value: 'cancelled', label: 'Cancelled' }
+      { value: 'cancelled', label: 'Cancelled' },
+      { value: 'tonu', label: 'TONU' }
     ],
     categoryOptions: [
       { value: 'active', label: 'Active' },
