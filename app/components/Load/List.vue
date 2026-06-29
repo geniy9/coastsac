@@ -26,6 +26,7 @@ const UCheckbox = resolveComponent("UCheckbox");
 const UBadge = resolveComponent("UBadge");
 const UTooltip = resolveComponent("UTooltip");
 const UIcon = resolveComponent("UIcon");
+const USeparator = resolveComponent("USeparator");
 
 const table = useTemplateRef("table")
 const columnFilters = ref([{ id: "load_number", value: "" }])
@@ -101,14 +102,14 @@ const columns = [{
     return h("div", { class: "flex flex-col text-xs text-gray-500" }, [
       h("span", undefined, [
         'From: ',
-        h("span", { class: "text-primary" }, `${shipper?.city || '-'}, ${shipper?.state || '-'}`)
+        h("span", { class: "text-highlighted" }, `${shipper?.city || '-'}, ${shipper?.state || '-'}`)
       ]),
       h(UTooltip, { text: shipper?.full_address }, [
         h('span', { class: "cursor-pointer" }, truncate(shipper?.full_address, 20) || '')
       ]),
       h("span", { class: "mt-2" }, [
         'To: ',
-        h("span", { class: "text-primary" }, `${receiver?.city || '-'}, ${receiver?.state || '-'}`)
+        h("span", { class: "text-highlighted" }, `${receiver?.city || '-'}, ${receiver?.state || '-'}`)
       ]),
       h(UTooltip, { text: receiver?.full_address }, [
         h('span', { class: "cursor-pointer" }, truncate(receiver?.full_address, 20) || '')
@@ -126,12 +127,12 @@ const columns = [{
     return h("div", { class: "flex flex-col gap-1 text-xs font-mono" }, [
       h("div", undefined, [
         h("p", { class: "text-gray-500" }, "Pickup:"),
-        h("p", undefined, pickup),
-        h(UBadge, { label: time, size: 'xs' })
+        h("p", { class: "text-highlighted" }, pickup),
+        h(UBadge, { label: time, size: 'xs', class: 'font-bold' })
       ]),
       h("div", undefined, [
         h("p", { class: "text-gray-500" }, "Delivery:"),
-        h("p", undefined, delivery),
+        h("p", { class: "text-highlighted" }, delivery),
       ])
     ])
   }
@@ -143,16 +144,16 @@ const columns = [{
     if (!driver) return h("span", { class: "text-red-500 text-xs" }, "Unassigned")
     const name = `${driver.first_name || ''} ${driver.last_name || ''}`.trim()
     const trailer = driver.trailer || '-'
-    return h("div", { class: "text-xs" }, [
-      h("p", { class: "font-medium" }, name),
-      h("p", { class: "text-gray-500 font-mono" }, `Truck: ${driver.truck_number || '-'}`),
-      h("p", { class: "text-gray-500 font-mono capitalize" }, `Trailer: ${trailer.replace('_', ' ')}`)
+    return h("div", { class: "text-xs font-mono" }, [
+      h("p", { class: "text-highlighted" }, name),
+      h("p", { class: "text-gray-500" }, `Truck: ${driver.truck_number || '-'}`),
+      h("p", { class: "text-gray-500 capitalize" }, `Trailer: ${trailer.replace('_', ' ')}`)
     ])
   }
 },{
   id: "broker",
   header: "Broker",
-  cell: ({ row }) => h("span", { class: "text-sm" }, row.original.broker?.name || '-')
+  cell: ({ row }) => h("span", { class: "text-highlighted text-sm" }, row.original.broker?.name || '-')
 },{
   id: "rate_confirmation",
   header: "Docs.",
@@ -169,13 +170,13 @@ const columns = [{
           target: "_blank",
           class: "flex gap-1"
         }, [
-          h(UIcon, { class: "w-8 h-8 text-gray-500", color: 'neutral', name: "hugeicons:document-attachment" }),
+          h(UIcon, { class: "w-8 h-8 text-highlighted", name: "hugeicons:document-attachment" }),
           h("div", { class: "flex flex-col" }, [
-            h("span", { class: "text-gray-500" }, "Rate Con."),
-            h(UBadge, { label: fileType, size: 'xs', variant: 'link' })
+            h("span", { class: "text-highlighted" }, "Rate Con."),
+            h(UBadge, { label: fileType, size: 'sm', variant: 'link' })
           ])
         ])
-      })) : h("span", { class: "text-gray-500" }, "Rate Con. None"),
+      })) : h("span", { class: "text-gray-500" }, "Rate Con.: None"),
 
       pbFiles.length ? h("div", { class: "flex flex-wrap gap-1" }, pbFiles.map(file => {
         const fileType = (file.ext ? file.ext.replace(/^\./, '') : 'file').toUpperCase()
@@ -184,9 +185,9 @@ const columns = [{
           target: "_blank",
           class: "flex items-center gap-1 "
         }, [
-          h(UIcon, { class: "w-8 h-8 text-gray-500", color: 'neutral', name: "hugeicons:document-attachment" }),
+          h(UIcon, { class: "w-8 h-8 text-highlighted", name: "hugeicons:document-attachment" }),
           h("div", { class: "flex flex-col" }, [
-            h("span", { class: "text-gray-500" }, "POD/BOL"),
+            h("span", { class: "text-highlighted" }, "POD/BOL"),
             h(UBadge, { label: fileType, size: 'xs', variant: 'link' })
           ])
         ])

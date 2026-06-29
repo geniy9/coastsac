@@ -76,7 +76,6 @@ const { data: stats } = await useAsyncData("stats",
       :key="index"
       :icon="stat.icon"
       :title="stat.title"
-      to="/drivers"
       variant="subtle"
       :ui="{
         container: 'gap-y-1.5',
