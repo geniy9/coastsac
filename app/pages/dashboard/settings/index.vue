@@ -105,7 +105,7 @@ async function onSubmit() {
       color: "success",
     });
   } catch (err) {
-    console.error("Ошибка при обработке формы:", err)
+    console.error("Error processing the form:", err)
     toast.add({
       title: "Error",
       description: err.error?.message || "Failed to upload avatar.",
@@ -162,8 +162,7 @@ async function onSubmit() {
         <UFormField
           name="name"
           label="Name"
-          description="Full name"
-          required
+          description="Full name" 
           class="flex max-sm:flex-col justify-between items-start gap-4">
           <UInput v-model="profile.name" autocomplete="off" />
         </UFormField>

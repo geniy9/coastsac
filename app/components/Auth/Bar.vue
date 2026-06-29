@@ -30,10 +30,6 @@ const items = computed(() => [
     avatar: getAvatar(user.value?.avatar, user.value?.name || user.value?.username)
   }],
   [{
-    label: "Profile",
-    icon: "i-lucide-user",
-    to: "/dashboard/settings/profile",
-  },{
     label: "Settings",
     icon: "i-lucide-settings",
     to: "/dashboard/settings",

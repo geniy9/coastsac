@@ -24,7 +24,7 @@ const UButton = resolveComponent("UButton");
 const UDropdownMenu = resolveComponent("UDropdownMenu");
 const UCheckbox = resolveComponent("UCheckbox");
 const UBadge = resolveComponent("UBadge");
-const UChip = resolveComponent("UChip");
+const UTooltip = resolveComponent("UTooltip");
 const UIcon = resolveComponent("UIcon");
 
 const table = useTemplateRef("table")
@@ -48,7 +48,7 @@ function getRowItems(row) {
 const getStatusColor = (status) => {
   switch (status) {
     case 'not_started': return 'neutral'
-    case 'in_transit': return 'primary'
+    case 'in_transit': return 'info'
     case 'loaded': return 'warning'
     case 'unloaded': return 'success'
     case 'cancelled': return 'error'
@@ -75,19 +75,44 @@ const columns = [{
     })
 },{
   accessorKey: "load_number",
-  header: "No.",
-  cell: ({ row }) => h("span", { class: "font-semibold text-highlighted" }, row.original.load_number)
+  header: "Load",
+  cell: ({ row }) => {
+    const status = row.original.status_load || 'not_started'
+    return h("div", { class: "flex flex-col items-start" }, [
+      h("div", { class: "flex flex-col" }, [
+        h("span", { class: "text-gray-500 text-xs" }, 'No.:'),
+        h("span", { class: "font-semibold text-highlighted" }, `${row.original.load_number}`)
+      ]),
+      h("div", { class: "flex flex-col" }, [
+        h("div", { class: "text-gray-500 text-xs" }, 'Status:'),
+        h(UBadge, { 
+          color: getStatusColor(status), 
+          class: 'capitalize'
+        }, () => status.replace('_', ' '))
+      ])
+    ])
+  }
 },{
   id: "route",
   header: "Route",
   cell: ({ row }) => {
     const shipper = row.original.shipper_address
     const receiver = row.original.receiver_address
-    return h("div", { class: "text-xs" }, [
-      h("p", { class: "font-medium" }, `From: ${shipper?.city || '-'}, ${shipper?.state || '-'}`),
-      h("p", { class: "text-gray-400" }, truncate(shipper?.full_address, 20) || ''),
-      h("p", { class: "font-medium mt-1 text-primary" }, `To: ${receiver?.city || '-'}, ${receiver?.state || '-'}`),
-      h("p", { class: "text-gray-400" }, truncate(receiver?.full_address, 20) || '')
+    return h("div", { class: "flex flex-col text-xs text-gray-500" }, [
+      h("span", undefined, [
+        'From: ',
+        h("span", { class: "text-primary" }, `${shipper?.city || '-'}, ${shipper?.state || '-'}`)
+      ]),
+      h(UTooltip, { text: shipper?.full_address }, [
+        h('span', { class: "cursor-pointer" }, truncate(shipper?.full_address, 20) || '')
+      ]),
+      h("span", { class: "mt-2" }, [
+        'To: ',
+        h("span", { class: "text-primary" }, `${receiver?.city || '-'}, ${receiver?.state || '-'}`)
+      ]),
+      h(UTooltip, { text: receiver?.full_address }, [
+        h('span', { class: "cursor-pointer" }, truncate(receiver?.full_address, 20) || '')
+      ]),
     ])
   }
 },{
@@ -128,17 +153,6 @@ const columns = [{
   id: "broker",
   header: "Broker",
   cell: ({ row }) => h("span", { class: "text-sm" }, row.original.broker?.name || '-')
-},{
-  accessorKey: "status_load",
-  header: "Status",
-  cell: ({ row }) => {
-    const status = row.original.status_load || 'not_started'
-    return h(UBadge, { 
-      color: getStatusColor(status), 
-      variant: 'soft',
-      class: 'capitalize'
-    }, () => status.replace('_', ' '))
-  }
 },{
   id: "rate_confirmation",
   header: "Docs.",

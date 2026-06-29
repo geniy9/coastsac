@@ -8,6 +8,10 @@ defineProps({
   alt: {
     type: String,
     default: 'Logo'
+  },
+  variant: {
+    type: String,
+    default: 'fill'
   }
 })
 </script>
@@ -15,7 +19,8 @@ defineProps({
   <img v-if="src" :src="src" :alt="alt" class="rounded-full object-cover" />
   <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" xml:space="preserve">
     <path 
-      class="fill-(--ui-primary) transition-colors duration-300 ease-in-out" 
+      :class="variant === 'fill' ? 'fill-(--ui-primary) stroke-0' : 'fill-none stroke-(--ui-primary) stroke-1'"
+      class="transition-colors duration-300 ease-in-out" 
       d="M150,5C69.9,5,5,69.9,5,150s64.9,145,145,145s145-64.9,145-145S230.1,5,150,5z M174.9,197.1
       c-3.6,1-7.5,1.6-11.5,1.6c-10.2,0-17.9-2.7-23.5-8c-5.5-5.3-8.3-13-8.3-23.1v-44.3h-10.1c0.4,0.7,0.8,1.4,1.2,2.2l-16.6,9.6
       c-2.7-4.2-6-7.5-9.9-9.5c-3.9-2.2-8.3-3.2-13-3.2c-8.1,0-14.7,2.6-20,7.9c-5.3,5.3-8,12.2-8,21c0,8.7,2.6,15.7,7.9,20.9

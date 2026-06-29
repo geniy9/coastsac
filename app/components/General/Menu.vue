@@ -15,7 +15,7 @@ const teams = ref([{
   to: '/'
 },{
   label: 'Bookkeeping',
-  src: '/ctc.svg',
+  src: '/c2c.svg',
   to: '/bookkeeping'
 }])
 const selectedTeam = ref(teams.value[0])
