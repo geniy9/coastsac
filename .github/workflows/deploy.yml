@@ -1,4 +1,4 @@
-name: Deploy Nuxt Static Site to Server
+name: Deploy Nuxt SSR SPA
 
 on:
   push:
@@ -19,21 +19,31 @@ jobs:
       - name: Install Dependencies
         run: bun install --frozen-lockfile
 
-      - name: Build Static Site
-        run: bun run generate
+      - name: Build SSR Site
+        run: bun run build
         env:
           ORIGIN: ${{ secrets.ORIGIN }}
           STRAPI_URL: ${{ secrets.STRAPI_URL }}
           NUXT_PUBLIC_RECAPTCHA_SITE_KEY: ${{ secrets.NUXT_PUBLIC_RECAPTCHA_SITE_KEY }}
           RECAPTCHA_SECRET_KEY: ${{ secrets.RECAPTCHA_SECRET_KEY }}
+          FUEL_CARD_API_TOKEN: ${{ secrets.FUEL_CARD_API_TOKEN }}
+
+      - name: Create .env file
+        run: |
+          echo "FUEL_CARD_API_TOKEN=${{ secrets.FUEL_CARD_API_TOKEN }}" >> .env
+          echo "STRAPI_URL=${{ secrets.STRAPI_URL }}" >> .env
+          echo "ORIGIN=${{ secrets.ORIGIN }}" >> .env
 
       - name: Deploy to Server
         uses: easingthemes/ssh-deploy@v5.0.0
         with:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           ARGS: "-azvi --delete"
-          SOURCE: ".output/public/"
+          SOURCE: ".output/ .env"
           REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.REMOTE_USER }}
           TARGET: ${{ secrets.TARGET_DIR }}
           EXCLUDE: "/dist/, /node_modules/"
+          SCRIPT_AFTER: |
+            cd ${{ secrets.TARGET_DIR }}
+            pm2 reload coastsac-nuxt || PORT=3000 pm2 start .output/server/index.mjs --name "coastsac-nuxt"
