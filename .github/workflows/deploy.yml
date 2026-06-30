@@ -34,7 +34,7 @@ jobs:
           echo "STRAPI_URL=${{ secrets.STRAPI_URL }}" >> .env
           echo "ORIGIN=${{ secrets.ORIGIN }}" >> .env
 
-      - name: Deploy to Server
+      - name: Copy files to Server (rsync)
         uses: easingthemes/ssh-deploy@v5.0.0
         with:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -44,16 +44,15 @@ jobs:
           REMOTE_USER: ${{ secrets.REMOTE_USER }}
           TARGET: ${{ secrets.TARGET_DIR }}
           EXCLUDE: "/dist/, /node_modules/"
-          SCRIPT_AFTER: |
-            # 1. Включаем строгий режим bash
+
+      - name: Execute PM2 Commands (ssh-action)
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
             set -ex
-            
-            # 2. Инициализируем окружение для PM2
-            export HOME=/home/${{ secrets.REMOTE_USER }}
-            export PATH=$PATH:/usr/local/bin:/usr/bin:/bin
-            
             cd ${{ secrets.TARGET_DIR }}
-            
             pm2 startOrReload ecosystem.config.js --update-env
-            
             pm2 save
