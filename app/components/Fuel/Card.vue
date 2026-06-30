@@ -40,12 +40,10 @@ const filteredTxs = computed(() => {
   })
 })
 </script>
-
 <template>
   <UModal v-model:open="open" :ui="{ width: 'max-w-4xl' }">
     <template #content>
       <div class="flex flex-col p-6 space-y-6 max-h-[85vh] overflow-y-auto">
-        <!-- Заголовок -->
         <div class="flex items-center justify-between">
           <div>
             <h3 class="text-lg font-semibold text-highlighted">
@@ -59,10 +57,9 @@ const filteredTxs = computed(() => {
         </div>
 
         <div v-if="loading" class="flex flex-col items-center justify-center py-12 space-y-3">
-          <UIcon name="i-lucide-loader-2" class="animate-spin text-primary size-8" />
+          <UIcon name="hugeicons:reload" class="animate-spin text-primary size-8" />
           <span class="text-sm text-muted">Loading detailed info...</span>
         </div>
-
         <div v-else class="space-y-6">
           <!-- Сетка с базовыми свойствами -->
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 rounded-xl border border-default bg-elevated/20">
@@ -73,7 +70,7 @@ const filteredTxs = computed(() => {
               </UBadge>
             </div>
             <div>
-              <p class="text-xs text-gray-500">Driver Name (System)</p>
+              <p class="text-xs text-gray-500">Driver</p>
               <p class="text-sm font-medium text-highlighted mt-1">
                 {{ card?.driver_name || cardDetails?.driver_name || 'N/A' }}
               </p>
@@ -85,7 +82,7 @@ const filteredTxs = computed(() => {
               </p>
             </div>
             <div>
-              <p class="text-xs text-gray-500">VIN Number</p>
+              <p class="text-xs text-gray-500">VIN</p>
               <p class="font-mono text-highlighted mt-1 text-xs">
                 {{ cardDetails?.vin || 'N/A' }}
               </p>
@@ -97,7 +94,7 @@ const filteredTxs = computed(() => {
             <!-- Limits -->
             <div class="border border-default rounded-xl p-4">
               <h4 class="font-semibold text-sm text-highlighted mb-3 flex items-center gap-1.5">
-                <UIcon name="i-lucide-shield-alert" class="text-warning" />
+                <UIcon name="hugeicons:license-maintenance" class="text-warning" />
                 Limits Configuration
               </h4>
               <div class="space-y-3 text-xs">
@@ -117,21 +114,19 @@ const filteredTxs = computed(() => {
             <!-- Policies -->
             <div class="border border-default rounded-xl p-4">
               <h4 class="font-semibold text-sm text-highlighted mb-3 flex items-center gap-1.5">
-                <UIcon name="i-lucide-check-square" class="text-success" />
+                <UIcon name="hugeicons:checkmark-circle-03" class="text-success" />
                 Product Policies
               </h4>
               <div class="grid grid-cols-2 gap-2 text-xs">
                 <div 
                   v-for="policy in cardDetails.policies" 
                   :key="policy.policy_id" 
-                  class="flex items-center justify-between p-2 rounded bg-elevated/30"
-                >
+                  class="flex items-center justify-between p-2 rounded bg-elevated/30">
                   <span class="text-gray-500 font-medium">{{ policy.policy_id }}</span>
                   <UBadge 
                     :color="policy.setting === 'Enabled' ? 'success' : 'neutral'" 
                     variant="soft" 
-                    size="sm"
-                  >
+                    size="sm">
                     {{ policy.setting }}
                   </UBadge>
                 </div>
@@ -142,7 +137,7 @@ const filteredTxs = computed(() => {
           <!-- Активные денежные коды -->
           <div v-if="cardDetails?.money?.length" class="border border-default rounded-xl p-4">
             <h4 class="font-semibold text-sm text-highlighted mb-3 flex items-center gap-1.5">
-              <UIcon name="i-lucide-banknote" class="text-success" />
+              <UIcon name="hugeicons:money-01" class="text-success" />
               Active Money Codes
             </h4>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
