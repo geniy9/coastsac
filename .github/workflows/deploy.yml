@@ -46,4 +46,4 @@ jobs:
           EXCLUDE: "/dist/, /node_modules/"
           SCRIPT_AFTER: |
             cd ${{ secrets.TARGET_DIR }}
-            pm2 reload coastsac-nuxt || PORT=3000 pm2 start server/index.mjs --name "coastsac-nuxt"
+            /usr/bin/pm2 reload coastsac-nuxt || PORT=3000 /usr/bin/pm2 start server/index.mjs --name "coastsac-nuxt"
