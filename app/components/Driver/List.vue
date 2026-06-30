@@ -146,11 +146,8 @@ const toggleAccess = async (driver, isGranted) => {
 
 function getRowItems(row) {
   return [{
-    type: "label",
-    label: "Actions"
-  },{
     label: "Edit",
-    icon: "i-lucide-edit",
+    icon: "hugeicons:pencil-edit-02",
     onSelect() {
       emit('edit', row.original)
     }
@@ -203,10 +200,16 @@ const columns = [{
     const driver_number = row.original.driver_number || '-'
     const truck = row.original.truck_number || '-'
     const trailer = row.original.trailer || '-'
-    return h("div", { class: "text-xs font-mono" }, [
-      h("p", undefined, `Driver #: ${driver_number}`),
-      h("p", undefined, `Truck #: ${truck}`),
-      h("p", { class: "capitalize" }, `Trailer: ${trailer.replace('_', ' ')}`)
+    return h("div", { class: "text-xs font-mono text-gray-500" }, [
+      h("div", undefined, [ 'Driver #: ',
+        h("span", { class: "text-highlighted" }, driver_number),
+      ]),
+      h("div", undefined, [ 'Truck #: ',
+        h("span", { class: "text-highlighted" }, truck),
+      ]),
+      h("div", undefined, [ 'Trailer: ',
+        h("span", { class: "text-highlighted capitalize" }, trailer.replace('_', ' ')),
+      ]),
     ])
   }
 },{
@@ -227,9 +230,9 @@ const columns = [{
   id: "deductions",
   header: "Deductions",
   cell: ({ row }) => {
-    const eld = row.original.deductions.eld || '-'
-    const insurance = row.original.deductions.insurance || '-'
-    const plates = row.original.deductions.plates || '-'
+    const eld = row.original.deductions.eld || '0'
+    const insurance = row.original.deductions.insurance || '0'
+    const plates = row.original.deductions.plates || '0'
     return h("div", { class: "text-xs text-gray-500 font-mono" }, [
       h("p", undefined, `${eld}$ ELD`),
       h("p", undefined, `${insurance}$ Insurance`),
@@ -280,12 +283,7 @@ const columns = [{
   cell: ({ row }) => {
     return h("div", { class: "text-right" },
       h(UDropdownMenu, { content: { align: "end" }, items: getRowItems(row) },
-        () => h(UButton, {
-          icon: "i-lucide-ellipsis-vertical",
-          color: "neutral",
-          variant: "ghost",
-          class: "ml-auto"
-        })
+        () => h(UButton, { color: "neutral", variant: "ghost", class: "ml-auto" })
       )
     )
   }

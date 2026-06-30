@@ -1,7 +1,7 @@
 <!-- components/LoadList.vue -->
 <script setup>
 import { getPaginationRowModel } from "@tanstack/table-core";
-const { imageUrl, truncate } = useConfig()
+const { imageUrl, getMime, truncate, getStatusColor } = useConfig()
 
 const props = defineProps({
   loads: {
@@ -35,27 +35,12 @@ const rowSelection = ref({})
 
 function getRowItems(row) {
   return [{
-    type: "label",
-    label: "Actions"
-  },{
-    label: "Edit Load",
-    icon: "i-lucide-edit",
+    label: "Edit",
+    icon: "hugeicons:pencil-edit-02",
     onSelect() {
       emit('edit', row.original)
     }
   }]
-}
-
-const getStatusColor = (status) => {
-  switch (status) {
-    case 'not_started': return 'neutral'
-    case 'in_transit': return 'info'
-    case 'loaded': return 'warning'
-    case 'unloaded': return 'success'
-    case 'cancelled': return 'error'
-    case 'tonu': return 'error'
-    default: return 'neutral'
-  }
 }
 
 const columns = [{
@@ -85,7 +70,7 @@ const columns = [{
         h("span", { class: "font-semibold text-highlighted" }, `${row.original.load_number}`)
       ]),
       h("div", { class: "flex flex-col" }, [
-        h("div", { class: "text-gray-500 text-xs" }, 'Status:'),
+        h("div", { class: "text-gray-500 text-xs mb-1" }, 'Status:'),
         h(UBadge, { 
           color: getStatusColor(status), 
           class: 'capitalize'
@@ -128,7 +113,7 @@ const columns = [{
       h("div", undefined, [
         h("p", { class: "text-gray-500" }, "Pickup:"),
         h("p", { class: "text-highlighted" }, pickup),
-        h(UBadge, { label: time, size: 'xs', class: 'font-bold' })
+        h(UBadge, { label: time, size: 'xs', class: 'font-bold', color: 'neutral' })
       ]),
       h("div", undefined, [
         h("p", { class: "text-gray-500" }, "Delivery:"),
@@ -179,7 +164,6 @@ const columns = [{
       })) : h("span", { class: "text-gray-500" }, "Rate Con.: None"),
 
       pbFiles.length ? h("div", { class: "flex flex-wrap gap-1" }, pbFiles.map(file => {
-        const fileType = (file.ext ? file.ext.replace(/^\./, '') : 'file').toUpperCase()
         return h("a", { 
           href: `${imageUrl}${file.url}`, 
           target: "_blank",
@@ -188,7 +172,7 @@ const columns = [{
           h(UIcon, { class: "w-8 h-8 text-highlighted", name: "hugeicons:document-attachment" }),
           h("div", { class: "flex flex-col" }, [
             h("span", { class: "text-highlighted" }, "POD/BOL"),
-            h(UBadge, { label: fileType, size: 'xs', variant: 'link' })
+            h(UBadge, { label: getMime(file), size: 'xs', variant: 'link' })
           ])
         ])
       })) : h("span", { class: "text-gray-500" }, "POD/BOL: None")
@@ -200,12 +184,7 @@ const columns = [{
   cell: ({ row }) => {
     return h("div", { class: "text-right" },
       h(UDropdownMenu, { content: { align: "end" }, items: getRowItems(row) },
-        () => h(UButton, {
-          icon: "i-lucide-ellipsis-vertical",
-          color: "neutral",
-          variant: "ghost",
-          class: "ml-auto"
-        })
+        () => h(UButton, { color: "neutral", variant: "ghost", class: "ml-auto" })
       )
     )
   }

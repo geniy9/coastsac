@@ -56,6 +56,9 @@
   html {
     scroll-behavior: smooth;
   }
+  .input_trailing {
+    @apply text-sm text-muted font-mono;
+  }
 }
 
 @utility section {

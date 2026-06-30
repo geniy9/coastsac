@@ -30,6 +30,14 @@ const links = computed(() => {
       onSelect: () => { open.value = false }
     })
   }
+  if (['admin', 'accounting'].includes(userRole)) {
+    items.push({
+      label: "Fuels",
+      icon: "hugeicons:fuel-station",
+      to: "/dashboard/fuels",
+      onSelect: () => { open.value = false }
+    })
+  }
   
   items.push({
     label: "Settings",

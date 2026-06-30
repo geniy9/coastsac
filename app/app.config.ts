@@ -69,6 +69,12 @@ export default defineAppConfig({
       }
     },
 
+    dropdownMenu: {
+      slots: {
+        item: 'cursor-pointer',
+      }
+    },
+
     pagination: {
       slots: {
         first: 'cursor-pointer',

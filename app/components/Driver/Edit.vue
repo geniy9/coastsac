@@ -14,6 +14,27 @@ const toast = useToast()
 const { permissions } = useRolePermissions()
 const { trailerOptions, driverTypeOptions } = useConfig()
 
+const { getCards } = useFuel()
+const manualCardEntry = ref(false)
+
+const { data: cardsResponse } = await useAsyncData('fuel-cards-dropdown-edit', async () => {
+  const res = await getCards()
+  return res?.data || []
+}, {
+  lazy: true,
+  default: () => []
+})
+const cards = computed(() => cardsResponse.value || [])
+const cardItems = computed(() => {
+  return cards.value.map(c => {
+    const attrs = c.attributes || c
+    return {
+      value: attrs.card_number,
+      label: `${attrs.card_number} (${attrs.status})`
+    }
+  })
+})
+
 const state = reactive({
   first_name: '',
   last_name: '',
@@ -29,6 +50,7 @@ const state = reactive({
   notes: '',
   truck_number: '',
   trailer: 'van',
+  fuel_card_number: '',
   deductions: {
     eld: 0,
     insurance: 0,
@@ -37,6 +59,18 @@ const state = reactive({
 })
 const loading = ref(false)
 const deleteLoading = ref(false)
+
+watch([cards, () => state.fuel_card_number], ([newCards, currentCard]) => {
+  if (newCards.length > 0 && currentCard) {
+    const found = newCards.some(c => {
+      const attrs = c.attributes || c
+      return attrs.card_number === currentCard
+    })
+    if (!found) {
+      manualCardEntry.value = true
+    }
+  }
+}, { immediate: true })
 
 watch(() => props.driver, (newVal) => {
   if (newVal) {
@@ -55,6 +89,7 @@ watch(() => props.driver, (newVal) => {
       notes: newVal.notes || '',
       truck_number: newVal.truck_number || '',
       trailer: newVal.trailer || 'van',
+      fuel_card_number: newVal.fuel_card_number || '',
       deductions: {
         eld: newVal.deductions?.eld || 0,
         insurance: newVal.deductions?.insurance || 0,
@@ -172,6 +207,31 @@ const onDelete = async () => {
               icon="i-lucide-user-cog"
               class="w-full" />
           </UFormField>
+          <UFormField label="Fuel Card Number" name="fuel_card_number" class="col-span-2">
+            <div class="flex gap-1.5 w-full">
+              <USelect 
+                v-if="!manualCardEntry && cardItems.length > 0"
+                v-model="state.fuel_card_number" 
+                :items="cardItems" 
+                placeholder="Select a fuel card"
+                class="flex-1" />
+              <UInput v-else
+                v-model="state.fuel_card_number" 
+                placeholder="Type card number manually" 
+                class="flex-1">
+                <template #trailing>
+                  <UIcon class="w-5 h-5 text-gray-400" name="hugeicons:credit-card" />
+                </template>
+              </UInput>
+              <UButton 
+                v-if="cardItems.length > 0"
+                :icon="manualCardEntry ? 'hugeicons:credit-card-change' : 'hugeicons:credit-card-add'"
+                color="neutral"
+                variant="soft"
+                @click="manualCardEntry = !manualCardEntry"
+                :label="manualCardEntry ? 'Choose from list' : 'Type manually'" />
+            </div>
+          </UFormField>
         </div>
 
         <USeparator label="Licenses / Validity" />
@@ -205,9 +265,7 @@ const onDelete = async () => {
               min="0" 
               max="100"
               class="w-full">
-              <template #trailing>
-                <div class="text-xs text-muted tabular-nums">%</div>
-              </template>
+              <template #trailing><div class="input_trailing">%</div></template>
             </UInput>
           </UFormField>
           <UFormField label="Track number" name="truck_number">
@@ -223,23 +281,17 @@ const onDelete = async () => {
         <div class="grid grid-cols-3 gap-4">
           <UFormField label="ELD" name="deductions.eld">
             <UInput v-model.number="state.deductions.eld" type="number">
-              <template #trailing>
-                <div class="text-xs text-muted tabular-nums">$</div>
-              </template>
+              <template #trailing><div class="input_trailing">$</div></template>
             </UInput>
           </UFormField>
           <UFormField label="Insurance" name="deductions.insurance">
             <UInput v-model.number="state.deductions.insurance" type="number">
-              <template #trailing>
-                <div class="text-xs text-muted tabular-nums">$</div>
-              </template>
+              <template #trailing><div class="input_trailing">$</div></template>
             </UInput>
           </UFormField>
           <UFormField label="Plates" name="deductions.plates">
             <UInput v-model.number="state.deductions.plates" type="number">
-              <template #trailing>
-                <div class="text-xs text-muted tabular-nums">$</div>
-              </template>
+              <template #trailing><div class="input_trailing">$</div></template>
             </UInput>
           </UFormField>
         </div>

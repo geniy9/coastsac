@@ -23,6 +23,9 @@ export function useRolePermissions() {
       canEditLoads: ['admin', 'dispatcher', 'accounting'].includes(role), // Бухгалтер правит факторинг
       canDeleteLoads: ['admin'].includes(role),
 
+      // Access to fuels management
+      canViewFuels: ['admin', 'accounting'].includes(role),
+
       // role helpers
       isAdmin: role === 'admin',
       isDispatcher: role === 'dispatcher',

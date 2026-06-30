@@ -24,24 +24,38 @@ export default () => {
       alt: name || "User Avatar"
     }
   }
+  const getMime = (file) => {
+    return (file.ext ? file.ext.replace(/^\./, '') : 'file').toUpperCase()
+  }
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'not_started': return 'neutral'
+      case 'in_transit': return 'info'
+      case 'loaded': return 'warning'
+      case 'unloaded': return 'success'
+      case 'cancelled': return 'error'
+      case 'tonu': return 'error'
+      default: return 'neutral'
+    }
+  }
   return {
     imageUrl,
     originUrl,
     getAvatar,
-    // конфигурации Drivers
+    getMime,
+    getStatusColor,
     trailerOptions: [
-      { value: 'van', label: 'Van' },
-      { value: 'reefer', label: 'Reefer' },
-      { value: 'flatbed', label: 'Flatbed' },
-      { value: 'stepdeck', label: 'Stepdeck' },
-      { value: 'conestoga', label: 'Conestoga' },
-      { value: 'power_only', label: 'Power Only' }
+      { value: 'van', label: 'Van', icon: 'hugeicons:van' },
+      { value: 'reefer', label: 'Reefer', icon: 'ph:truck-trailer' },
+      { value: 'flatbed', label: 'Flatbed', icon: 'bi:truck-flatbed' },
+      { value: 'stepdeck', label: 'Stepdeck', icon: 'hugeicons:tanker-truck' },
+      { value: 'conestoga', label: 'Conestoga', icon: 'streamline-ultimate:shipping-truck-style-2' },
+      { value: 'power_only', label: 'Power Only', icon: 'hugeicons:semi-truck' }
     ],
     driverTypeOptions: [
       { value: 'company_driver', label: 'Company Driver' },
       { value: 'owner_operator', label: 'Owner Operator' }
     ],
-    // конфигурации Loads
     statesList: [
       'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
     ],

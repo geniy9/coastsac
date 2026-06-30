@@ -1,3 +1,4 @@
+// components/HomeStats.vue
 <script setup>
 const props = defineProps({
   period: { 
