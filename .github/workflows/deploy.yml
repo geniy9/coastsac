@@ -39,11 +39,13 @@ jobs:
         with:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           ARGS: "-rlptzvi --delete"
-          SOURCE: ".output/ .env"
+          SOURCE: ".output/ .env ecosystem.config.js"
           REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.REMOTE_USER }}
           TARGET: ${{ secrets.TARGET_DIR }}
           EXCLUDE: "/dist/, /node_modules/"
           SCRIPT_AFTER: |
+            export PATH=$PATH:/usr/local/bin:/usr/bin
             cd ${{ secrets.TARGET_DIR }}
-            /usr/bin/pm2 reload coastsac-nuxt || PORT=3000 /usr/bin/pm2 start server/index.mjs --name "coastsac-nuxt"
+            pm2 startOrReload ecosystem.config.js --update-env
+            pm2 save
