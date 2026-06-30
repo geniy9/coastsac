@@ -44,7 +44,6 @@ jobs:
           REMOTE_USER: ${{ secrets.REMOTE_USER }}
           TARGET: ${{ secrets.TARGET_DIR }}
           EXCLUDE: "/dist/, /node_modules/"
-          SCRIPT_AFTER_REQUIRED: true
           SCRIPT_AFTER: |
             cd ${{ secrets.TARGET_DIR }}
-            pm2 reload coastsac-nuxt || PORT=3000 pm2 start .output/server/index.mjs --name "coastsac-nuxt"
+            pm2 reload coastsac-nuxt || PORT=3000 pm2 start server/index.mjs --name "coastsac-nuxt"
