@@ -44,9 +44,16 @@ jobs:
           REMOTE_USER: ${{ secrets.REMOTE_USER }}
           TARGET: ${{ secrets.TARGET_DIR }}
           EXCLUDE: "/dist/, /node_modules/"
-          SCRIPT_AFTER_REQUIRED: true
           SCRIPT_AFTER: |
-            export PATH=$PATH:/usr/local/bin:/usr/bin
+            # 1. Включаем строгий режим bash
+            set -ex
+            
+            # 2. Инициализируем окружение для PM2
+            export HOME=/home/${{ secrets.REMOTE_USER }}
+            export PATH=$PATH:/usr/local/bin:/usr/bin:/bin
+            
             cd ${{ secrets.TARGET_DIR }}
-            /usr/bin/pm2 startOrReload ecosystem.config.js --update-env
-            /usr/bin/pm2 save
+            
+            pm2 startOrReload ecosystem.config.js --update-env
+            
+            pm2 save
