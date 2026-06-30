@@ -184,7 +184,12 @@ const columns = [{
   cell: ({ row }) => {
     return h("div", { class: "text-right" },
       h(UDropdownMenu, { content: { align: "end" }, items: getRowItems(row) },
-        () => h(UButton, { color: "neutral", variant: "ghost", class: "ml-auto" })
+        () => h(UButton, {
+          icon: "hugeicons:more-vertical-circle-01",
+          color: "neutral",
+          variant: "ghost",
+          class: "ml-auto"
+        })
       )
     )
   }

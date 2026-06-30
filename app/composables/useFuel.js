@@ -17,7 +17,7 @@ export function useFuel() {
     return await $fetch(`/api/fuel/customers/${customerId}/cards/${cardId}/card_info`)
   }
 
-  // Получить транзакции компании, метод принимает объект с параметрами (например, { start_date, end_date })
+  // Получить транзакции, метод принимает объект с параметрами (например, { start_date, end_date })
   const getProcessedTransactions = async (queryParams, customerId = defaultCustomerId) => {
     return await $fetch(`/api/fuel/customers/${customerId}/transactions_processed`, {
       query: queryParams
