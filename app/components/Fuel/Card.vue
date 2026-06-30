@@ -172,11 +172,8 @@ const filteredTxs = computed(() => {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr 
-                      v-for="tx in filteredTxs" 
-                      :key="tx.id" 
-                      class="border-b border-default last:border-none hover:bg-elevated/10"
-                    >
+                    <tr v-for="tx in filteredTxs" :key="tx.id" 
+                      class="border-b border-default last:border-none hover:bg-elevated/10">
                       <td class="p-3 text-gray-500">
                         {{ tx.attributes?.transaction_timestamp ? new Date(tx.attributes.transaction_timestamp).toLocaleDateString() : 'N/A' }}
                       </td>
