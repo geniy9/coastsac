@@ -67,7 +67,6 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
-    // fuelCardApiToken: process.env.FUEL_CARD_API_TOKEN || '',
     fuelCardApiUsername: process.env.FUEL_CARD_API_USERNAME || '',
     fuelCardApiPassword: process.env.FUEL_CARD_API_PASSWORD || '',
     public: {

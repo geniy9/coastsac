@@ -17,7 +17,8 @@ const { data: response, status, refresh } = await useAsyncData('drivers', () =>
       populate: [
         'assigned_dispatcher', 
         'deductions', 
-        'user_account.avatar'
+        'user_account.avatar',
+        'extra_info.docs'
       ]
     }
   }), {
@@ -25,14 +26,12 @@ const { data: response, status, refresh } = await useAsyncData('drivers', () =>
     default: () => ({ data: [] })
   }
 )
-
 const drivers = computed(() => response.value?.data || [])
 
 const handleEdit = (driver) => {
   selectedDriver.value = driver
   isEditOpen.value = true
 }
-
 const handleRefresh = async () => {
   await refresh()
 }
@@ -48,7 +47,7 @@ const handleRefresh = async () => {
           <template #right>
             <UButton 
               v-if="permissions.canCreateDrivers"
-              icon="i-lucide-user-plus" 
+              icon="hugeicons:user-add-01" 
               label="Add driver"
               color="primary" 
               @click="isAddOpen = true" />

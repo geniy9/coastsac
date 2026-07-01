@@ -17,24 +17,6 @@ const { trailerOptions, driverTypeOptions } = useConfig()
 const { getCards } = useFuel()
 const manualCardEntry = ref(false)
 
-const { data: cardsResponse } = await useAsyncData('fuel-cards-dropdown-edit', async () => {
-  const res = await getCards()
-  return res?.data || []
-}, {
-  lazy: true,
-  default: () => []
-})
-const cards = computed(() => cardsResponse.value || [])
-const cardItems = computed(() => {
-  return cards.value.map(c => {
-    const attrs = c.attributes || c
-    return {
-      value: attrs.card_number,
-      label: `${attrs.card_number} (${attrs.status})`
-    }
-  })
-})
-
 const state = reactive({
   first_name: '',
   last_name: '',
@@ -55,10 +37,41 @@ const state = reactive({
     eld: 0,
     insurance: 0,
     plates: 0
+  },
+  extra_info: {
+    emergency_phone: '',
+    company_name: '',
+    ein_number: '',
+    home_address: '',
+    docs: []
   }
 })
+const uploaderRef = ref(null)
+const existingDocs = ref([])
 const loading = ref(false)
 const deleteLoading = ref(false)
+
+const removeExistingDoc = (docId) => {
+  existingDocs.value = existingDocs.value.filter(d => d.id !== docId)
+}
+
+const { data: cardsResponse } = await useAsyncData('fuel-cards-dropdown-edit', async () => {
+  const res = await getCards()
+  return res?.data || []
+}, {
+  lazy: true,
+  default: () => []
+})
+const cards = computed(() => cardsResponse.value || [])
+const cardItems = computed(() => {
+  return cards.value.map(c => {
+    const attrs = c.attributes || c
+    return {
+      value: attrs.card_number,
+      label: `${attrs.card_number} (${attrs.status})`
+    }
+  })
+})
 
 watch([cards, () => state.fuel_card_number], ([newCards, currentCard]) => {
   if (newCards.length > 0 && currentCard) {
@@ -94,8 +107,21 @@ watch(() => props.driver, (newVal) => {
         eld: newVal.deductions?.eld || 0,
         insurance: newVal.deductions?.insurance || 0,
         plates: newVal.deductions?.plates || 0
+      },
+      extra_info: {
+        emergency_phone: newVal.extra_info?.emergency_phone || '',
+        company_name: newVal.extra_info?.company_name || '',
+        ein_number: newVal.extra_info?.ein_number || '',
+        home_address: newVal.extra_info?.home_address || '',
+        docs: []
       }
     })
+
+    existingDocs.value = newVal.extra_info?.docs || []
+
+    if (uploaderRef.value) {
+      uploaderRef.value.clear()
+    }
   }
 }, { immediate: true })
 
@@ -109,9 +135,22 @@ const onSubmit = async () => {
 
   loading.value = true
   try {
+    let newUploadedDocIds = []
+    if (uploaderRef.value) {
+      newUploadedDocIds = await uploaderRef.value.uploadFiles()
+    }
+    const finalDocIds = [
+      ...existingDocs.value.map(d => d.id),
+      ...newUploadedDocIds
+    ]
+
     const payload = {
       data: {
         ...state,
+        extra_info: {
+          ...state.extra_info,
+          docs: finalDocIds
+        }
       }
     }
 
@@ -232,6 +271,50 @@ const onDelete = async () => {
                 :label="manualCardEntry ? 'Choose from list' : 'Type manually'" />
             </div>
           </UFormField>
+        </div>
+
+        <USeparator label="Extra info / Documents" />
+
+        <div class="grid grid-cols-2 gap-4">
+          <UFormField label="Emergency Phone" name="extra_info.emergency_phone">
+            <UInput v-model="state.extra_info.emergency_phone" class="w-full" />
+          </UFormField>
+          <UFormField label="Company Name" name="extra_info.company_name">
+            <UInput v-model="state.extra_info.company_name" class="w-full" />
+          </UFormField>
+          <UFormField label="EIN Number" name="extra_info.ein_number">
+            <UInput v-model="state.extra_info.ein_number" class="w-full" />
+          </UFormField>
+          <UFormField label="Home Address" name="extra_info.home_address">
+            <UInput v-model="state.extra_info.home_address" class="w-full" />
+          </UFormField>
+          
+          <div class="col-span-2 space-y-3">
+            <div v-if="existingDocs.length > 0" class="space-y-1.5">
+              <p class="text-xs font-semibold text-gray-400">
+                Current documents:
+              </p>
+              <div class="flex flex-wrap gap-2">
+                <div 
+                  v-for="doc in existingDocs" 
+                  :key="doc.id" 
+                  class="flex items-center gap-2 bg-gray-800/60 border border-gray-700 px-2 py-1 rounded-md text-xs">
+                  <span class="truncate max-w-45 text-gray-300">
+                    {{ doc.name || doc.url.split('/').pop() }}
+                  </span>
+                  <UButton 
+                    icon="i-lucide-x" 
+                    color="error" 
+                    variant="ghost" 
+                    size="xs" 
+                    class="p-0.5" 
+                    @click="removeExistingDoc(doc.id)" />
+                </div>
+              </div>
+            </div>
+
+            <UploaderFiles ref="uploaderRef" label="Driver's license, Contract, etc." />
+          </div>
         </div>
 
         <USeparator label="Licenses / Validity" />

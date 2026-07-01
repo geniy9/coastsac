@@ -31,8 +31,16 @@ const state = reactive({
     eld: 0,
     insurance: 0,
     plates: 0
+  },
+  extra_info: {
+    emergency_phone: '',
+    company_name: '',
+    ein_number: '',
+    home_address: '',
+    docs: []
   }
 })
+const uploaderRef = ref(null)
 const loading = ref(false)
 
 const { data: cardsResponse } = await useAsyncData('fuel-cards-dropdown-add', async () => {
@@ -56,9 +64,18 @@ const cardItems = computed(() => {
 const onSubmit = async () => {
   loading.value = true
   try {
+    let uploadedDocIds = []
+    if (uploaderRef.value) {
+      uploadedDocIds = await uploaderRef.value.uploadFiles()
+    }
+
     const payload = {
       data: {
         ...state,
+        extra_info: {
+          ...state.extra_info,
+          docs: uploadedDocIds
+        },
         assigned_dispatcher: user.value?.id
       }
     }
@@ -93,8 +110,19 @@ const onSubmit = async () => {
       truck_number: '',
       trailer: 'van',
       fuel_card_number: '',
-      deductions: { eld: 0, insurance: 0, plates: 0 }
+      deductions: { eld: 0, insurance: 0, plates: 0 },
+      extra_info: {
+        emergency_phone: '',
+        company_name: '',
+        ein_number: '',
+        home_address: '',
+        docs: []
+      }
     })
+
+    if (uploaderRef.value) {
+      uploaderRef.value.clear()
+    }
   } catch (error) {
     console.error(error)
     toast.add({
@@ -144,13 +172,6 @@ const onSubmit = async () => {
               icon="i-lucide-user-cog"
               class="w-full" />
           </UFormField>
-          <!-- <UFormField label="Fuel Card Number" name="fuel_card_number" class="col-span-2">
-            <UInput v-model="state.fuel_card_number" placeholder="0000000000000" class="w-full">
-              <template #trailing>
-                <UIcon class="w-5 h-5" name="hugeicons:credit-card" />
-              </template>
-            </UInput>
-          </UFormField> -->
           <UFormField label="Fuel Card Number" name="fuel_card_number" class="col-span-2">
             <div class="flex gap-1.5 w-full">
               <USelect 
@@ -177,6 +198,27 @@ const onSubmit = async () => {
                 :label="manualCardEntry ? 'Choose from list' : 'Type manually'" />
             </div>
           </UFormField>
+        </div>
+
+        <USeparator label="Extra info / Documents" />
+
+        <div class="grid grid-cols-2 gap-4">
+          <UFormField label="Emergency Phone" name="extra_info.emergency_phone">
+            <UInput v-model="state.extra_info.emergency_phone" class="w-full" />
+          </UFormField>
+          <UFormField label="Company Name" name="extra_info.company_name">
+            <UInput v-model="state.extra_info.company_name" class="w-full" />
+          </UFormField>
+          <UFormField label="EIN Number" name="extra_info.ein_number">
+            <UInput v-model="state.extra_info.ein_number" class="w-full" />
+          </UFormField>
+          <UFormField label="Home Address" name="extra_info.home_address">
+            <UInput v-model="state.extra_info.home_address" class="w-full" />
+          </UFormField>
+          
+          <div class="col-span-2">
+            <UploaderFiles ref="uploaderRef" label="Driver's license, Contract, etc."  />
+          </div>
         </div>
 
         <USeparator label="Licenses / Validity" />

@@ -30,28 +30,32 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 const ACCEPTED_MIMES = ['image/jpeg', 'image/png', 'application/pdf']
 const ACCEPTED_EXT = /\.(jpe?g|png|pdf)$/i
 
-// Схема валидации Zod, динамически реагирующая на props
 const schema = computed(() => {
   let filesSchema = z.array(
-    z.instanceof(File)
-      .refine(file => file.size <= MAX_FILE_SIZE, {
-        message: 'File too large (max. 5MB)'
-      })
-      .refine(file => {
-        if (ACCEPTED_MIMES.includes(file.type)) return true
-        if (!file.type && file.name) return ACCEPTED_EXT.test(file.name)
-        return false
-      }, {
-        message: 'Invalid format (JPG, PNG, PDF only)'
+    z.instanceof(File, { message: 'Invalid file object' })
+      .superRefine((file, ctx) => {
+        if (file.size > MAX_FILE_SIZE) {
+          ctx.addIssue({
+            code: 'custom',
+            message: `File "${file.name}" is too large (max. 5MB)`
+          })
+        }
+        const isValidMime = ACCEPTED_MIMES.includes(file.type)
+        const isValidExt = !file.type && file.name && ACCEPTED_EXT.test(file.name)
+
+        if (!isValidMime && !isValidExt) {
+          ctx.addIssue({
+            code: 'custom',
+            message: `File "${file.name}" has unsupported format (${file.type || 'unknown format'}). Allowed: JPG, PNG, PDF`
+          })
+        }
       })
   )
-
   if (props.required) {
     filesSchema = filesSchema.min(1, 'At least one file is required')
   }
-
   return z.object({
-    images: filesSchema.max(props.maxFiles, `Maximum ${props.maxFiles} files`)
+    images: filesSchema.max(props.maxFiles, `Maximum ${props.maxFiles} files allowed`)
   })
 })
 
@@ -60,11 +64,7 @@ const state = reactive({
   loading: false,
   progress: 0
 })
-
-// Оповещаем родителя при выборе или изменении файлов (нужно для автоматических триггеров)
-watch(() => state.images, (newVal) => {
-  emit('change', newVal)
-})
+watch(() => state.images, (newVal) => { emit('change', newVal) })
 
 let progressTimer = null
 function startSimulatedProgress() {
@@ -98,7 +98,6 @@ function normalizeUploadedResponse(res) {
   return [res]
 }
 
-// Очистка загрузчика после успешной отправки формы
 function clear() {
   state.images = []
   state.progress = 0
@@ -113,8 +112,14 @@ async function uploadFiles() {
   try {
     schema.value.parse({ images: state.images })
   } catch (err) {
-    const msg = err?.errors?.[0]?.message || 'File validation error'
-    toast.add({ title: msg, color: 'error', icon: 'i-hugeicons-cancel-circle' })
+    const issues = err?.issues || err?.errors || []
+    const msg = issues[0]?.message || err?.message || 'File validation error'
+    toast.add({ 
+      title: 'Validation Error',
+      description: msg,
+      color: 'error', 
+      icon: 'i-hugeicons-cancel-circle' 
+    })
     throw new Error(msg)
   }
 
@@ -156,7 +161,7 @@ async function uploadFiles() {
     <UFormField name="images">
       <UFileUpload
         v-model="state.images"
-        icon="i-hugeicons-upload-04"
+        icon="hugeicons:file-upload"
         :label="label"
         :description="description"
         layout="grid"
@@ -166,7 +171,7 @@ async function uploadFiles() {
           <div v-if="files?.length" class="mb-2 flex items-center justify-between">
             <p class="font-bold text-sm">Selected: {{ files?.length }}</p>
             <UButton
-              icon="i-hugeicons-plus-sign-circle"
+              icon="hugeicons:plus-sign-circle"
               label="Add"
               color="neutral"
               variant="outline"
