@@ -144,6 +144,14 @@ const toggleAccess = async (driver, isGranted) => {
   }
 }
 
+const handleRowClick = (event, row) => {
+  // Перенаправляем на детальную страницу водителя по его documentId
+  const documentId = row.original.documentId
+  if (documentId) {
+    navigateTo(`/dashboard/drivers/${documentId}`)
+  }
+}
+
 function getRowItems(row) {
   return [{
     label: "Edit",
@@ -162,13 +170,14 @@ const columns = [{
         ? "indeterminate"
         : table.getIsAllPageRowsSelected(),
       "onUpdate:modelValue": (value) => table.toggleAllPageRowsSelected(!!value),
-      ariaLabel: "Выбрать все"
+      ariaLabel: "Select all"
     }),
   cell: ({ row }) =>
     h(UCheckbox, {
       modelValue: row.getIsSelected(),
       "onUpdate:modelValue": (value) => row.toggleSelected(!!value),
-      ariaLabel: "Выбрать строку"
+      onClick: (e) => e.stopPropagation(),
+      ariaLabel: "Select line"
     })
 },{
   accessorKey: "email",
@@ -264,7 +273,10 @@ const columns = [{
     const driverId = row.original.id
     const hasAccess = !!row.original.user_account && !row.original.user_account?.blocked
 
-    return h("div", { class: "flex flex-col gap-1 items-start" }, [
+    return h("div", { 
+      class: "flex flex-col gap-1 items-start",
+      onClick: (e) => e.stopPropagation() 
+    }, [
       h(USwitch, {
         modelValue: hasAccess,
         loading: togglingAccessId.value === driverId,
@@ -281,7 +293,10 @@ const columns = [{
 },{
   id: "actions",
   cell: ({ row }) => {
-    return h("div", { class: "text-right" },
+    return h("div", { 
+      class: "text-right",
+      onClick: (e) => e.stopPropagation()
+    },
       h(UDropdownMenu, { content: { align: "end" }, items: getRowItems(row) },
         () => h(UButton, {
           icon: "hugeicons:more-vertical-circle-01",
@@ -340,6 +355,7 @@ const pagination = ref({ pageIndex: 0, pageSize: 24 })
       :data="drivers"
       :columns="columns"
       :loading="loading"
+      @select="handleRowClick"
       :ui="{
         base: 'table-fixed border-separate border-spacing-0',
         thead: '[&>tr]:bg-elevated/50 [&>tr]:after:content-none',

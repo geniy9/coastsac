@@ -163,7 +163,8 @@ async function uploadFiles() {
         v-model="state.images"
         icon="hugeicons:file-upload"
         :label="label"
-        :description="description"
+        :description="description" 
+        :file-delete="{ color: 'error', variant: 'solid', size: 'xs' }"
         layout="grid"
         multiple
         class="w-full min-h-32">

@@ -1,3 +1,4 @@
+// layouts/dashboard.vue
 <script setup>
 useHead({
   titleTemplate: (title) => {
