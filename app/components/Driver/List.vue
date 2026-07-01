@@ -221,10 +221,10 @@ const columns = [{
   }
 },{
   accessorKey: "commission_rate",
-  header: "Rate",
+  header: "Commission",
   cell: ({ row }) => {
-    const rate = row.original.commission_rate
-    return h("span", { class: "text-sm" }, `${rate}%` || '-')
+    const commission = row.original.commission_rate
+    return h("span", { class: "text-sm" }, `${commission}%` || '-')
   }
 },{
   id: "deductions",

@@ -1,33 +1,53 @@
+// server/api/fuel/[...path].ts
+import { getFuelToken, clearFuelTokenCache } from '../../utils/fuelAuth'
 import { defineEventHandler, getQuery, createError } from 'h3'
 
 export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig()
-  const token = config.fuelCardApiToken
+  const rawPath = event.context.params?.path || ''
+  const query = getQuery(event)
+  const targetUrl = `https://api.fleet.msfuelcard.com/v1/${rawPath}`
 
-  if (!token) {
+  // Не проксируем повторно роут логина, если он вызван напрямую
+  if (rawPath === 'login') {
     throw createError({
-      statusCode: 500,
-      statusMessage: 'Fuel Card API Token is not configured on the server.'
+      statusCode: 400,
+      statusMessage: 'Manual login through proxy is restricted'
     })
   }
 
-  // Извлекаем оставшуюся часть пути (например, customers/46876/cards)
-  const rawPath = event.context.params?.path || ''
-  const query = getQuery(event)
+  // Получаем токен из кэша или авторизуемся
+  let token = await getFuelToken()
 
-  // Базовый URL API из документации
-  const targetUrl = `https://api.fleet.msfuelcard.com/v1/${rawPath}`
-
-  try {
-    const response = await $fetch(targetUrl, {
+  const makeRequest = async (authToken: string) => {
+    return await $fetch(targetUrl, {
       query,
       headers: {
-        'Authorization': `Bearer ${token}`,
+        'Authorization': `Bearer ${authToken}`,
         'Accept': 'application/json'
       }
     })
-    return response
+  }
+
+  try {
+    return await makeRequest(token)
   } catch (error: any) {
+    // Обработка непредвиденного истечения срока токена (401)
+    if (error.response?.status === 401) {
+      console.warn('[Fuel Proxy] Received 401 Unauthorized, clearing token cache and retrying...')
+      clearFuelTokenCache()
+      
+      try {
+        const freshToken = await getFuelToken()
+        return await makeRequest(freshToken)
+      } catch (retryError: any) {
+        throw createError({
+          statusCode: retryError.response?.status || 401,
+          statusMessage: 'Fuel API retry with fresh token failed',
+          data: retryError.data
+        })
+      }
+    }
+
     throw createError({
       statusCode: error.response?.status || 500,
       statusMessage: error.response?.statusText || 'External Fuel API Error',

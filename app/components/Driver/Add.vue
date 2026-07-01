@@ -196,14 +196,14 @@ const onSubmit = async () => {
           </UFormField>
         </div>
 
-        <USeparator label="Type / Rate / Transport" />
+        <USeparator label="Type / Commission / Transport" />
 
         <div>
           <div class="grid grid-cols-2 gap-4">
             <UFormField label="Driver type" name="driver_type">
               <USelect v-model="state.driver_type" :items="driverTypeOptions" class="w-full" />
             </UFormField>
-            <UFormField label="Commission rate" name="commission_rate">
+            <UFormField label="Commission" name="commission_rate">
               <UInput 
                 v-model.number="state.commission_rate" 
                 type="number" 
