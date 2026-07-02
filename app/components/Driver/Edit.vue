@@ -36,7 +36,8 @@ const state = reactive({
   deductions: {
     eld: 0,
     insurance: 0,
-    plates: 0
+    plates: 0,
+    ifta: 0
   },
   extra_info: {
     emergency_phone: '',
@@ -106,7 +107,8 @@ watch(() => props.driver, (newVal) => {
       deductions: {
         eld: newVal.deductions?.eld || 0,
         insurance: newVal.deductions?.insurance || 0,
-        plates: newVal.deductions?.plates || 0
+        plates: newVal.deductions?.plates || 0,
+        ifta: newVal.deductions?.ifta || 0
       },
       extra_info: {
         emergency_phone: newVal.extra_info?.emergency_phone || '',
@@ -361,7 +363,7 @@ const onDelete = async () => {
 
         <USeparator label="Weekly Deductions" />
 
-        <div class="grid grid-cols-3 gap-4">
+        <div class="grid grid-cols-2 gap-4">
           <UFormField label="ELD" name="deductions.eld">
             <UInput v-model.number="state.deductions.eld" type="number">
               <template #trailing><div class="input_trailing">$</div></template>
@@ -374,6 +376,11 @@ const onDelete = async () => {
           </UFormField>
           <UFormField label="Plates" name="deductions.plates">
             <UInput v-model.number="state.deductions.plates" type="number">
+              <template #trailing><div class="input_trailing">$</div></template>
+            </UInput>
+          </UFormField>
+          <UFormField label="IFTA" name="deductions.ifta">
+            <UInput v-model.number="state.deductions.ifta" type="number">
               <template #trailing><div class="input_trailing">$</div></template>
             </UInput>
           </UFormField>

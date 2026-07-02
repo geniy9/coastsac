@@ -6,16 +6,23 @@ definePageMeta({
 
 const route = useRoute()
 const driverId = route.params.id
-
 const { permissions } = useRolePermissions()
 const client = useStrapiClient()
-const config = useConfig()
+const { 
+  trailerOptions, 
+  driverTypeOptions, 
+  getFileUrl,
+  isImageFile,
+  thumbImg, 
+  copyBoofer, 
+  getExpiryColor 
+} = useConfig()
 
 const isEditOpen = ref(false)
 const isPreviewOpen = ref(false)
 const previewFile = ref(null)
 
-// Загрузка детальной информации по водителю с необходимыми связями
+// REQUEST DRIVER DETAILS
 const { data: response, status, refresh } = await useAsyncData(`driver-${driverId}`, () => 
   client(`/drivers/${driverId}`, {
     query: {
@@ -31,10 +38,8 @@ const { data: response, status, refresh } = await useAsyncData(`driver-${driverI
     default: () => null
   }
 )
-
 const driver = computed(() => response.value?.data || response.value || null)
 
-// Отображаемое имя водителя (Имя Фамилия || username)
 const displayName = computed(() => {
   if (!driver.value) return ''
   const first = driver.value.first_name || ''
@@ -45,7 +50,6 @@ const displayName = computed(() => {
 const handleRefresh = async () => {
   await refresh()
 }
-
 const printProfile = () => {
   if (import.meta.client) {
     window.print()
@@ -57,65 +61,25 @@ const downloadFile = (url) => {
   }
 }
 
-// Хелперы для типов оборудования и типов водителей
+// HELPERS
 const getTrailerIcon = (type) => {
-  const option = config.trailerOptions.find(opt => opt.value === type)
+  const option = trailerOptions.find(opt => opt.value === type)
   return option ? option.icon : 'hugeicons:semi-truck'
 }
 const getTrailerLabel = (type) => {
-  const option = config.trailerOptions.find(opt => opt.value === type)
+  const option = trailerOptions.find(opt => opt.value === type)
   return option ? option.label : type
 }
 const getDriverTypeLabel = (type) => {
-  const option = config.driverTypeOptions.find(opt => opt.value === type)
+  const option = driverTypeOptions.find(opt => opt.value === type)
   return option ? option.label : type
-}
-
-// Подсветка истекающих лицензий (менее 7 дней)
-const getExpiryColor = (dateStr) => {
-  if (!dateStr || dateStr === '-') return 'neutral'
-  return lessThanWeek(dateStr) ? 'error' : 'success'
-}
-
-const lessThanWeek = (dateStr) => {
-  if (!dateStr || dateStr === '-') return false
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const expiryDate = new Date(dateStr)
-  expiryDate.setHours(0, 0, 0, 0)
-  const diffDays = (expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-  return diffDays < 7
-}
-
-// Проверка типа файла для отображения миниатюр
-const isImageFile = (file) => {
-  const mime = file.mime || ''
-  const ext = file.ext || ''
-  return mime.startsWith('image/') || /\.(jpe?g|png|webp|gif)$/i.test(ext || file.url)
-}
-
-const getFileUrl = (file) => {
-  if (!file) return ''
-  if (file.url.startsWith('http')) return file.url
-  return `${config.imageUrl}${file.url}`
-}
-
-const getFileThumbnail = (file) => {
-  if (!file) return ''
-  if (isImageFile(file)) {
-    if (file.formats?.thumbnail) {
-      return getFileUrl(file.formats.thumbnail)
-    }
-    return getFileUrl(file)
-  }
-  return ''
 }
 
 const getFileIcon = (file) => {
   const ext = (file.ext || '').replace(/^\./, '').toLowerCase()
-  if (ext === 'pdf') return 'hugeicons:file-pdf'
-  if (isImageFile(file)) return 'hugeicons:file-attachment-png'
-  return 'hugeicons:file-blank'
+  if (ext === 'pdf') return 'hugeicons:pdf-01'
+  if (isImageFile(file)) return 'hugeicons:document-attachment'
+  return 'hugeicons:file-not-found'
 }
 
 const handleFileClick = (file) => {
@@ -132,7 +96,7 @@ const handleFileClick = (file) => {
   <div class="flex-1 flex flex-col min-h-0 min-w-0 w-full">
     <UDashboardPanel :id="driverId || 'driver-id'">
       <template #header>
-        <UDashboardNavbar :title="displayName || 'Loading...'">
+        <UDashboardNavbar :title="displayName || 'Loading...'" class="no-print">
           <template #leading>
             <UDashboardSidebarCollapse />
             <UButton 
@@ -165,18 +129,18 @@ const handleFileClick = (file) => {
           <div v-if="status === 'pending' && !driver" class="flex-1 flex flex-col items-center justify-center gap-2">
             <p class="text-sm text-gray-500">Loading profile data...</p>
           </div>
-          <!-- Ошибка: водитель не найден -->
+          <!-- Driver not found -->
           <div v-else-if="!driver" class="flex-1 flex flex-col items-center justify-center p-6 text-center gap-3">
             <p class="text-lg font-semibold text-error">Driver profile not found</p>
             <UButton to="/dashboard/drivers" label="Go to Drivers List" color="neutral" variant="ghost" />
           </div>
 
           <div v-else class="print-area space-y-4 overflow-y-auto flex-1 w-full pr-4">
-            <!-- CV Hero Section -->
-
+            
+            <!-- HEAD PROFILE-->
             <UCard variant="soft">
               <template #header>
-                <div class="flex flex-wrap items-center gap-2">
+                <div class="flex flex-wrap items-center gap-4">
                   <h1 class="text-2xl font-bold text-highlighted">
                     {{ displayName }}
                   </h1>
@@ -184,7 +148,7 @@ const handleFileClick = (file) => {
                     {{ getDriverTypeLabel(driver.driver_type) }}
                   </UBadge>
                   <UBadge :color="driver.user_account?.blocked ? 'error' : 'success'" variant="soft">
-                    {{ driver.user_account ? (driver.user_account.blocked ? 'No access' : 'Has access') : 'No Account' }}
+                    {{ driver.user_account ? (driver.user_account.blocked ? 'No Access' : 'Has Access') : 'No Account' }}
                   </UBadge>
                 </div>
               </template>
@@ -192,9 +156,9 @@ const handleFileClick = (file) => {
               <div class="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
                 <div class="flex items-center gap-5">
                   <UAvatar 
-                    :src="driver.user_account?.avatar ? config.thumbImg(driver.user_account.avatar) : ''" 
+                    :src="driver.user_account?.avatar ? thumbImg(driver.user_account.avatar) : ''" 
                     :alt="displayName"
-                    class="w-20 h-20 rounded-full border-2 border-primary" />
+                    class="w-20 h-20 sm:w-32 sm:h-32 rounded-full border-2 border-primary" />
                   <div class="flex flex-col gap-2 font-mono text-sm text-gray-500">
                     <span class="flex items-center gap-2">
                       <UIcon name="hugeicons:identity-card" class="w-5 h-5" />
@@ -211,88 +175,84 @@ const handleFileClick = (file) => {
                   </div>
                 </div>
                 
-                <div class="flex flex-row md:flex-col gap-2 w-full md:w-auto text-sm">
+                <div class="flex flex-row md:flex-col gap-2 w-full md:w-auto text-sm font-mono">
                   <div class="p-3 flex-1 md:text-right">
-                    <p class="text-xs text-gray-500">Assigned Dispatcher</p>
-                    <p class="font-medium text-highlighted">
-                      {{ driver.assigned_dispatcher?.name || driver.assigned_dispatcher?.username || 'None' }}
+                    <p class="text-xs text-gray-500">Hired Date</p>
+                    <p class="text-highlighted">
+                      {{ driver.hired_date || '-' }}
                     </p>
                   </div>
                   <div class="p-3 flex-1 md:text-right">
-                    <p class="text-xs text-gray-500">Hired Date</p>
-                    <p class="font-medium text-highlighted font-mono">
-                      {{ driver.hired_date || '-' }}
+                    <p class="text-xs text-gray-500">Assigned Dispatcher</p>
+                    <p class="text-highlighted">
+                      {{ driver.assigned_dispatcher?.name || driver.assigned_dispatcher?.username || 'None' }}
                     </p>
                   </div>
                 </div>
               </div>
             </UCard>
 
-            <!-- Сетка с подробной информацией -->
+            <!-- BODY PROFILE -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               
-              <!-- Левая колонка -->
+              <!-- LEFT -->
               <div class="md:col-span-2 space-y-4">
                 
-                <!-- Раздел документов / лицензий -->
+                <!-- Licenses -->
                 <UCard variant="soft" title="Licenses & Compliance">
                   <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
                       <p class="text-xs text-gray-500">CDL Number</p>
-                      <p class="text-sm font-semibold text-highlighted mt-1 font-mono">
+                      <p class="text-sm font-semibold text-highlighted font-mono">
                         {{ driver.cdl_number || 'N/A' }}
                       </p>
                     </div>
                     <div>
                       <p class="text-xs text-gray-500">CDL Expiry</p>
-                      <div class="mt-1">
-                        <UBadge :color="getExpiryColor(driver.cdl_expiry)" variant="soft">
-                          {{ driver.cdl_expiry || 'N/A' }}
-                        </UBadge>
-                      </div>
+                      <UBadge :color="getExpiryColor(driver.cdl_expiry)" variant="soft">
+                        {{ driver.cdl_expiry || 'N/A' }}
+                      </UBadge>
                     </div>
                     <div>
                       <p class="text-xs text-gray-500">Medical Expiry</p>
-                      <div class="mt-1">
-                        <UBadge :color="getExpiryColor(driver.medical_expiry)" variant="soft">
-                          {{ driver.medical_expiry || 'N/A' }}
-                        </UBadge>
-                      </div>
+                      <UBadge :color="getExpiryColor(driver.medical_expiry)" variant="soft">
+                        {{ driver.medical_expiry || 'N/A' }}
+                      </UBadge>
                     </div>
                   </div>
                 </UCard>
 
-                <!-- Personal information -->
-                <UCard variant="soft" title="Personal information">
-                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <p class="text-xs text-gray-500">Emergency Phone</p>
-                      <p class="text-sm text-highlighted mt-1 font-mono">
-                        {{ driver.extra_info?.emergency_phone || 'N/A' }}
-                      </p>
-                    </div>
-                    <div>
-                      <p class="text-xs text-gray-500">Home Address</p>
-                      <p class="text-sm text-highlighted mt-1">
-                        {{ driver.extra_info?.home_address || 'N/A' }}
-                      </p>
-                    </div>
+                <!-- Extra info -->
+                <UCard variant="soft" title="Extra Information">
+                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
                     <div>
                       <p class="text-xs text-gray-500">Company Name</p>
-                      <p class="text-sm text-highlighted mt-1">
+                      <p class="text-sm text-highlighted">
                         {{ driver.extra_info?.company_name || 'N/A' }}
                       </p>
                     </div>
                     <div>
+                      <p class="text-xs text-gray-500">Emergency Phone</p>
+                      <p class="text-sm text-highlighted font-mono">
+                        {{ driver.extra_info?.emergency_phone || 'N/A' }}
+                      </p>
+                    </div>
+                    <div>
                       <p class="text-xs text-gray-500">EIN Number</p>
-                      <p class="text-sm text-highlighted mt-1 font-mono">
+                      <p class="text-sm text-highlighted font-mono">
                         {{ driver.extra_info?.ein_number || 'N/A' }}
                       </p>
                     </div>
                   </div>
+                  <div>
+                    <p class="text-xs text-gray-500">Home Address</p>
+                    <p class="text-sm text-highlighted">
+                      {{ driver.extra_info?.home_address || 'N/A' }}
+                    </p>
+                  </div>
                 </UCard>
 
-                <!-- Прикрепленные документы (Миниатюры) -->
+                <!-- ATTACHMENTS -->
                 <UCard variant="soft">
                   <template #header>
                     <div class="flex items-center justify-between">
@@ -306,35 +266,30 @@ const handleFileClick = (file) => {
                   </template>
                   <div v-if="driver.extra_info?.docs?.length" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div v-for="file in driver.extra_info.docs" :key="file.id" 
-                      class="flex items-center gap-3 p-3 border border-gray-500/50 rounded-lg hover:border-primary/50 transition cursor-pointer group"
+                      class="flex items-center gap-3 p-2 border border-primary/20 rounded-lg hover:border-primary/50 transition cursor-pointer group"
                       @click="handleFileClick(file)">
 
                       <div class="w-12 h-12 shrink-0 rounded-md overflow-hidden flex items-center justify-center">
-                        <img 
-                          v-if="isImageFile(file)" 
-                          :src="getFileThumbnail(file)" 
+                        <img v-if="isImageFile(file)" 
+                          :src="thumbImg(file)" 
                           class="w-full h-full object-cover" 
                           alt="Document Thumbnail" />
-                        <UIcon 
-                          v-else 
-                          :name="getFileIcon(file)" 
-                          class="w-6 h-6 text-primary" />
+                        <UIcon v-else :name="getFileIcon(file)" class="w-8 h-8 text-primary" />
                       </div>
                       
                       <div class="min-w-0 flex-1">
                         <p class="text-xs font-semibold text-highlighted truncate group-hover:text-primary transition">
                           {{ file.name || file.url.split('/').pop() }}
                         </p>
-                        <p class="text-[10px] text-gray-500 uppercase mt-0.5 font-mono">
+                        <p class="text-xs text-gray-500 uppercase mt-0.5 font-mono">
                           {{ (file.ext || 'FILE').replace('.', '') }}
                         </p>
                       </div>
                       
                       <div class="flex items-center gap-1">
                         <UButton 
-                          icon="i-lucide-download" 
-                          color="neutral" 
-                          variant="ghost" 
+                          icon="hugeicons:download-01" 
+                          variant="soft" 
                           size="sm" 
                           title="Download"
                           @click.stop="downloadFile(getFileUrl(file))" />
@@ -354,7 +309,7 @@ const handleFileClick = (file) => {
                 </UCard>
               </div>
 
-              <!-- Правая колонка -->
+              <!-- RIGHT COL -->
               <div class="space-y-4">
                 
                 <!-- Transport -->
@@ -362,7 +317,15 @@ const handleFileClick = (file) => {
                   <div class="flex flex-col gap-2">
                     <div class="flex justify-between items-center">
                       <span class="text-xs text-gray-500">Truck Number</span>
-                      <UButton :label="driver.truck_number || 'N/A'" variant="soft" />
+                      <UFieldGroup v-if="driver.truck_number">
+                        <UButton :label="driver.truck_number" variant="soft" size="sm" />
+                        <UButton 
+                          icon="hugeicons:copy-01" 
+                          variant="soft" 
+                          size="sm"
+                          @click="copyBoofer(driver.truck_number)" />
+                      </UFieldGroup>
+                      <p v-else class="text-xs text-gray-500 italic">-</p>
                     </div>
                     <div class="flex justify-between items-center py-0.5">
                       <span class="text-xs text-gray-500">Trailer Type</span>
@@ -376,29 +339,35 @@ const handleFileClick = (file) => {
 
                 <!-- Deductions -->
                 <UCard variant="soft" title="Weekly Deductions">
-                  <div class="space-y-3">
+                  <div class="space-y-3 font-mono">
                     <div class="flex justify-between items-center">
                       <span class="text-xs text-gray-500">ELD</span>
-                      <span class="text-sm font-semibold text-highlighted font-mono">
+                      <span class="text-sm text-highlighted">
                         ${{ driver.deductions?.eld || 0 }}
                       </span>
                     </div>
                     <div class="flex justify-between items-center">
                       <span class="text-xs text-gray-500">Insurance</span>
-                      <span class="text-sm font-semibold text-highlighted font-mono">
+                      <span class="text-sm text-highlighted">
                         ${{ driver.deductions?.insurance || 0 }}
                       </span>
                     </div>
                     <div class="flex justify-between items-center">
                       <span class="text-xs text-gray-500">Plates</span>
-                      <span class="text-sm font-semibold text-highlighted font-mono">
+                      <span class="text-sm text-highlighted">
                         ${{ driver.deductions?.plates || 0 }}
                       </span>
                     </div>
-                    <div class="pt-2 border-t border-gray-800 flex justify-between items-center font-bold">
+                    <div class="flex justify-between items-center">
+                      <span class="text-xs text-gray-500">IFTA</span>
+                      <span class="text-sm text-highlighted">
+                        ${{ driver.deductions?.ifta || 0 }}
+                      </span>
+                    </div>
+                    <div class="pt-2 flex justify-between items-center font-semibold">
                       <span class="text-xs text-gray-400">Total</span>
-                      <span class="text-sm text-primary font-mono">
-                        ${{ (driver.deductions?.eld || 0) + (driver.deductions?.insurance || 0) + (driver.deductions?.plates || 0) }}
+                      <span class="text-sm text-primary">
+                        ${{ (driver.deductions?.eld || 0) + (driver.deductions?.insurance || 0) + (driver.deductions?.plates || 0) + (driver.deductions?.ifta || 0) }}
                       </span>
                     </div>
                   </div>
@@ -408,21 +377,20 @@ const handleFileClick = (file) => {
                 <UCard variant="soft" title="Finances & Fuel">
                   <div class="space-y-4">
                     <div class="flex justify-between items-center">
-                      <span class="text-xs text-gray-500">Commission Rate</span>
+                      <span class="text-xs text-gray-500">Commission</span>
                       <span class="text-sm font-bold text-primary">
                         {{ driver.commission_rate || 0 }}%
                       </span>
                     </div>
-                    <div class="space-y-1.5">
-                      <p class="text-xs text-gray-500">Fuel Card Number</p>
+                    <div class="flex justify-between items-center">
+                      <p class="text-xs text-gray-500">Fuel Card</p>
                       <UFieldGroup v-if="driver.fuel_card_number">
+                        <UButton :label="driver.fuel_card_number" variant="soft" size="sm" />
                         <UButton 
-                          :label="driver.fuel_card_number"
-                          variant="soft" class="w-full" />
-                        <UButton 
-                          icon="i-lucide-copy" 
+                          icon="hugeicons:copy-01" 
                           variant="soft" 
-                          @click="config.copyBoofer(driver.fuel_card_number)" />
+                          size="sm"
+                          @click="copyBoofer(driver.fuel_card_number)" />
                       </UFieldGroup>
                       <p v-else class="text-xs text-gray-500 italic">No assigned card</p>
                     </div>
@@ -438,10 +406,9 @@ const handleFileClick = (file) => {
         </div>
 
 
-        <!-- DriverEdit -->
+        <!-- EDIT -->
         <DriverEdit v-model:open="isEditOpen" :driver="driver" @success="handleRefresh" />
-
-        <!-- POPUP IMAGE -->
+        <!-- POPUP -->
         <UModal v-model:open="isPreviewOpen" :ui="{ width: 'sm:max-w-3xl' }">
           <template #content>
             <div class="p-4 flex flex-col items-center">
@@ -452,8 +419,7 @@ const handleFileClick = (file) => {
                 <UButton icon="i-lucide-x" color="neutral" variant="ghost" @click="isPreviewOpen = false" />
               </div>
               <div class="relative max-h-[75vh] overflow-auto flex items-center justify-center bg-black/40 rounded-lg p-2 w-full">
-                <img 
-                  :src="previewFile?.fullUrl" 
+                <img :src="previewFile?.fullUrl" 
                   class="max-h-[65vh] w-auto h-auto object-contain rounded-md" 
                   alt="Document attachment preview" />
               </div>
@@ -478,69 +444,55 @@ const handleFileClick = (file) => {
   </div>
 </template>
 <style scoped>
-/* Print-Friendly */
 @media print {
-  header, 
-  nav, 
-  aside, 
-  button, 
-  .no-print,
-  #default,
-  [id^="default"],
-  .dashboard-sidebar,
-  .dashboard-navbar,
-  .dashboard-header {
-    display: none !important;
+  :deep(.no-print), .no-print { 
+    display: none !important; 
   }
 
-  body, 
-  .dashboard, 
-  main, 
-  .print-area {
+  body, .dashboard, main, .print-area {
     background: #ffffff !important;
     color: #000000 !important;
     margin: 0 !important;
     padding: 0 !important;
     width: 100% !important;
-    max-width: 100% !important;
     box-shadow: none !important;
+    overflow: visible !important;
   }
 
-  .grid {
-    display: grid !important;
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    gap: 1.5rem !important;
-  }
-  
-  .md\:col-span-2 {
-    grid-column: span 2 / span 2 !important;
-  }
+  .print-grid, .print-grid-3, .print-grid-2 { display: grid !important; gap: 1rem !important; }
+  .print-grid, .print-grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+  .print-grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .print-col-span-2 { grid-column: span 2 / span 2 !important; }
 
-  .bg-gray-900\/40, 
-  .bg-gray-900\/30, 
-  .bg-gray-800\/20, 
-  .bg-gray-800\/40, 
-  .bg-gray-800,
-  .bg-gray-800\/60 {
-    background-color: #f9fafb !important;
-    border: 1px solid #e5e7eb !important;
-    border-radius: 0.5rem !important;
-  }
-
-  .text-highlighted, h1, h2, h3, h4, .text-primary {
-    color: #111827 !important;
-  }
-
-  .text-gray-400, .text-gray-500, .text-muted {
-    color: #4b5563 !important;
-  }
-
-  .border, .border-b, .border-t, .border-default, .border-gray-800, .border-gray-700\/50 {
-    border-color: #e5e7eb !important;
-  }
-
-  .rounded-full, .rounded-md, .rounded-lg, .rounded-xl {
+  .print-card, .print-file-row, :deep(.rounded-lg), :deep(.border) {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important; /* Мягкий серый бордер */
     border-radius: 0.375rem !important;
+    box-shadow: none !important;
+    margin-bottom: 1rem !important;
   }
+  .print-file-row { background: #f8fafc !important; }
+  .print-avatar { border: 2px solid #cbd5e1 !important; }
+
+  .print-badge, .print-badge-btn, :deep(.u-badge), :deep([class*="UBadge"]), :deep(.print-badge-btn) {
+    display: inline-flex !important;
+    background: #f1f5f9 !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+    padding: 2px 8px !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    border-radius: 0.25rem !important;
+    pointer-events: none !important;
+  }
+
+  h1, h2, h3, h4, .text-highlighted, .text-primary, .print-text-primary, .print-notes, :deep(.text-highlighted), :deep(.text-primary) {
+    color: #000000 !important;
+    font-weight: bold !important;
+  }
+  .text-gray-400, .text-gray-500, :deep(.text-gray-400), :deep(.text-gray-500) {
+    color: #374151 !important; 
+  }
+  .print-icon, :deep(.print-icon) { color: #4b5563 !important; }
 }
 </style>

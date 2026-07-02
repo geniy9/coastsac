@@ -31,7 +31,7 @@ const items = computed(() => [
   }],
   [{
     label: "Settings",
-    icon: "i-lucide-settings",
+    icon: "hugeicons:settings-01",
     to: "/dashboard/settings",
   }],
   [{
@@ -81,7 +81,7 @@ const items = computed(() => [
     icon: "i-lucide-sun-moon",
     children: [{
       label: "Light",
-      icon: "i-lucide-sun",
+      icon: "hugeicons:sun-02",
       type: "checkbox",
       checked: colorMode.value === "light",
       onSelect(e) {
@@ -90,7 +90,7 @@ const items = computed(() => [
       },
     },{
       label: "Dark",
-      icon: "i-lucide-moon",
+      icon: "hugeicons:moon-02",
       type: "checkbox",
       checked: colorMode.value === "dark",
       onUpdateChecked(checked) {
@@ -101,7 +101,7 @@ const items = computed(() => [
   }],
   [{
     label: "Log out",
-    icon: "i-lucide-log-out",
+    icon: "hugeicons:logout-04",
     onSelect: handleLogout
   }],
 ]);
@@ -113,7 +113,7 @@ const items = computed(() => [
     :ui="{ content: collapsed ? 'w-48' : 'w-(--reka-dropdown-menu-trigger-width)' }">
     <UButton
       v-bind="{
-        avatar: getAvatar(user.avatar, user.name || user.username),
+        avatar: getAvatar(user?.avatar, user?.name || user?.username),
         label: collapsed ? undefined : user?.username || 'Guest',
         trailingIcon: collapsed ? undefined : 'i-lucide-chevrons-up-down',
       }"

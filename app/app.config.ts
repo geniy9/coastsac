@@ -75,6 +75,12 @@ export default defineAppConfig({
       }
     },
 
+    separator: {
+      slots: {
+        label: 'text-(--ui-primary)'
+      },
+    },
+
     pagination: {
       slots: {
         first: 'cursor-pointer',

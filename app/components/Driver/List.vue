@@ -2,7 +2,7 @@
 <script setup>
 import { getPaginationRowModel } from "@tanstack/table-core";
 const client = useStrapiClient()
-const { thumbImg } = useConfig()
+const { thumbImg, getExpiryColor } = useConfig()
 
 const props = defineProps({
   drivers: {
@@ -242,10 +242,12 @@ const columns = [{
     const eld = row.original.deductions.eld || '0'
     const insurance = row.original.deductions.insurance || '0'
     const plates = row.original.deductions.plates || '0'
+    const ifta = row.original.deductions.ifta || '0'
     return h("div", { class: "text-xs text-gray-500 font-mono" }, [
       h("p", undefined, `${eld}$ ELD`),
       h("p", undefined, `${insurance}$ Insurance`),
-      h("p", undefined, `${plates}$ Plates`)
+      h("p", undefined, `${plates}$ Plates`),
+      h("p", undefined, `${ifta}$ IFTA`)
     ])
   }
 },{
@@ -308,20 +310,6 @@ const columns = [{
     )
   }
 }]
-
-const getExpiryColor = (dateStr) => {
-  if (!dateStr || dateStr === '-') return 'neutral'; // Серый цвет, если дата отсутствует
-  return lessThanWeek(dateStr) ? 'error' : 'success';
-}
-const lessThanWeek = (dateStr) => {
-  if (!dateStr || dateStr === '-') return false;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const expiryDate = new Date(dateStr);
-  expiryDate.setHours(0, 0, 0, 0);
-  const diffDays = (expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
-  return diffDays < 7;
-}
 
 const emailSearch = computed({
   get: () => table.value?.tableApi?.getColumn("email")?.getFilterValue() || "",

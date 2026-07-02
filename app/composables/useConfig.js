@@ -38,12 +38,65 @@ export default () => {
       default: return 'neutral'
     }
   }
+  const getExpiryColor = (dateStr) => {
+    if (!dateStr || dateStr === '-') return 'neutral'
+    return lessThanWeek(dateStr) ? 'error' : 'success'
+  }
+  const lessThanWeek = (dateStr) => {
+    if (!dateStr || dateStr === '-') return false
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const expiryDate = new Date(dateStr)
+    expiryDate.setHours(0, 0, 0, 0)
+    const diffDays = (expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+    return diffDays < 7
+  }
+  const isImageFile = (file) => {
+    const mime = file.mime || ''
+    const ext = file.ext || ''
+    return mime.startsWith('image/') || /\.(jpe?g|png|gif)$/i.test(ext || file.url)
+  }
+  const getFileUrl = (file) => {
+    if (!file) return ''
+    if (file.url.startsWith('http')) return file.url
+    return `${imageUrl}${file.url}`
+  }
+  const thumbImg = (file) => {
+    if (!file) return ''
+    if (isImageFile(file)) {
+      if (file.formats?.thumbnail) { return getFileUrl(file.formats.thumbnail) }
+      return getFileUrl(file)
+    }
+    return ''
+  }
+  const smallImg = (file) => {
+    if (!file) return ''
+    if (isImageFile(file)) {
+      if (file.formats?.small) { return getFileUrl(file.formats.small) }
+      return getFileUrl(file)
+    }
+    return ''
+  }
+  const mediumImg = (file) => {
+    if (!file) return ''
+    if (isImageFile(file)) {
+      if (file.formats?.medium) { return getFileUrl(file.formats.medium) }
+      return getFileUrl(file)
+    }
+    return ''
+  }
   return {
     imageUrl,
     originUrl,
     getAvatar,
     getMime,
     getStatusColor,
+    getExpiryColor,
+    isImageFile,
+    getFileUrl,
+    thumbImg,
+    smallImg,
+    mediumImg,
     trailerOptions: [
       { value: 'van', label: 'Van', icon: 'hugeicons:van' },
       { value: 'reefer', label: 'Reefer', icon: 'ph:truck-trailer' },
@@ -91,21 +144,6 @@ export default () => {
     },
     truncate: (str, value = 100, ends = '...') => { 
       return `${(str || '').substring(0, value)}${str?.length > value ? ends : ''}`
-    },
-    thumbImg: (img) => {
-      return `${imageUrl}${img?.formats.thumbnail ? img.formats.thumbnail.url : img.url}`
-    },
-    smallImg: (img) => {
-      return `${imageUrl}${img?.formats?.small ? img.formats.small.url : img.url}`
-    },
-    mediumImg: (img) => {
-      if (img?.formats.medium) {
-        return `${imageUrl}${img.formats.medium.url}`
-      } else if (img?.formats.small) {
-        return `${imageUrl}${img.formats.small.url}`
-      } else {
-        return `${imageUrl}${img.url}`
-      }
     },
   }
 }

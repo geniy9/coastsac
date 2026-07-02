@@ -30,7 +30,8 @@ const state = reactive({
   deductions: {
     eld: 0,
     insurance: 0,
-    plates: 0
+    plates: 0,
+    ifta: 0
   },
   extra_info: {
     emergency_phone: '',
@@ -110,7 +111,7 @@ const onSubmit = async () => {
       truck_number: '',
       trailer: 'van',
       fuel_card_number: '',
-      deductions: { eld: 0, insurance: 0, plates: 0 },
+      deductions: { eld: 0, insurance: 0, plates: 0, ifta: 0 },
       extra_info: {
         emergency_phone: '',
         company_name: '',
@@ -212,10 +213,9 @@ const onSubmit = async () => {
           <UFormField label="EIN Number" name="extra_info.ein_number">
             <UInput v-model="state.extra_info.ein_number" class="w-full" />
           </UFormField>
-          <UFormField label="Home Address" name="extra_info.home_address">
+          <UFormField label="Home Address" name="extra_info.home_address" class="col-span-2">
             <UInput v-model="state.extra_info.home_address" class="w-full" />
           </UFormField>
-          
           <div class="col-span-2">
             <UploaderFiles ref="uploaderRef" label="Driver's license, Contract, etc."  />
           </div>
@@ -267,7 +267,7 @@ const onSubmit = async () => {
 
         <USeparator label="Weekly Deductions" />
 
-        <div class="grid grid-cols-3 gap-4">
+        <div class="grid grid-cols-2 gap-4">
           <UFormField label="ELD" name="deductions.eld">
             <UInput v-model.number="state.deductions.eld" type="number">
               <template #trailing>
@@ -282,6 +282,11 @@ const onSubmit = async () => {
           </UFormField>
           <UFormField label="Plates" name="deductions.plates">
             <UInput v-model.number="state.deductions.plates" type="number">
+              <template #trailing><div class="input_trailing">$</div></template>
+            </UInput>
+          </UFormField>
+          <UFormField label="IFTA" name="deductions.ifta">
+            <UInput v-model.number="state.deductions.ifta" type="number">
               <template #trailing><div class="input_trailing">$</div></template>
             </UInput>
           </UFormField>
