@@ -176,7 +176,6 @@ const onSubmit = async () => {
     Object.assign(state, {
       load_number: '',
       pickup_date: new Date().toISOString().split('T')[0],
-      // pickup_time: getRoundedTime(),
       pickup_time: new Time(12, 0, 0),
       driver: null,
       broker: '',

@@ -32,19 +32,6 @@ const columnFilters = ref([{ id: "load_number", value: "" }])
 const columnVisibility = ref()
 const rowSelection = ref({})
 
-function getRowItems(row) {
-  return [{
-    label: "Actions",
-    class: "cursor-default"
-  },{
-    label: "Edit",
-    icon: "hugeicons:pencil-edit-02",
-    onSelect() {
-      emit('edit', row.original)
-    }
-  }]
-}
-
 const columns = [{
   id: "select",
   header: ({ table }) =>
@@ -59,6 +46,7 @@ const columns = [{
     h(UCheckbox, {
       modelValue: row.getIsSelected(),
       "onUpdate:modelValue": (value) => row.toggleSelected(!!value),
+      onClick: (e) => e.stopPropagation(),
       ariaLabel: "Select row"
     })
 },{
@@ -66,7 +54,7 @@ const columns = [{
   header: "Load",
   cell: ({ row }) => {
     const status = row.original.status_load || 'not_started'
-    return h("div", { class: "flex flex-col items-start" }, [
+    return h("div", { class: "flex flex-col items-start cursor-pointer" }, [
       h("div", { class: "flex flex-col" }, [
         h("span", { class: "text-gray-500 text-xs" }, 'No.:'),
         h("span", { class: "font-semibold text-highlighted" }, `${row.original.load_number}`)
@@ -86,7 +74,7 @@ const columns = [{
   cell: ({ row }) => {
     const shipper = row.original.shipper_address
     const receiver = row.original.receiver_address
-    return h("div", { class: "flex flex-col text-xs text-gray-500" }, [
+    return h("div", { class: "flex flex-col text-xs text-gray-500 cursor-pointer" }, [
       h("span", undefined, [
         'From: ',
         h("span", { class: "text-highlighted" }, `${shipper?.city || '-'}, ${shipper?.state || '-'}`)
@@ -111,7 +99,7 @@ const columns = [{
     const pTime = row.original.pickup_time ? row.original.pickup_time.slice(0, 5) : ''
     const dDate = row.original.delivery_date || ''
     const dTime = row.original.delivery_time ? row.original.delivery_time.slice(0, 5) : ''
-    return h("div", { class: "flex flex-col gap-1 text-xs font-mono" }, [
+    return h("div", { class: "flex flex-col gap-1 text-xs font-mono cursor-pointer" }, [
       h("div", undefined, [
         h("p", { class: "text-gray-500" }, "Pickup:"),
         h("p", { class: "text-highlighted" }, pDate),
@@ -134,7 +122,7 @@ const columns = [{
     if (!driver) return h("span", { class: "text-red-500 text-xs" }, "Unassigned")
     const name = `${driver.first_name || ''} ${driver.last_name || ''}`.trim()
     const trailer = driver.trailer || '-'
-    return h("div", { class: "text-xs font-mono" }, [
+    return h("div", { class: "text-xs font-mono cursor-pointer" }, [
       h("p", { class: "text-highlighted" }, name),
       h("p", { class: "text-gray-500" }, `Truck: ${driver.truck_number || '-'}`),
       h("p", { class: "text-gray-500 capitalize" }, `Trailer: ${trailer.replace('_', ' ')}`)
@@ -143,7 +131,9 @@ const columns = [{
 },{
   id: "broker",
   header: "Broker",
-  cell: ({ row }) => h("span", { class: "text-highlighted text-sm" }, row.original.broker?.name || '-')
+  cell: ({ row }) => h("span", { 
+    class: "text-highlighted text-sm cursor-pointer" 
+  }, row.original.broker?.name || '-')
 },{
   id: "rate_confirmation",
   header: "Docs.",
@@ -151,8 +141,10 @@ const columns = [{
     const rcFiles = row.original.doc_rate_confirmation || []
     const pbFiles = row.original.doc_pod_bol || []
 
-    return h("div", { class: "flex flex-col gap-1 text-xs font-mono" }, [
-      
+    return h("div", { 
+      class: "flex flex-col gap-1 text-xs font-mono",
+      onClick: (e) => e.stopPropagation()
+    }, [
       rcFiles.length ? h("div", { class: "flex gap-1" }, rcFiles.map(file => {
         const fileType = (file.ext ? file.ext.replace(/^\./, '') : 'file').toUpperCase()
         return h("a", { 
@@ -181,13 +173,15 @@ const columns = [{
           ])
         ])
       })) : h("span", { class: "text-gray-500" }, "POD/BOL: still no")
-
     ])
   }
 },{
   id: "actions",
   cell: ({ row }) => {
-    return h("div", { class: "text-right" },
+    return h("div", { 
+      class: "text-right",
+      onClick: (e) => e.stopPropagation()
+    },
       h(UDropdownMenu, { content: { align: "center", side: "left" }, items: getRowItems(row) },
         () => h(UButton, {
           icon: "hugeicons:more-vertical-circle-01",
@@ -199,6 +193,25 @@ const columns = [{
   }
 }]
 
+function getRowItems(row) {
+  return [{
+    label: "Actions",
+    class: "cursor-default"
+  },{
+    label: "Edit",
+    icon: "hugeicons:pencil-edit-02",
+    onSelect() {
+      emit('edit', row.original)
+    }
+  }]
+}
+const handleRowClick = (event, row) => {
+  const documentId = row.original.documentId
+  if (documentId) {
+    navigateTo(`/dashboard/loads/${documentId}`)
+  }
+}
+
 const searchFilter = computed({
   get: () => table.value?.tableApi?.getColumn("load_number")?.getFilterValue() || "",
   set: (value) => {
@@ -208,7 +221,6 @@ const searchFilter = computed({
 
 const pagination = ref({ pageIndex: 0, pageSize: 24 })
 </script>
-
 <template>
   <div class="flex-1 flex flex-col min-h-0 space-y-4">
     <div class="flex items-center justify-between">
@@ -232,6 +244,7 @@ const pagination = ref({ pageIndex: 0, pageSize: 24 })
       :data="loads"
       :columns="columns"
       :loading="loading"
+      @select="handleRowClick"
       :ui="{
         base: 'table-fixed border-separate border-spacing-0',
         thead: '[&>tr]:bg-elevated/50 [&>tr]:after:content-none',

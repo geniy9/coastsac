@@ -1,4 +1,4 @@
-<!-- pages/dashboard/drivers.vue -->
+<!-- pages/dashboard/drivers/index.vue -->
 <script setup>
 definePageMeta({ 
   layout: 'dashboard'

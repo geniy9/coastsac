@@ -144,27 +144,6 @@ const toggleAccess = async (driver, isGranted) => {
   }
 }
 
-const handleRowClick = (event, row) => {
-  // Перенаправляем на детальную страницу водителя по его documentId
-  const documentId = row.original.documentId
-  if (documentId) {
-    navigateTo(`/dashboard/drivers/${documentId}`)
-  }
-}
-
-function getRowItems(row) {
-  return [{
-    label: "Actions",
-    class: "cursor-default"
-  },{
-    label: "Edit",
-    icon: "hugeicons:pencil-edit-02",
-    onSelect() {
-      emit('edit', row.original)
-    }
-  }]
-}
-
 const columns = [{
   id: "select",
   header: ({ table }) =>
@@ -313,6 +292,25 @@ const columns = [{
     )
   }
 }]
+
+function getRowItems(row) {
+  return [{
+    label: "Actions",
+    class: "cursor-default"
+  },{
+    label: "Edit",
+    icon: "hugeicons:pencil-edit-02",
+    onSelect() {
+      emit('edit', row.original)
+    }
+  }]
+}
+const handleRowClick = (event, row) => {
+  const documentId = row.original.documentId
+  if (documentId) {
+    navigateTo(`/dashboard/drivers/${documentId}`)
+  }
+}
 
 const emailSearch = computed({
   get: () => table.value?.tableApi?.getColumn("email")?.getFilterValue() || "",
