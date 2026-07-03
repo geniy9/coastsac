@@ -4,7 +4,7 @@ definePageMeta({
 })
 </script>
 <template>
-  <div class="flex-1 flex flex-col min-h-0">
+  <div class="dashboard_main">
     <UPageCard
       title="Changing your password"
       description="Before changing your password, make sure you remember your old one."

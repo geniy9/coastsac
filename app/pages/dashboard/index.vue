@@ -13,7 +13,7 @@ const range = shallowRef({
 const period = ref("daily");
 </script>
 <template>
-  <div class="flex-1 flex flex-col min-h-0">
+  <div class="dashboard_main">
     <UDashboardPanel id="home">
       <template #header>
         <UDashboardNavbar title="Home" :ui="{ right: 'gap-3' }">

@@ -1,5 +1,6 @@
 <!-- components/LoadEdit.vue -->
 <script setup>
+import { Time } from '@internationalized/date'
 import { useDebounceFn } from '@vueuse/core'
 const open = defineModel('open', { type: Boolean, default: false })
 const props = defineProps({
@@ -15,11 +16,21 @@ const toast = useToast()
 const { permissions } = useRolePermissions()
 const { statesList, loadStatusOptions, categoryOptions, factoringStatusOptions, imageUrl, getMime } = useConfig()
 
+const parseTime = (timeStr) => {
+  if (!timeStr) return null
+  const parts = timeStr.split(':')
+  const hour = parseInt(parts[0], 10) || 0
+  const minute = parseInt(parts[1], 10) || 0
+  const second = parts[2] ? parseInt(parts[2].split('.')[0], 10) : 0
+  return new Time(hour, minute, second)
+}
+
 const state = reactive({
   load_number: '',
   pickup_date: '',
-  pickup_time: '',
+  pickup_time: null,
   delivery_date: '',
+  delivery_time: null,
   status_load: 'not_started',
   category: 'active',
   notes: '',
@@ -45,6 +56,23 @@ const deleteLoading = ref(false)
 const rateUploaderRef = ref(null)
 const podUploaderRef = ref(null)
 
+const localRateFilesCount = ref(0)
+const hasRate = computed(() => {
+  return existingRateDocs.value.length > 0 || localRateFilesCount.value > 0
+})
+const localPodFilesCount = ref(0)
+const hasPod = computed(() => {
+  return existingPodDocs.value.length > 0 || localPodFilesCount.value > 0
+})
+// Логика блокировки полей Pickup
+const isPickupDisabled = computed(() => { return hasPod.value })
+// Логика блокировки полей Delivery (заблокированы, если нет Rate Conf ИЛИ нет POD)
+const isDeliveryDisabled = computed(() => { return !hasRate.value || !hasPod.value })
+// Обработчик изменения файлов Rate Confirmation
+const handleRateFilesChange = (files) => {
+  localRateFilesCount.value = files ? files.length : 0
+}
+
 // Хранилище уже имеющихся файлов на сервере
 const existingRateDocs = ref([])
 const existingPodDocs = ref([])
@@ -61,7 +89,6 @@ onMounted(async () => {
 
 const fetchDrivers = async () => {
   try {
-    // ИСПРАВЛЕНО: query -> params для полной безопасности
     const res = await client('/drivers', { params: { pagination: { limit: 100 } } })
     driversList.value = res.data || []
   } catch (e) {
@@ -96,8 +123,9 @@ watch(() => props.load, (newVal) => {
     Object.assign(state, {
       load_number: newVal.load_number || '',
       pickup_date: newVal.pickup_date ? newVal.pickup_date.split('T')[0] : '',
-      pickup_time: newVal.pickup_time ? newVal.pickup_time.substring(0, 5) : '',
+      pickup_time: parseTime(newVal.pickup_time),
       delivery_date: newVal.delivery_date ? newVal.delivery_date.split('T')[0] : '',
+      delivery_time: parseTime(newVal.delivery_time),
       status_load: newVal.status_load || 'not_started',
       category: newVal.category || 'active',
       notes: newVal.notes || '',
@@ -141,15 +169,33 @@ watch(() => props.load, (newVal) => {
     
     rateUploaderRef.value?.clear()
     podUploaderRef.value?.clear()
+    localRateFilesCount.value = 0
+    localPodFilesCount.value = 0
   }
 }, { immediate: true })
 
 // Автоматический перевод в unloaded и completed при добавлении документов POD/BOL
+// const handlePodFilesChange = (files) => {
+//   if (files && files.length > 0) {
+//     state.status_load = 'unloaded'
+//     state.category = 'completed'
+//     state.delivery_date = new Date().toISOString().split('T')[0]
+//   }
+// }
 const handlePodFilesChange = (files) => {
+  localPodFilesCount.value = files ? files.length : 0
+  
   if (files && files.length > 0) {
     state.status_load = 'unloaded'
     state.category = 'completed'
-    state.delivery_date = new Date().toISOString().split('T')[0]
+    
+    if (!state.delivery_date) {
+      state.delivery_date = new Date().toISOString().split('T')[0]
+    }
+    if (!state.delivery_time) {
+      const now = new Date()
+      state.delivery_time = new Time(now.getHours(), now.getMinutes())
+    }
   }
 }
 
@@ -191,9 +237,13 @@ const onSubmit = async () => {
       finalPodIds = [...finalPodIds, ...newPodIds]
     }
 
-    // Вспомогательная функция очистки дат: заменяет пустую строку "" на null
+    // Очистка дат: заменяем "" на null
     const cleanDate = (dateStr) => {
       return dateStr && dateStr.trim() !== '' ? dateStr : null;
+    }
+    const formatTime = (timeObj) => {
+      if (!timeObj) return null
+      return `${timeObj.toString()}.000`
     }
 
     // 3. Формируем payload с очищенными датами
@@ -202,9 +252,14 @@ const onSubmit = async () => {
         ...state,
         pickup_date: cleanDate(state.pickup_date),
         delivery_date: cleanDate(state.delivery_date),
-        pickup_time: state.pickup_time && state.pickup_time.length === 5 
-          ? `${state.pickup_time}:00.000` 
-          : state.pickup_time || null,
+        pickup_time: formatTime(state.pickup_time),
+        delivery_time: formatTime(state.delivery_time),
+        // pickup_time: state.pickup_time && state.pickup_time.length === 5 
+        //   ? `${state.pickup_time}:00.000` 
+        //   : state.pickup_time || null,
+        // delivery_time: state.delivery_time && state.delivery_time.length === 5 
+        //   ? `${state.delivery_time}:00.000` 
+        //   : state.delivery_time || null,
         doc_rate_confirmation: finalRateIds,
         doc_pod_bol: finalPodIds,
         category: state.status_load === 'cancelled' || state.status_load === 'unloaded' ? 'completed' : state.category
@@ -324,27 +379,46 @@ const onDelete = async () => {
 
         <USeparator label="Route Info" />
 
-        <div class="grid grid-cols-3 gap-4">
+        <div class="grid grid-cols-[1fr_5fr_2fr] gap-4">
+          <div class="relative row-span-2 flex">
+            <USeparator orientation="vertical" type="dashed" icon="hugeicons:delivery-box-01" 
+              :ui="{ icon: `size-8 ${isPickupDisabled ? 'text-gray-500' : 'text-(--ui-primary)' }` }" />
+          </div>
           <UFormField label="Shipper City" name="shipper_address.city" required>
             <UInput v-model="state.shipper_address.city" required class="w-full" />
           </UFormField>
-          <UFormField label="Shipper State" name="shipper_address.state" required>
+          <UFormField label="State" name="shipper_address.state" required>
             <USelect v-model="state.shipper_address.state" :items="statesList" required class="w-full" />
           </UFormField>
           <UFormField label="Pickup Date" name="pickup_date" required>
-            <UInput v-model="state.pickup_date" type="date" required class="w-full" />
+            <UInput v-model="state.pickup_date" 
+              :disabled="isPickupDisabled" 
+              type="date" 
+              class="w-full" 
+              required />
           </UFormField>
-        </div>
+          <UFormField label="Pickup Time" name="pickup_time" required>
+            <UInputTime v-model="state.pickup_time" :disabled="isPickupDisabled" />
+          </UFormField>
 
-        <div class="grid grid-cols-3 gap-4">
+          <div class="row-span-2 flex">
+            <USeparator orientation="vertical" type="dashed" icon="hugeicons:dropbox" 
+              :ui="{ icon: `size-8 ${isDeliveryDisabled ? 'text-gray-500' : 'text-(--ui-primary)' }` }" />
+          </div>
           <UFormField label="Receiver City" name="receiver_address.city" required>
             <UInput v-model="state.receiver_address.city" required class="w-full" />
           </UFormField>
-          <UFormField label="Receiver State" name="receiver_address.state" required>
+          <UFormField label="State" name="receiver_address.state" required>
             <USelect v-model="state.receiver_address.state" :items="statesList" required class="w-full" />
           </UFormField>
-          <UFormField label="Delivery Date (POD)" name="delivery_date">
-            <UInput v-model="state.delivery_date" type="date" disabled class="w-full bg-gray-100 dark:bg-gray-800" />
+          <UFormField label="Delivery Date" name="delivery_date">
+            <UInput v-model="state.delivery_date" 
+              :disabled="isDeliveryDisabled" 
+              type="date" 
+              class="w-full" />
+          </UFormField>
+          <UFormField label="Delivery Time" name="delivery_time">
+            <UInputTime v-model="state.delivery_time" :disabled="isDeliveryDisabled" />
           </UFormField>
         </div>
 
@@ -352,10 +426,10 @@ const onDelete = async () => {
 
         <div class="grid gap-4">
           <div v-if="existingRateDocs.length">
-            <p class="font-medium text-gray-500 text-xs">
+            <p class="text-gray-500 text-xs mb-1">
               Current Rate Conf Files:
             </p>
-            <div v-for="(file, idx) in existingRateDocs" :key="file.id" class="flex items-center justify-between bg-muted/50 p-2 rounded-xl">
+            <div v-for="(file, idx) in existingRateDocs" :key="file.id" class="flex items-center justify-between bg-muted/50 p-2 rounded-lg">
               <ULink :to="`${imageUrl}${file.url}`" target="_blank" class="flex items-center gap-2">
                 <UIcon name="hugeicons:document-attachment" class="w-9 h-9 text-highlighted" />
                 <UBadge :label="getMime(file)" color="neutral" size="sm" />
@@ -366,33 +440,34 @@ const onDelete = async () => {
           <UploaderFiles 
             ref="rateUploaderRef" 
             label="Add Rate Confirmation" 
-            description="Add more files (JPG, PNG, PDF) Max: 5Mb" />
+            description="Add more files (JPG, PNG, PDF) Max: 5Mb" 
+            @change="handleRateFilesChange" />
         </div>
 
-        <USeparator label="POD/BOL" />
+        <USeparator label="POD / BOL" />
 
         <div class="grid gap-4">
           <div v-if="existingPodDocs.length">
-            <p class="font-medium text-gray-500 text-xs">
+            <p class="text-gray-500 text-xs mb-1">
               Current POD/BOL Files:
             </p>
-            <div v-for="(file, idx) in existingPodDocs" :key="file.id" class="flex items-center justify-between bg-muted/50 p-2 rounded-xl">
+            <div v-for="(file, idx) in existingPodDocs" :key="file.id" class="flex items-center justify-between bg-muted/50 p-2 rounded-lg">
               <ULink :to="`${imageUrl}${file.url}`" target="_blank" class="flex items-center gap-2">
                 <UIcon name="hugeicons:document-attachment" class="w-9 h-9 text-highlighted" />
                 <UBadge :label="getMime(file)" color="neutral" size="sm" />
               </ULink>
-              <UButton @click="existingPodDocs.splice(idx, 1)" icon="hugeicons:delete-02" size="xs" color="error" variant="ghost" />
+              <UButton @click="existingPodDocs.splice(idx, 1)" icon="hugeicons:delete-02" size="xs" color="error" variant="soft" />
             </div>
           </div>
           <UploaderFiles 
             ref="podUploaderRef" 
-            label="Upload POD / BOL Documents" 
+            label="Upload POD / BOL" 
             description="Forces load status to 'Unloaded'"
             @change="handlePodFilesChange" />
         </div>
 
-        <!-- Раздел факторинга доступен только для Бухгалтера и Администратора -->
         <template v-if="permissions.isAdmin || permissions.isAccounting">
+          
           <USeparator label="Factoring (Accounting only)" />
           
           <div class="grid grid-cols-2 gap-4">

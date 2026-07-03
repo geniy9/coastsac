@@ -50,7 +50,7 @@ const rolesInfo = [{
 }]
 </script>
 <template>
-  <div class="flex-1 flex flex-col min-h-0 min-w-0 w-full">
+  <div class="dashboard_main">
     <UDashboardPanel id="users">
       <template #header>
         <UDashboardNavbar title="Team">

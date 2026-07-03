@@ -83,7 +83,7 @@ async function onSubmit() {
         }
       })
     } catch (putErr) {
-      console.warn("Не удалось обновить текстовые поля профиля (проверьте права в Strapi):", putErr)
+      console.warn("Failed to update profile:", putErr)
       toast.add({
         title: "Profile update restriction",
         description: "Text fields could not be updated. Please check permissions.",
@@ -118,7 +118,7 @@ async function onSubmit() {
 }
 </script>
 <template>
-  <div v-if="user" class="flex-1 flex flex-col min-h-0">
+  <div v-if="user" class="dashboard_main">
     <AuthSendEmailConfirmationBanner v-if="!user.confirmed" />
     <UForm v-else
       id="settings"

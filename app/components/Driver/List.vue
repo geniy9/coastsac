@@ -154,6 +154,9 @@ const handleRowClick = (event, row) => {
 
 function getRowItems(row) {
   return [{
+    label: "Actions",
+    class: "cursor-default"
+  },{
     label: "Edit",
     icon: "hugeicons:pencil-edit-02",
     onSelect() {
@@ -186,11 +189,11 @@ const columns = [{
     const first = row.original.first_name || ''
     const last = row.original.last_name || ''
     const displayName = `${first} ${last}`.trim() || row.original.user_account?.username || 'No Name'
-    const avatarSrc = row.original.user_account?.avatar ? thumbImg(row.original.user_account?.avatar) : ''
+    const avatarSrc = thumbImg(row.original.user_account?.avatar)
     const type = row.original.driver_type
     const isOwner = (type === 'owner_operator' ? 'Owner Operator' : 'Company Driver') || false
 
-    return h("div", { class: "flex flex-col gap-1 items-start" }, [
+    return h("div", { class: "flex flex-col gap-1 items-start cursor-pointer" }, [
       h("div", { class: "flex items-center gap-3" }, [
         h(UAvatar, { src: avatarSrc, alt: displayName, size: "md" }),
         h("div", undefined, [
@@ -299,7 +302,7 @@ const columns = [{
       class: "text-right",
       onClick: (e) => e.stopPropagation()
     },
-      h(UDropdownMenu, { content: { align: "end" }, items: getRowItems(row) },
+      h(UDropdownMenu, { content: { align: "center", side: "left" }, items: getRowItems(row) },
         () => h(UButton, {
           icon: "hugeicons:more-vertical-circle-01",
           color: "neutral",

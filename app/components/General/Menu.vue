@@ -50,13 +50,11 @@ const items = computed(() => {
       }"
       color="neutral"
       variant="ghost"
-      block
       :square="collapsed"
       class="data-[state=open]:bg-elevated"
       :class="[!collapsed && 'py-2']"
-      :ui="{
-        trailingIcon: 'text-dimmed'
-      }">
+      :ui="{ trailingIcon: 'text-dimmed' }"
+      block>
       <template #leading>
         <AppLogo :src="selectedTeam.src" :alt="selectedTeam.label" class="size-5 shrink-0" />
       </template>

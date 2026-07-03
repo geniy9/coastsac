@@ -1,5 +1,6 @@
 <!-- components/LoadAdd.vue -->
 <script setup>
+import { Time } from '@internationalized/date'
 import { useDebounceFn } from '@vueuse/core'
 const open = defineModel('open', { type: Boolean, default: false })
 const emit = defineEmits(['success'])
@@ -9,19 +10,10 @@ const user = useStrapiUser()
 const toast = useToast()
 const { statesList } = useConfig()
 
-const getRoundedTime = () => {
-  const now = new Date()
-  const minutes = now.getMinutes()
-  const rounded = Math.round(minutes / 15) * 15
-  now.setMinutes(rounded)
-  now.setSeconds(0)
-  return now.toTimeString().split(' ')[0].substring(0, 5) // "HH:MM"
-}
-
 const state = reactive({
   load_number: '',
   pickup_date: new Date().toISOString().split('T')[0],
-  pickup_time: getRoundedTime(),
+  pickup_time: new Time(12, 0, 0),
   driver: null,
   broker: '',
   notes: '',
@@ -56,10 +48,8 @@ const fetchBrokers = useDebounceFn(async (q) => {
     if (q) {
       filterParams.filters = { name: { $containsi: q } }
     }
-    // ЗАМЕНЕНО: query -> params
     const res = await client('/brokers', { params: filterParams })
     
-    // Преобразуем ответ к стандартному виду для корректной работы SelectMenu
     brokersList.value = (res.data || []).map(b => ({
       label: b.name,
       value: b.documentId
@@ -90,7 +80,6 @@ const driverOptions = computed(() => {
 
 // Проверка дублей Load Number
 const isLoadNumberDuplicate = async (loadNumber) => {
-  // ЗАМЕНЕНО: query -> params
   const res = await client('/loads', {
     params: {
       filters: { load_number: { $eq: loadNumber } }
@@ -101,7 +90,6 @@ const isLoadNumberDuplicate = async (loadNumber) => {
 
 // Логика проверки активного груза у водителя
 const checkDriverHasActiveLoad = async (driverDocId) => {
-  // ЗАМЕНЕНО: query -> params
   const res = await client('/loads', {
     params: {
       filters: {
@@ -156,8 +144,8 @@ const onSubmit = async () => {
       data: {
         load_number: state.load_number,
         pickup_date: state.pickup_date,
-        // pickup_time: state.pickup_time,
-        pickup_time: state.pickup_time ? `${state.pickup_time}:00.000` : null, 
+        // pickup_time: state.pickup_time ? `${state.pickup_time}:00.000` : null, 
+        pickup_time: state.pickup_time ? `${state.pickup_time.toString()}.000` : null,
         notes: state.notes,
         shipper_address: state.shipper_address,
         receiver_address: state.receiver_address,
@@ -184,11 +172,12 @@ const onSubmit = async () => {
     emit('success')
     open.value = false
 
-    // Сброс состояния и очистка загрузчика файлов
+    // Сброс состояния и очистка 
     Object.assign(state, {
       load_number: '',
       pickup_date: new Date().toISOString().split('T')[0],
-      pickup_time: getRoundedTime(),
+      // pickup_time: getRoundedTime(),
+      pickup_time: new Time(12, 0, 0),
       driver: null,
       broker: '',
       notes: '',
@@ -284,7 +273,7 @@ const onSubmit = async () => {
             <UInput v-model="state.pickup_date" type="date" required class="w-full" />
           </UFormField>
           <UFormField label="Pickup Time" name="pickup_time" required>
-            <UInput v-model="state.pickup_time" type="time" required class="w-full" />
+            <UInputTime v-model="state.pickup_time" />
           </UFormField>
         </div>
 

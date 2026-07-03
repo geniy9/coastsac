@@ -20,7 +20,7 @@ export default () => {
   }
   const getAvatar = (img, name) => {
     return {
-      src: img ? `${img.formats?.thumbnail ? imageUrl + img.formats?.thumbnail?.url : null}` : null,
+      src: thumbImg(img),
       alt: name || "User Avatar"
     }
   }

@@ -26,7 +26,6 @@ const UCheckbox = resolveComponent("UCheckbox");
 const UBadge = resolveComponent("UBadge");
 const UTooltip = resolveComponent("UTooltip");
 const UIcon = resolveComponent("UIcon");
-const USeparator = resolveComponent("USeparator");
 
 const table = useTemplateRef("table")
 const columnFilters = ref([{ id: "load_number", value: "" }])
@@ -35,6 +34,9 @@ const rowSelection = ref({})
 
 function getRowItems(row) {
   return [{
+    label: "Actions",
+    class: "cursor-default"
+  },{
     label: "Edit",
     icon: "hugeicons:pencil-edit-02",
     onSelect() {
@@ -105,19 +107,22 @@ const columns = [{
   id: "pickup",
   header: "Date",
   cell: ({ row }) => {
-    const pickup = row.original.pickup_date || '-'
-    const rawTime = row.original.pickup_time || '-'
-    const time = rawTime ? rawTime.slice(0, 5) : '-'
-    const delivery = row.original.delivery_date || '-'
+    const pDate = row.original.pickup_date || ''
+    const pTime = row.original.pickup_time ? row.original.pickup_time.slice(0, 5) : ''
+    const dDate = row.original.delivery_date || ''
+    const dTime = row.original.delivery_time ? row.original.delivery_time.slice(0, 5) : ''
     return h("div", { class: "flex flex-col gap-1 text-xs font-mono" }, [
       h("div", undefined, [
         h("p", { class: "text-gray-500" }, "Pickup:"),
-        h("p", { class: "text-highlighted" }, pickup),
-        h(UBadge, { label: time, size: 'xs', class: 'font-bold', color: 'neutral' })
+        h("p", { class: "text-highlighted" }, pDate),
+        h(UBadge, { label: pTime, size: 'sm', class: 'font-bold', color: 'neutral' })
       ]),
       h("div", undefined, [
         h("p", { class: "text-gray-500" }, "Delivery:"),
-        h("p", { class: "text-highlighted" }, delivery),
+        (dDate && dTime) ? h("div", undefined, [
+          h("p", { class: "text-highlighted" }, dDate),
+          h(UBadge, { label: dTime, size: 'sm', class: 'font-bold', color: 'neutral' })
+        ]) : h("span", { class: "text-red-500 text-xs" }, "not yet")
       ])
     ])
   }
@@ -161,7 +166,7 @@ const columns = [{
             h(UBadge, { label: fileType, size: 'sm', variant: 'link' })
           ])
         ])
-      })) : h("span", { class: "text-gray-500" }, "Rate Con.: None"),
+      })) : h("span", { class: "text-gray-500" }, "Rate Con.: still no"),
 
       pbFiles.length ? h("div", { class: "flex flex-wrap gap-1" }, pbFiles.map(file => {
         return h("a", { 
@@ -172,10 +177,10 @@ const columns = [{
           h(UIcon, { class: "w-8 h-8 text-highlighted", name: "hugeicons:document-attachment" }),
           h("div", { class: "flex flex-col" }, [
             h("span", { class: "text-highlighted" }, "POD/BOL"),
-            h(UBadge, { label: getMime(file), size: 'xs', variant: 'link' })
+            h(UBadge, { label: getMime(file), size: 'sm', variant: 'link' })
           ])
         ])
-      })) : h("span", { class: "text-gray-500" }, "POD/BOL: None")
+      })) : h("span", { class: "text-gray-500" }, "POD/BOL: still no")
 
     ])
   }
@@ -183,12 +188,11 @@ const columns = [{
   id: "actions",
   cell: ({ row }) => {
     return h("div", { class: "text-right" },
-      h(UDropdownMenu, { content: { align: "end" }, items: getRowItems(row) },
+      h(UDropdownMenu, { content: { align: "center", side: "left" }, items: getRowItems(row) },
         () => h(UButton, {
           icon: "hugeicons:more-vertical-circle-01",
           color: "neutral",
-          variant: "ghost",
-          class: "ml-auto"
+          variant: "soft",
         })
       )
     )

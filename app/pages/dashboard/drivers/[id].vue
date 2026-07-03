@@ -93,7 +93,7 @@ const handleFileClick = (file) => {
 }
 </script>
 <template>
-  <div class="flex-1 flex flex-col min-h-0 min-w-0 w-full">
+  <div class="dashboard_main">
     <UDashboardPanel :id="driverId || 'driver-id'">
       <template #header>
         <UDashboardNavbar :title="displayName || 'Loading...'" class="no-print">
@@ -201,19 +201,25 @@ const handleFileClick = (file) => {
                 <!-- Licenses -->
                 <UCard variant="soft" title="Licenses & Compliance">
                   <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div>
+                    <div class="grid gap-1 justify-start">
                       <p class="text-xs text-gray-500">CDL Number</p>
-                      <p class="text-sm font-semibold text-highlighted font-mono">
-                        {{ driver.cdl_number || 'N/A' }}
-                      </p>
+                      <UFieldGroup v-if="driver.cdl_number">
+                        <UButton :label="driver.cdl_number" variant="soft" size="sm" />
+                        <UButton 
+                          icon="hugeicons:copy-01" 
+                          variant="soft" 
+                          size="sm"
+                          @click="copyBoofer(driver.cdl_number)" />
+                      </UFieldGroup>
+                      <p v-else class="text-xs text-gray-500 italic">N/A</p>
                     </div>
-                    <div>
+                    <div class="grid gap-1 justify-start">
                       <p class="text-xs text-gray-500">CDL Expiry</p>
                       <UBadge :color="getExpiryColor(driver.cdl_expiry)" variant="soft">
                         {{ driver.cdl_expiry || 'N/A' }}
                       </UBadge>
                     </div>
-                    <div>
+                    <div class="grid gap-1 justify-start">
                       <p class="text-xs text-gray-500">Medical Expiry</p>
                       <UBadge :color="getExpiryColor(driver.medical_expiry)" variant="soft">
                         {{ driver.medical_expiry || 'N/A' }}
@@ -225,26 +231,26 @@ const handleFileClick = (file) => {
                 <!-- Extra info -->
                 <UCard variant="soft" title="Extra Information">
                   <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-                    <div>
+                    <div class="grid gap-1">
                       <p class="text-xs text-gray-500">Company Name</p>
                       <p class="text-sm text-highlighted">
                         {{ driver.extra_info?.company_name || 'N/A' }}
                       </p>
                     </div>
-                    <div>
+                    <div class="grid gap-1">
                       <p class="text-xs text-gray-500">Emergency Phone</p>
                       <p class="text-sm text-highlighted font-mono">
                         {{ driver.extra_info?.emergency_phone || 'N/A' }}
                       </p>
                     </div>
-                    <div>
+                    <div class="grid gap-1">
                       <p class="text-xs text-gray-500">EIN Number</p>
                       <p class="text-sm text-highlighted font-mono">
                         {{ driver.extra_info?.ein_number || 'N/A' }}
                       </p>
                     </div>
                   </div>
-                  <div>
+                  <div class="grid gap-1">
                     <p class="text-xs text-gray-500">Home Address</p>
                     <p class="text-sm text-highlighted">
                       {{ driver.extra_info?.home_address || 'N/A' }}
@@ -268,24 +274,18 @@ const handleFileClick = (file) => {
                     <div v-for="file in driver.extra_info.docs" :key="file.id" 
                       class="flex items-center gap-3 p-2 border border-primary/20 rounded-lg hover:border-primary/50 transition cursor-pointer group"
                       @click="handleFileClick(file)">
-
                       <div class="w-12 h-12 shrink-0 rounded-md overflow-hidden flex items-center justify-center">
-                        <img v-if="isImageFile(file)" 
-                          :src="thumbImg(file)" 
-                          class="w-full h-full object-cover" 
-                          alt="Document Thumbnail" />
+                        <img v-if="isImageFile(file)" :src="thumbImg(file)" class="w-full h-full object-cover" />
                         <UIcon v-else :name="getFileIcon(file)" class="w-8 h-8 text-primary" />
                       </div>
-                      
                       <div class="min-w-0 flex-1">
                         <p class="text-xs font-semibold text-highlighted truncate group-hover:text-primary transition">
                           {{ file.name || file.url.split('/').pop() }}
                         </p>
-                        <p class="text-xs text-gray-500 uppercase mt-0.5 font-mono">
+                        <p class="text-xs text-gray-500 uppercase mt-1 font-mono">
                           {{ (file.ext || 'FILE').replace('.', '') }}
                         </p>
                       </div>
-                      
                       <div class="flex items-center gap-1">
                         <UButton 
                           icon="hugeicons:download-01" 
@@ -309,7 +309,7 @@ const handleFileClick = (file) => {
                 </UCard>
               </div>
 
-              <!-- RIGHT COL -->
+              <!-- RIGHT -->
               <div class="space-y-4">
                 
                 <!-- Transport -->
@@ -325,7 +325,7 @@ const handleFileClick = (file) => {
                           size="sm"
                           @click="copyBoofer(driver.truck_number)" />
                       </UFieldGroup>
-                      <p v-else class="text-xs text-gray-500 italic">-</p>
+                      <p v-else class="text-xs text-gray-500 italic">N/A</p>
                     </div>
                     <div class="flex justify-between items-center py-0.5">
                       <span class="text-xs text-gray-500">Trailer Type</span>
