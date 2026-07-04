@@ -6,6 +6,7 @@ definePageMeta({
 
 const { permissions } = useRolePermissions()
 const client = useStrapiClient()
+const user = useStrapiUser()
 
 const isAddOpen = ref(false)
 const isEditOpen = ref(false)
@@ -18,25 +19,55 @@ const tabs = [
   { label: 'Completed', value: 'completed', icon: 'hugeicons:checkmark-circle-03' }
 ]
 
-const { data: response, status, refresh } = await useAsyncData('loads', () => 
-  client('/loads', {
-    query: {
-      populate: [
-        'dispatcher', 
-        'driver', 
-        'broker', 
-        'doc_rate_confirmation', 
-        'doc_pod_bol', 
-        'factoring', 
-        'shipper_address', 
-        'receiver_address'
-      ]
-    }
-  }), {
-    lazy: true,
-    default: () => ({ data: [] })
+// const { data: response, status, refresh } = await useAsyncData('loads', () => 
+//   client('/loads', {
+//     query: {
+//       populate: [
+//         'dispatcher', 
+//         'driver', 
+//         'broker', 
+//         'doc_rate_confirmation', 
+//         'doc_pod_bol', 
+//         'factoring', 
+//         'shipper_address', 
+//         'receiver_address'
+//       ]
+//     }
+//   }), {
+//     lazy: true,
+//     default: () => ({ data: [] })
+//   }
+// )
+const { data: response, status, refresh } = await useAsyncData('loads', () => {
+  const query = {
+    populate: [
+      'dispatcher', 
+      'driver', 
+      'broker', 
+      'doc_rate_confirmation', 
+      'doc_pod_bol', 
+      'factoring', 
+      'shipper_address', 
+      'receiver_address'
+    ]
   }
-)
+
+  // Если это водитель, запрашиваем только его грузы по ID его аккаунта
+  if (permissions.value.isDriver) {
+    query.filters = {
+      driver: {
+        user_account: {
+          id: { $eq: user.value?.id }
+        }
+      }
+    }
+  }
+
+  return client('/loads', { query })
+}, {
+  lazy: true,
+  default: () => ({ data: [] })
+})
 
 const loads = computed(() => response.value?.data || [])
 

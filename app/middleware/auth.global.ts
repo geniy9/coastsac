@@ -3,7 +3,7 @@ export default defineNuxtRouteMiddleware((to) => {
   const user = useStrapiUser()
   const { permissions } = useRolePermissions()
 
-  // PUBLIC PAGES
+  // ПУБЛИЧНЫЕ СТРАНИЦЫ
   const publicPaths = [
     '/', 
     '/services', 
@@ -13,29 +13,39 @@ export default defineNuxtRouteMiddleware((to) => {
     '/auth/register', 
     '/auth/forgot-password', 
   ]
+
+  // 1. Нормализуем путь (убираем завершающий слэш)
   const targetPath = to.path.replace(/\/$/, '') || '/'
 
-  const isPublic = publicPaths.includes(targetPath)
+  // 2. Очищаем путь от языкового префикса i18n (например, /es/services -> /services)
+  // Регулярное выражение находит двухбуквенные префиксы в начале строки
+  const cleanPath = targetPath.replace(/^\/[a-z]{2}(?=\/|$)/i, '') || '/'
 
-  // IF NOT AUTH > GO TO LOGIN
+  const isPublic = publicPaths.includes(cleanPath)
+
+  // ЕСЛИ НЕ АВТОРИЗОВАН -> ПЕРЕНАПРАВЛЯЕМ НА СТРАНИЦУ ВХОДА
   if (!user.value && !isPublic) {
     return navigateTo('/auth/login')
   }
 
-  // IF AUTH
+  // ЕСЛИ АВТОРИЗОВАН -> ПРОВЕРЯЕМ ПРАВА ДОСТУПА
   if (user.value) {
-    // Защита страниц управления водителями
-    if (targetPath.startsWith('/dashboard/drivers') && !permissions.value.canViewDrivers) {
+    
+    // Защита страниц управления водителями (листинг и динамические карточки)
+    const isDriversRoute = cleanPath === '/dashboard/drivers' || cleanPath.startsWith('/dashboard/drivers/')
+    if (isDriversRoute && !permissions.value.canViewDrivers) {
       return navigateTo('/dashboard')
     }
 
-    // Защита страниц управления грузами
-    if (targetPath.startsWith('/dashboard/loads') && !permissions.value.canViewLoads) {
+    // Защита страниц управления грузами (листинг и динамические карточки)
+    const isLoadsRoute = cleanPath === '/dashboard/loads' || cleanPath.startsWith('/dashboard/loads/')
+    if (isLoadsRoute && !permissions.value.canViewLoads) {
       return navigateTo('/dashboard')
     }
 
     // Защита страницы управления командой (только для Admin)
-    if (targetPath.startsWith('/dashboard/team') && !permissions.value.isAdmin) {
+    const isTeamRoute = cleanPath === '/dashboard/team' || cleanPath.startsWith('/dashboard/team/')
+    if (isTeamRoute && !permissions.value.isAdmin) {
       return navigateTo('/dashboard')
     }
   }

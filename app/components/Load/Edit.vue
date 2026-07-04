@@ -175,13 +175,6 @@ watch(() => props.load, (newVal) => {
 }, { immediate: true })
 
 // Автоматический перевод в unloaded и completed при добавлении документов POD/BOL
-// const handlePodFilesChange = (files) => {
-//   if (files && files.length > 0) {
-//     state.status_load = 'unloaded'
-//     state.category = 'completed'
-//     state.delivery_date = new Date().toISOString().split('T')[0]
-//   }
-// }
 const handlePodFilesChange = (files) => {
   localPodFilesCount.value = files ? files.length : 0
   

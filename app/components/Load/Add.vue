@@ -102,14 +102,15 @@ const checkDriverHasActiveLoad = async (driverDocId) => {
 }
 
 const onSubmit = async () => {
-  if (!rateUploaderRef.value?.hasFiles) {
-    toast.add({
-      title: 'Validation Error',
-      description: 'Rate Confirmation document is required!',
-      color: 'error'
-    })
-    return
-  }
+  // Убираем обязательную загрузку файлов Rate confirmation
+  // if (!rateUploaderRef.value?.hasFiles) {
+  //   toast.add({
+  //     title: 'Validation Error',
+  //     description: 'Rate Confirmation document is required!',
+  //     color: 'error'
+  //   })
+  //   return
+  // }
 
   loading.value = true
   try {
@@ -137,7 +138,12 @@ const onSubmit = async () => {
     }
 
     // 3. Загружаем файлы на сервер через метод компонента и получаем их IDs
-    const fileIds = await rateUploaderRef.value.uploadFiles()
+    // const fileIds = await rateUploaderRef.value.uploadFiles()
+    // Если диспетчер приложил файлы Rate con (делаем опциональным)
+    let fileIds = []
+    if (rateUploaderRef.value?.hasFiles) {
+      fileIds = await rateUploaderRef.value.uploadFiles()
+    }
 
     // 4. Формируем тело запроса и сохраняем груз
     const payload = {
@@ -247,8 +253,7 @@ const onSubmit = async () => {
           <UploaderFiles 
             ref="rateUploaderRef" 
             label="Rate Confirmation (PDF or Images)" 
-            description="PDF, JPG, PNG format (max. 5MB)"
-            required />
+            description="PDF, JPG, PNG format (max. 5MB)" />
         </div>
 
         <USeparator label="Shipper (Pickup)" />

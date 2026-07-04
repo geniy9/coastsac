@@ -6,7 +6,7 @@ definePageMeta({
 
 const route = useRoute()
 const loadId = route.params.id
-const { permissions } = useRolePermissions()
+const { permissions, userRole } = useRolePermissions()
 const client = useStrapiClient()
 const { 
   trailerOptions, 
@@ -126,6 +126,117 @@ const handleFileClick = (file) => {
     downloadFile(fullUrl)
   }
 }
+
+
+// Ссылки на загрузчики страниц
+const rateUploaderPageRef = ref(null)
+const podUploaderPageRef = ref(null)
+const uploadingPageRate = ref(false)
+const uploadingPagePod = ref(false)
+const statusUpdating = ref(false)
+const isQuickActionsOpen = ref(false)
+
+const openQuickActions = () => {
+  isQuickActionsOpen.value = true
+}
+
+// Определение элементов аккордеона в зависимости от роли
+const accordionItems = computed(() => {
+  const items = []
+  if (permissions.value.isDispatcher || permissions.value.isAdmin) {
+    items.push({
+      label: 'Upload Rate Confirmation',
+      slot: 'rate-conf-upload'
+    })
+  }
+  if (permissions.value.isDriver || permissions.value.isDispatcher || permissions.value.isAdmin) {
+    items.push({
+      label: 'Upload Proof of Delivery',
+      slot: 'pod-upload'
+    })
+  }
+  return items
+})
+
+// Обработчик загрузки Rate Confirmation со страницы деталей
+const handleUploadPageRate = async () => {
+  if (!rateUploaderPageRef.value?.hasFiles) return
+  uploadingPageRate.value = true
+  try {
+    const newIds = await rateUploaderPageRef.value.uploadFiles()
+    const existingIds = load.value?.doc_rate_confirmation?.map(f => f.id) || []
+    
+    await client(`/loads/${load.value.documentId}`, {
+      method: 'PUT',
+      body: {
+        data: {
+          doc_rate_confirmation: [...existingIds, ...newIds]
+        }
+      }
+    })
+    
+    toast.add({ title: 'Success', description: 'Rate Confirmation uploaded', color: 'success' })
+    rateUploaderPageRef.value.clear()
+    await handleRefresh()
+  } catch (error) {
+    console.error(error)
+  } finally {
+    uploadingPageRate.value = false
+  }
+}
+
+// Обработчик загрузки POD / BOL со страницы деталей
+const handleUploadPagePod = async () => {
+  if (!podUploaderPageRef.value?.hasFiles) return
+  uploadingPagePod.value = true
+  try {
+    const newIds = await podUploaderPageRef.value.uploadFiles()
+    const existingIds = load.value?.doc_pod_bol?.map(f => f.id) || []
+    
+    await client(`/loads/${load.value.documentId}`, {
+      method: 'PUT',
+      body: {
+        data: {
+          doc_pod_bol: [...existingIds, ...newIds]
+        }
+      }
+    })
+    
+    toast.add({ title: 'Success', description: 'POD / BOL uploaded', color: 'success' })
+    podUploaderPageRef.value.clear()
+    await handleRefresh()
+  } catch (error) {
+    console.error(error)
+  } finally {
+    uploadingPagePod.value = false
+  }
+}
+
+// Прямая смена статуса для диспетчера
+const changeStatusDirectly = async (newStatus) => {
+  if (!confirm(`Are you sure you want to set status to "${newStatus}"?`)) return
+  statusUpdating.value = true
+  try {
+    await client(`/loads/${load.value.documentId}`, {
+      method: 'PUT',
+      body: {
+        data: {
+          status_load: newStatus
+        }
+      }
+    })
+    toast.add({ title: 'Status Updated', description: `Load is now ${newStatus}`, color: 'success' })
+    
+    isQuickActionsOpen.value = false // Закрываем модальное окно быстрых действий
+    
+    await handleRefresh()
+  } catch (error) {
+    console.error(error)
+    toast.add({ title: 'Error', description: 'Failed to update status', color: 'error' })
+  } finally {
+    statusUpdating.value = false
+  }
+}
 </script>
 <template>
   <div class="dashboard_main">
@@ -182,12 +293,26 @@ const handleFileClick = (file) => {
                     <h1 class="text-2xl font-bold text-highlighted">
                       Load #{{ load.load_number }}
                     </h1>
-                    <UBadge :color="getStatusColor(load.status_load)" variant="solid" class="capitalize print-badge">
-                      {{ (load.status_load || 'not_started').replace('_', ' ') }}
-                    </UBadge>
-                    <UBadge color="primary" class="capitalize print-badge">
+                    <UBadge color="primary" size="lg" class="capitalize print-badge">
                       {{ load.category }}
                     </UBadge>
+                    <UFieldGroup>
+                      <UButton 
+                        :color="getStatusColor(load.status_load)" 
+                        variant="solid" 
+                        size="sm" 
+                        class="capitalize print-button">
+                        {{ (load.status_load || 'not_started').replace('_', ' ') }}
+                      </UButton>
+                      <UButton 
+                        v-if="permissions.isDispatcher || permissions.isAdmin"
+                        icon="hugeicons:pencil-edit-02" 
+                        variant="soft" 
+                        size="sm"
+                        class="no-print"
+                        @click="openQuickActions" />
+                    </UFieldGroup>
+                    
                   </div>
                 </div>
               </template>
@@ -366,6 +491,39 @@ const handleFileClick = (file) => {
                       <p v-else class="text-xs text-gray-500 italic">No POD/BOL documents uploaded yet.</p>
                     </div>
                   </div>
+
+                  <UAccordion v-if="accordionItems.length"
+                    :items="accordionItems" 
+                    trailing-icon="hugeicons:add-01"
+                    class="no-print mt-4">
+                    <template #rate-conf-upload>
+                      <div class="p-4 space-y-4 bg-muted/20 border border-default rounded-lg">
+                        <UploaderFiles 
+                          ref="rateUploaderPageRef" 
+                          label="Rate Confirmation" />
+                        <div class="flex justify-end">
+                          <UButton 
+                            label="Upload Rate Confirmation" 
+                            color="primary" 
+                            :loading="uploadingPageRate" 
+                            @click="handleUploadPageRate" />
+                        </div>
+                      </div>
+                    </template>
+
+                    <template #pod-upload>
+                      <div class="p-4 space-y-2 bg-muted/20 border border-default rounded-lg">
+                        <UploaderFiles ref="podUploaderPageRef" label="Proof of Delivery (POD / BOL)" />
+                        <div class="flex justify-end">
+                          <UButton 
+                            label="Upload POD/BOL" 
+                            color="primary" 
+                            :loading="uploadingPagePod" 
+                            @click="handleUploadPagePod" />
+                        </div>
+                      </div>
+                    </template>
+                  </UAccordion>
                 </UCard>
 
                 <!-- Notes -->
@@ -499,10 +657,10 @@ const handleFileClick = (file) => {
           <p class="text-muted">You do not have access rights to this section.</p>
         </div>
 
-        <!-- Окно редактирования груза -->
+        <!-- LOAD EDIT -->
         <LoadEdit v-model:open="isEditOpen" :load="load" @success="handleRefresh" />
 
-        <!-- Модалка для предпросмотра изображений документов -->
+        <!-- FILE/PHOTO PREVIEW -->
         <UModal v-model:open="isPreviewOpen" :ui="{ width: 'sm:max-w-3xl' }">
           <template #content>
             <div class="p-4 flex flex-col items-center">
@@ -530,6 +688,38 @@ const handleFileClick = (file) => {
                   color="primary" 
                   @click="downloadFile(previewFile?.fullUrl)" />
               </div>
+            </div>
+          </template>
+        </UModal>
+
+        <!-- CHANGE LOAD STATUS -->
+        <UModal v-model:open="isQuickActionsOpen" title="Quick Status Actions" close-icon="hugeicons:cancel-01" :ui="{ width: 'sm:max-w-md' }">
+          <template #body>
+            <div v-if="(permissions.isDispatcher || permissions.isAdmin) && ['not_started', 'in_transit', 'loaded'].includes(load.status_load)" class="space-y-3">
+              <p class="text-xs text-gray-500 font-semibold">
+                Select status for load #{{ load.load_number }}
+              </p>
+              <div class="flex gap-3">
+                <UButton 
+                  label="Set TONU" 
+                  color="info" 
+                  size="sm" 
+                  icon="hugeicons:alert-02" 
+                  :loading="statusUpdating"
+                  @click="changeStatusDirectly('tonu')" />
+                <UButton 
+                  label="Cancel Load" 
+                  color="error" 
+                  size="sm" 
+                  icon="hugeicons:cancel-circle" 
+                  :loading="statusUpdating"
+                  @click="changeStatusDirectly('cancelled')" />
+              </div>
+            </div>
+            <div v-else>
+              <p class="text-sm text-gray-400 italic">
+                No quick actions available for the current status.
+              </p>
             </div>
           </template>
         </UModal>
