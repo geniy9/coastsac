@@ -1,3 +1,4 @@
+<!-- components/AuthRegister.vue -->
 <script setup>
 import { z } from 'zod';
 

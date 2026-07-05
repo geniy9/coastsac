@@ -1,3 +1,4 @@
+<!-- pages/dashboard/settings/index.vue -->
 <script setup>
 definePageMeta({ 
   layout: 'dashboard' 

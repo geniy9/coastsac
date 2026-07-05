@@ -102,15 +102,15 @@ const checkDriverHasActiveLoad = async (driverDocId) => {
 }
 
 const onSubmit = async () => {
-  // Убираем обязательную загрузку файлов Rate confirmation
-  // if (!rateUploaderRef.value?.hasFiles) {
-  //   toast.add({
-  //     title: 'Validation Error',
-  //     description: 'Rate Confirmation document is required!',
-  //     color: 'error'
-  //   })
-  //   return
-  // }
+  // Требуем обязательную загрузку файлов Rate confirmation
+  if (!rateUploaderRef.value?.hasFiles) {
+    toast.add({
+      title: 'Validation Error',
+      description: 'Rate Confirmation document is required!',
+      color: 'error'
+    })
+    return
+  }
 
   loading.value = true
   try {
@@ -137,20 +137,19 @@ const onSubmit = async () => {
       }
     }
 
-    // 3. Загружаем файлы на сервер через метод компонента и получаем их IDs
-    // const fileIds = await rateUploaderRef.value.uploadFiles()
+    // 3. Загружаем файлы на сервер и получаем их IDs
+    const fileIds = await rateUploaderRef.value.uploadFiles()
     // Если диспетчер приложил файлы Rate con (делаем опциональным)
-    let fileIds = []
-    if (rateUploaderRef.value?.hasFiles) {
-      fileIds = await rateUploaderRef.value.uploadFiles()
-    }
+    // let fileIds = []
+    // if (rateUploaderRef.value?.hasFiles) {
+    //   fileIds = await rateUploaderRef.value.uploadFiles()
+    // }
 
     // 4. Формируем тело запроса и сохраняем груз
     const payload = {
       data: {
         load_number: state.load_number,
         pickup_date: state.pickup_date,
-        // pickup_time: state.pickup_time ? `${state.pickup_time}:00.000` : null, 
         pickup_time: state.pickup_time ? `${state.pickup_time.toString()}.000` : null,
         notes: state.notes,
         shipper_address: state.shipper_address,
@@ -253,7 +252,7 @@ const onSubmit = async () => {
           <UploaderFiles 
             ref="rateUploaderRef" 
             label="Rate Confirmation (PDF or Images)" 
-            description="PDF, JPG, PNG format (max. 5MB)" />
+            description="PDF, JPG, PNG format (max. 5MB)" required />
         </div>
 
         <USeparator label="Shipper (Pickup)" />

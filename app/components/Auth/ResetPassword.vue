@@ -1,3 +1,4 @@
+<!-- components/ResetPassword.vue -->
 <script setup>
 import { z } from 'zod'
 const { resetPassword } = useStrapiAuth()
@@ -16,7 +17,6 @@ const schema = z.object({
   path: ["passwordConfirmation"],
 });
 
-
 const state = reactive({
   password: '',
   passwordConfirmation: '',
@@ -29,7 +29,6 @@ const handleResetPassword = async () => {
   }
   loading.value = true
   error.value = ''
-
   try {
     await resetPassword({
       code,

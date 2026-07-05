@@ -1,3 +1,4 @@
+<!-- components/AuthLogin.vue -->
 <script setup>
 import { z } from 'zod'
 const { login } = useStrapiAuth()

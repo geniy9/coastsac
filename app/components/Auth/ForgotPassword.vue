@@ -1,3 +1,4 @@
+<!-- components/ForgotPassword.vue -->
 <script setup>
 import { z } from 'zod'
 

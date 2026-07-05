@@ -18,6 +18,8 @@ const {
   getMime
 } = useConfig()
 
+const toast = useToast()
+
 const isEditOpen = ref(false)
 const isPreviewOpen = ref(false)
 const previewFile = ref(null)
@@ -237,6 +239,41 @@ const changeStatusDirectly = async (newStatus) => {
     statusUpdating.value = false
   }
 }
+
+const updatingStatusToLoaded = ref(false)
+
+const handleMarkAsLoaded = async () => {
+  if (!load.value?.documentId) return
+  updatingStatusToLoaded.value = true
+  try {
+    await client(`/loads/${load.value.documentId}`, {
+      method: 'PUT',
+      body: {
+        data: {
+          status_load: 'loaded'
+        }
+      }
+    })
+    
+    toast.add({
+      title: 'Success',
+      description: 'Load status updated to Loaded!',
+      color: 'success'
+    })
+    isQuickActionsOpen.value = false
+
+    await handleRefresh()
+  } catch (error) {
+    console.error(error)
+    toast.add({
+      title: 'Error',
+      description: 'Failed to update status to Loaded',
+      color: 'error'
+    })
+  } finally {
+    updatingStatusToLoaded.value = false
+  }
+}
 </script>
 <template>
   <div class="dashboard_main">
@@ -305,7 +342,7 @@ const changeStatusDirectly = async (newStatus) => {
                         {{ (load.status_load || 'not_started').replace('_', ' ') }}
                       </UButton>
                       <UButton 
-                        v-if="permissions.isDispatcher || permissions.isAdmin"
+                        v-if="permissions.isDriver || permissions.isDispatcher || permissions.isAdmin"
                         icon="hugeicons:pencil-edit-02" 
                         variant="soft" 
                         size="sm"
@@ -693,27 +730,37 @@ const changeStatusDirectly = async (newStatus) => {
         </UModal>
 
         <!-- CHANGE LOAD STATUS -->
-        <UModal v-model:open="isQuickActionsOpen" title="Quick Status Actions" close-icon="hugeicons:cancel-01" :ui="{ width: 'sm:max-w-md' }">
+        <UModal v-model:open="isQuickActionsOpen" :title="`Change status load: ${load?.load_number}`" close-icon="hugeicons:cancel-01" :ui="{ content: 'sm:max-w-xs' }">
           <template #body>
             <div v-if="(permissions.isDispatcher || permissions.isAdmin) && ['not_started', 'in_transit', 'loaded'].includes(load.status_load)" class="space-y-3">
               <p class="text-xs text-gray-500 font-semibold">
-                Select status for load #{{ load.load_number }}
+                Current: <span class="uppercase text-highlighted">
+                  {{ (load?.status_load).replace('_', ' ') }}
+                </span>
               </p>
-              <div class="flex gap-3">
+              <div class="flex flex-col gap-3">
+                <UButton 
+                  v-if="load?.status_load === 'in_transit' && (permissions.isDriver || permissions.isDispatcher || permissions.isAdmin)"
+                  icon="hugeicons:package-delivered" 
+                  label="Mark as Loaded" 
+                  color="info" 
+                  :loading="updatingStatusToLoaded" 
+                  @click="handleMarkAsLoaded" 
+                  block />
                 <UButton 
                   label="Set TONU" 
-                  color="info" 
-                  size="sm" 
+                  color="error" 
                   icon="hugeicons:alert-02" 
                   :loading="statusUpdating"
-                  @click="changeStatusDirectly('tonu')" />
+                  @click="changeStatusDirectly('tonu')" 
+                  block />
                 <UButton 
                   label="Cancel Load" 
                   color="error" 
-                  size="sm" 
                   icon="hugeicons:cancel-circle" 
                   :loading="statusUpdating"
-                  @click="changeStatusDirectly('cancelled')" />
+                  @click="changeStatusDirectly('cancelled')" 
+                  block />
               </div>
             </div>
             <div v-else>

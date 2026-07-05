@@ -1,3 +1,4 @@
+<!-- pages/auth/reset-password.vue -->
 <script setup>
 definePageMeta({
   layout: 'auth'
