@@ -109,7 +109,6 @@ const handleFileClick = (file) => {
             <div class="flex items-center gap-2">
               <UButton 
                 icon="hugeicons:printer" 
-                label="Print" 
                 color="neutral" 
                 variant="outline" 
                 @click="printProfile" />

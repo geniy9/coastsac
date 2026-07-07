@@ -1,23 +1,10 @@
 // composables/useConfig.js
 export default () => {
+  const route = useRoute()
   const config = useRuntimeConfig()
   const imageUrl = config.public.STRAPI_URL
   const originUrl = config.public.ORIGIN
   const toast = useToast()
-  const appConfig = useAppConfig()
-  const tailwindColorsHex = {
-    orange: "f97316",
-    yellow: "eab308",
-    lime: "84cc16",
-    green: "22c55e",
-    teal: "14b8a6",
-    sky: "0ea5e9",
-    blue: "3b82f6",
-    violet: "8b5cf6",
-    pink: "ec4899",
-    red: "ef4444",
-    dark: "000000",
-  }
   const getAvatar = (img, name) => {
     return {
       src: thumbImg(img),

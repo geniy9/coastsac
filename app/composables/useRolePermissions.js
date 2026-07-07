@@ -26,6 +26,13 @@ export function useRolePermissions() {
       // Access to fuels management
       canViewFuels: ['admin', 'accounting'].includes(role),
 
+      // Доступ к просмотру ставок
+      canViewDriversRate: ['admin', 'dispatcher', 'accounting', 'driver'].includes(role),
+      canViewOriginalRate: ['admin', 'dispatcher', 'accounting'].includes(role),
+
+      // Доступ к использованию и просмотру заметок
+      canViewNotes: ['admin', 'dispatcher', 'accounting'].includes(role),
+
       // role helpers
       isAdmin: role === 'admin',
       isDispatcher: role === 'dispatcher',

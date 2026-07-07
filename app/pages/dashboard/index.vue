@@ -5,6 +5,7 @@ definePageMeta({
 })
 import { sub } from "date-fns";
 const { permissions } = useRolePermissions()
+const { isNotificationsOpen, hasUnread } = useNotifications()
 
 const range = shallowRef({
   start: sub(new Date(), { days: 14 }),
@@ -22,9 +23,17 @@ const period = ref("daily");
           </template>
 
           <template #right>
-            <!-- <UDropdownMenu :items="items">
-              <UButton icon="i-lucide-plus" size="md" class="rounded-full" />
-            </UDropdownMenu> -->
+            <UTooltip text="Notifications">
+              <UButton
+                color="neutral"
+                variant="ghost"
+                square
+                @click="isNotificationsOpen = true">
+                <UChip color="error" :show="hasUnread" inset>
+                  <UIcon name="hugeicons:notification-01" class="size-5 shrink-0" />
+                </UChip>
+              </UButton>
+            </UTooltip>
           </template>
         </UDashboardNavbar>
 

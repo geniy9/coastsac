@@ -1,4 +1,4 @@
-<!-- pages/dashboard/loads.vue -->
+<!-- pages/dashboard/loads/index.vue -->
 <script setup>
 definePageMeta({ 
   layout: 'dashboard'
@@ -19,25 +19,6 @@ const tabs = [
   { label: 'Completed', value: 'completed', icon: 'hugeicons:checkmark-circle-03' }
 ]
 
-// const { data: response, status, refresh } = await useAsyncData('loads', () => 
-//   client('/loads', {
-//     query: {
-//       populate: [
-//         'dispatcher', 
-//         'driver', 
-//         'broker', 
-//         'doc_rate_confirmation', 
-//         'doc_pod_bol', 
-//         'factoring', 
-//         'shipper_address', 
-//         'receiver_address'
-//       ]
-//     }
-//   }), {
-//     lazy: true,
-//     default: () => ({ data: [] })
-//   }
-// )
 const { data: response, status, refresh } = await useAsyncData('loads', () => {
   const query = {
     populate: [

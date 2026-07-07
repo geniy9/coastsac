@@ -12,11 +12,12 @@ const { statesList } = useConfig()
 
 const state = reactive({
   load_number: '',
+  drivers_rate: 0,
+  original_rate: 0,
   pickup_date: new Date().toISOString().split('T')[0],
   pickup_time: new Time(12, 0, 0),
   driver: null,
   broker: '',
-  notes: '',
   shipper_address: { city: '', state: 'AL', full_address: '' },
   receiver_address: { city: '', state: 'AL', full_address: '' }
 })
@@ -139,19 +140,15 @@ const onSubmit = async () => {
 
     // 3. Загружаем файлы на сервер и получаем их IDs
     const fileIds = await rateUploaderRef.value.uploadFiles()
-    // Если диспетчер приложил файлы Rate con (делаем опциональным)
-    // let fileIds = []
-    // if (rateUploaderRef.value?.hasFiles) {
-    //   fileIds = await rateUploaderRef.value.uploadFiles()
-    // }
 
     // 4. Формируем тело запроса и сохраняем груз
     const payload = {
       data: {
         load_number: state.load_number,
+        drivers_rate: state.drivers_rate,
+        original_rate: state.original_rate,
         pickup_date: state.pickup_date,
         pickup_time: state.pickup_time ? `${state.pickup_time.toString()}.000` : null,
-        notes: state.notes,
         shipper_address: state.shipper_address,
         receiver_address: state.receiver_address,
         driver: state.driver || null,
@@ -180,11 +177,12 @@ const onSubmit = async () => {
     // Сброс состояния и очистка 
     Object.assign(state, {
       load_number: '',
+      drivers_rate: 0,
+      original_rate: 0,
       pickup_date: new Date().toISOString().split('T')[0],
       pickup_time: new Time(12, 0, 0),
       driver: null,
       broker: '',
-      notes: '',
       shipper_address: { city: '', state: 'AL', full_address: '' },
       receiver_address: { city: '', state: 'AL', full_address: '' }
     })
@@ -244,6 +242,17 @@ const onSubmit = async () => {
               @update:search-term="fetchBrokers"
               @create="handleBrokerCreate" />
           </UFormField>
+
+          <UFormField label="Driver's Rate" name="drivers_rate" required>
+            <UInput v-model.number="state.drivers_rate" type="number" required class="w-full">
+              <template #trailing><div class="input_trailing">$</div></template>
+            </UInput>
+          </UFormField>
+          <UFormField label="Original Rate" name="original_rate" required>
+            <UInput v-model.number="state.original_rate" type="number" required class="w-full">
+              <template #trailing><div class="input_trailing">$</div></template>
+            </UInput>
+          </UFormField>
         </div>
 
         <USeparator label="Documents" />
@@ -295,12 +304,6 @@ const onSubmit = async () => {
             <UInput v-model="state.receiver_address.full_address" class="w-full" />
           </UFormField>
         </div>
-
-        <USeparator label="Notes" />
-
-        <UFormField name="notes">
-          <UTextarea v-model="state.notes" class="w-full" placeholder="Enter custom instructions or cargo notes..." />
-        </UFormField>
 
         <div class="flex justify-end gap-3 pt-4">
           <UButton color="neutral" variant="ghost" label="Cancel" @click="open = false" />

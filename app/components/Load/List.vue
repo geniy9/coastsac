@@ -2,6 +2,7 @@
 <script setup>
 import { getPaginationRowModel } from "@tanstack/table-core";
 const { imageUrl, getMime, truncate, getStatusColor } = useConfig()
+const { permissions } = useRolePermissions()
 
 const props = defineProps({
   loads: {
@@ -52,9 +53,10 @@ const columns = [{
 },{
   accessorKey: "load_number",
   header: "Load",
+  meta: { class: { td: 'cursor-pointer' }},
   cell: ({ row }) => {
     const status = row.original.status_load || 'not_started'
-    return h("div", { class: "flex flex-col items-start cursor-pointer" }, [
+    return h("div", { class: "flex flex-col items-start" }, [
       h("div", { class: "flex flex-col" }, [
         h("span", { class: "text-gray-500 text-xs" }, 'No.:'),
         h("span", { class: "font-semibold text-highlighted" }, `${row.original.load_number}`)
@@ -71,10 +73,11 @@ const columns = [{
 },{
   id: "route",
   header: "Route",
+  meta: { class: { td: 'cursor-pointer' }},
   cell: ({ row }) => {
     const shipper = row.original.shipper_address
     const receiver = row.original.receiver_address
-    return h("div", { class: "flex flex-col text-xs text-gray-500 cursor-pointer" }, [
+    return h("div", { class: "flex flex-col text-xs text-gray-500" }, [
       h("span", undefined, [
         'From: ',
         h("span", { class: "text-highlighted" }, `${shipper?.city || '-'}, ${shipper?.state || '-'}`)
@@ -94,12 +97,13 @@ const columns = [{
 },{
   id: "pickup",
   header: "Date",
+  meta: { class: { td: 'cursor-pointer' }},
   cell: ({ row }) => {
     const pDate = row.original.pickup_date || ''
     const pTime = row.original.pickup_time ? row.original.pickup_time.slice(0, 5) : ''
     const dDate = row.original.delivery_date || ''
     const dTime = row.original.delivery_time ? row.original.delivery_time.slice(0, 5) : ''
-    return h("div", { class: "flex flex-col gap-1 text-xs font-mono cursor-pointer" }, [
+    return h("div", { class: "flex flex-col gap-1 text-xs font-mono" }, [
       h("div", undefined, [
         h("p", { class: "text-gray-500" }, "Pickup:"),
         h("p", { class: "text-highlighted" }, pDate),
@@ -117,23 +121,51 @@ const columns = [{
 },{
   id: "driver",
   header: "Driver",
+  meta: { class: { td: 'cursor-pointer' }},
   cell: ({ row }) => {
     const driver = row.original.driver
     if (!driver) return h("span", { class: "text-red-500 text-xs" }, "Unassigned")
     const name = `${driver.first_name || ''} ${driver.last_name || ''}`.trim()
     const trailer = driver.trailer || '-'
-    return h("div", { class: "text-xs font-mono cursor-pointer" }, [
-      h("p", { class: "text-highlighted" }, name),
-      h("p", { class: "text-gray-500" }, `Truck: ${driver.truck_number || '-'}`),
-      h("p", { class: "text-gray-500 capitalize" }, `Trailer: ${trailer.replace('_', ' ')}`)
+    return h("div", { class: "text-xs font-mono" }, [
+      h("p", { class: "text-highlighted mb-1" }, name),
+      h("div", undefined, [
+        h("p", { class: "text-gray-500" }, 'Truck:'),
+        h("p", { class: "text-highlighted" }, driver.truck_number || '-'),
+      ]),
+      h("div", undefined, [
+        h("p", { class: "text-gray-500" }, 'Trailer:'),
+        h("p", { class: "text-highlighted capitalize" }, trailer.replace('_', ' '))
+      ]),
     ])
   }
 },{
   id: "broker",
   header: "Broker",
+  meta: { class: { td: 'max-w-24 cursor-pointer' }},
   cell: ({ row }) => h("span", { 
-    class: "text-highlighted text-sm cursor-pointer" 
+    class: "text-highlighted text-sm text-wrap" 
   }, row.original.broker?.name || '-')
+},{
+  id: "rate",
+  header: "Rate",
+  meta: { class: { td: 'cursor-pointer' }},
+  cell: ({ row }) => {
+    const driversRate = row.original.drivers_rate
+    const originalRate = row.original.original_rate
+    const showDriversRate = permissions.value.canViewDriversRate
+    const showOriginalRate = permissions.value.canViewOriginalRate
+    return h("div", { class: "text-xs space-y-1" }, [
+      showDriversRate && h("div", undefined, [
+        h("p", { class: "text-gray-500" }, "Driver's Rate:"),
+        h("p", { class: "text-highlighted font-mono" }, '$ ' + driversRate),
+      ]),
+      showOriginalRate && h("div", undefined, [
+        h("p", { class: "text-gray-500" }, "Original Rate:"),
+        h("p", { class: "text-highlighted font-mono" }, '$ ' + originalRate)
+      ].filter(Boolean)),
+    ])
+  }
 },{
   id: "rate_confirmation",
   header: "Docs.",
@@ -142,20 +174,19 @@ const columns = [{
     const pbFiles = row.original.doc_pod_bol || []
 
     return h("div", { 
-      class: "flex flex-col gap-1 text-xs font-mono",
+      class: "flex flex-col gap-3 text-xs font-mono",
       onClick: (e) => e.stopPropagation()
     }, [
       rcFiles.length ? h("div", { class: "flex gap-1" }, rcFiles.map(file => {
-        const fileType = (file.ext ? file.ext.replace(/^\./, '') : 'file').toUpperCase()
         return h("a", { 
           href: `${imageUrl}${file.url}`, 
           target: "_blank",
           class: "flex gap-1"
         }, [
-          h(UIcon, { class: "w-8 h-8 text-highlighted", name: "hugeicons:document-attachment" }),
+          h(UIcon, { class: "w-7 h-7 text-highlighted", name: "hugeicons:document-attachment" }),
           h("div", { class: "flex flex-col" }, [
-            h("span", { class: "text-highlighted" }, "Rate Con."),
-            h(UBadge, { label: fileType, size: 'sm', variant: 'link' })
+            h("p", { class: "text-highlighted" }, "Rate Con."),
+            h("p", { class: "text-primary text-[10px]" }, getMime(file)),
           ])
         ])
       })) : h("span", { class: "text-gray-500" }, "Rate Con.: still no"),
@@ -166,10 +197,10 @@ const columns = [{
           target: "_blank",
           class: "flex items-center gap-1 "
         }, [
-          h(UIcon, { class: "w-8 h-8 text-highlighted", name: "hugeicons:document-attachment" }),
+          h(UIcon, { class: "w-7 h-7 text-highlighted", name: "hugeicons:document-attachment" }),
           h("div", { class: "flex flex-col" }, [
-            h("span", { class: "text-highlighted" }, "POD/BOL"),
-            h(UBadge, { label: getMime(file), size: 'sm', variant: 'link' })
+            h("p", { class: "text-highlighted" }, "POD/BOL"),
+            h("p", { class: "text-primary text-[10px]" }, getMime(file)),
           ])
         ])
       })) : h("span", { class: "text-gray-500" }, "POD/BOL: still no")
@@ -254,7 +285,7 @@ const pagination = ref({ pageIndex: 0, pageSize: 24 })
         separator: 'h-0'
       }" />
 
-    <div class="flex items-center justify-between gap-3 border-t border-default pt-4 mt-auto">
+    <div class="flex items-center justify-between gap-3 mt-auto">
       <div class="text-sm text-muted">
         Selected: {{ Object.keys(rowSelection).length }} of {{ table?.tableApi?.getFilteredRowModel().rows.length || 0 }}
       </div>

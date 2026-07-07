@@ -354,7 +354,7 @@ const pagination = ref({ pageIndex: 0, pageSize: 24 })
         separator: 'h-0'
       }" />
 
-    <div class="flex items-center justify-between gap-3 border-t border-default pt-4 mt-auto">
+    <div class="flex items-center justify-between gap-3 mt-auto">
       <div class="text-sm text-muted">
         Selected: {{ Object.keys(rowSelection).length }} of {{ table?.tableApi?.getFilteredRowModel().rows.length || 0 }}
       </div>

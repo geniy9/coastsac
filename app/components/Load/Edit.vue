@@ -14,7 +14,7 @@ const emit = defineEmits(['success'])
 const client = useStrapiClient()
 const toast = useToast()
 const { permissions } = useRolePermissions()
-const { statesList, loadStatusOptions, categoryOptions, factoringStatusOptions, imageUrl, getMime } = useConfig()
+const { statesList, loadStatusOptions, factoringStatusOptions, imageUrl, getMime } = useConfig()
 
 const parseTime = (timeStr) => {
   if (!timeStr) return null
@@ -27,13 +27,14 @@ const parseTime = (timeStr) => {
 
 const state = reactive({
   load_number: '',
+  drivers_rate: 0,
+  original_rate: 0,
   pickup_date: '',
   pickup_time: null,
   delivery_date: '',
   delivery_time: null,
   status_load: 'not_started',
   category: 'active',
-  notes: '',
   driver: null,
   broker: '',
   shipper_address: { city: '', state: 'AL', full_address: '' },
@@ -122,13 +123,14 @@ watch(() => props.load, (newVal) => {
   if (newVal) {
     Object.assign(state, {
       load_number: newVal.load_number || '',
+      drivers_rate: newVal.drivers_rate || 0,
+      original_rate: newVal.original_rate || 0,
       pickup_date: newVal.pickup_date ? newVal.pickup_date.split('T')[0] : '',
       pickup_time: parseTime(newVal.pickup_time),
       delivery_date: newVal.delivery_date ? newVal.delivery_date.split('T')[0] : '',
       delivery_time: parseTime(newVal.delivery_time),
       status_load: newVal.status_load || 'not_started',
       category: newVal.category || 'active',
-      notes: newVal.notes || '',
       driver: newVal.driver?.documentId || null,
       shipper_address: {
         city: newVal.shipper_address?.city || '',
@@ -247,12 +249,6 @@ const onSubmit = async () => {
         delivery_date: cleanDate(state.delivery_date),
         pickup_time: formatTime(state.pickup_time),
         delivery_time: formatTime(state.delivery_time),
-        // pickup_time: state.pickup_time && state.pickup_time.length === 5 
-        //   ? `${state.pickup_time}:00.000` 
-        //   : state.pickup_time || null,
-        // delivery_time: state.delivery_time && state.delivery_time.length === 5 
-        //   ? `${state.delivery_time}:00.000` 
-        //   : state.delivery_time || null,
         doc_rate_confirmation: finalRateIds,
         doc_pod_bol: finalPodIds,
         category: state.status_load === 'cancelled' || state.status_load === 'unloaded' ? 'completed' : state.category
@@ -367,6 +363,17 @@ const onDelete = async () => {
               placeholder="Type or select broker..."
               @update:search-term="fetchBrokers"
               @create="handleBrokerCreate" />
+          </UFormField>
+
+          <UFormField label="Driver's Rate" name="drivers_rate" required>
+            <UInput v-model.number="state.drivers_rate" type="number" required class="w-full">
+              <template #trailing><div class="input_trailing">$</div></template>
+            </UInput>
+          </UFormField>
+          <UFormField label="Original Rate" name="original_rate" required>
+            <UInput v-model.number="state.original_rate" type="number" required class="w-full">
+              <template #trailing><div class="input_trailing">$</div></template>
+            </UInput>
           </UFormField>
         </div>
 
@@ -498,12 +505,6 @@ const onDelete = async () => {
             </UFormField>
           </div>
         </template>
-
-        <USeparator label="Notes" />
-
-        <UFormField name="notes">
-          <UTextarea v-model="state.notes" class="w-full" />
-        </UFormField>
 
         <div class="flex justify-between items-center pt-4">
           <div>

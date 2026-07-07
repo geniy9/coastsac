@@ -36,7 +36,8 @@ const { data: response, status, refresh } = await useAsyncData(`load-${loadId}`,
         'doc_pod_bol', 
         'factoring', 
         'shipper_address', 
-        'receiver_address'
+        'receiver_address',
+        'notes.user.avatar'
       ]
     }
   }), {
@@ -76,7 +77,7 @@ const timelineItems = computed(() => {
       slot: 'receiver',
       cityState: `${receiver?.city || 'N/A'}, ${receiver?.state || 'N/A'}`,
       fullAddress: receiver?.full_address || 'No full address specified',
-      deliveryDate: load.value.delivery_date || 'In Transit',
+      deliveryDate: load.value.delivery_date || 'Not yet',
       time: load.value.delivery_time ? load.value.delivery_time.slice(0, 5) : null,
       ui: {
         indicator: active
@@ -292,7 +293,6 @@ const handleMarkAsLoaded = async () => {
             <div class="flex items-center gap-2">
               <UButton 
                 icon="hugeicons:printer" 
-                label="Print" 
                 color="neutral" 
                 variant="outline" 
                 @click="printProfile" />
@@ -326,9 +326,9 @@ const handleMarkAsLoaded = async () => {
             <UCard variant="soft" class="print-card">
               <template #header>
                 <div class="flex flex-wrap items-center justify-between gap-4">
-                  <div class="flex items-center gap-4">
+                  <div class="flex items-center flex-wrap gap-4">
                     <h1 class="text-2xl font-bold text-highlighted">
-                      Load #{{ load.load_number }}
+                      #{{ load.load_number }}
                     </h1>
                     <UBadge color="primary" size="lg" class="capitalize print-badge">
                       {{ load.category }}
@@ -354,30 +354,32 @@ const handleMarkAsLoaded = async () => {
                 </div>
               </template>
 
-              <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm font-mono">
-                <div class="p-2 border-r border-default/40 last:border-0">
+              <div class="grid sm:grid-cols-3 gap-4 text-base font-mono">
+                <div>
                   <p class="text-xs text-gray-500">Broker</p>
                   <p class="text-highlighted font-bold text-md mt-1">
                     {{ load.broker?.name || 'N/A' }}
                   </p>
                 </div>
-                <div class="p-2 border-r border-default/40 last:border-0">
+                <div>
                   <p class="text-xs text-gray-500">Dispatcher</p>
                   <p class="text-highlighted mt-1">
                     {{ load.dispatcher?.name || load.dispatcher?.username || 'None' }}
                   </p>
                 </div>
-                <div class="p-2 border-r border-default/40 last:border-0">
-                  <p class="text-xs text-gray-500">Pickup Date</p>
-                  <p class="text-highlighted mt-1">
-                    {{ load.pickup_date || '-' }}
-                  </p>
-                </div>
-                <div class="p-2 last:border-0">
-                  <p class="text-xs text-gray-500">Delivery Date</p>
-                  <p class="text-highlighted mt-1">
-                    {{ load.delivery_date || 'Not yet' }}
-                  </p>
+                <div class="flex flex-col gap-2 sm:items-end sm:text-right">
+                  <div v-if="permissions.canViewDriversRate">
+                    <p class="text-xs text-gray-500">Driver's Rate</p>
+                    <p class="text-highlighted mt-1">
+                      $ {{ load.drivers_rate }}
+                    </p>
+                  </div>
+                  <div v-if="permissions.canViewOriginalRate">
+                    <p class="text-xs text-gray-500">Original Rate</p>
+                    <p class="text-highlighted mt-1">
+                      $ {{ load.original_rate }}
+                    </p>
+                  </div>
                 </div>
               </div>
             </UCard>
@@ -439,9 +441,9 @@ const handleMarkAsLoaded = async () => {
                         <div class="flex items-center gap-3 mt-1.5 font-mono text-xs">
                           <span class="flex items-center gap-1">
                             <UIcon name="hugeicons:calendar-03" class="w-4 h-4 text-gray-400 print-icon" />
-                            {{ item.deliveryDate }}
+                            {{ item.deliveryDate || 'Not yet' }}
                           </span>
-                          <span v-if="item.time" class="flex items-center gap-1">
+                          <span v-if="item.deliveryDate != 'Not yet' && item.time" class="flex items-center gap-1">
                             <UIcon name="hugeicons:clock-01" class="w-4 h-4 text-gray-400 print-icon" />
                             {{ item.time }}
                           </span>
@@ -562,15 +564,6 @@ const handleMarkAsLoaded = async () => {
                     </template>
                   </UAccordion>
                 </UCard>
-
-                <!-- Notes -->
-                <UCard variant="soft" title="Notes" class="print-card">
-                  <p v-if="load.notes" class="text-sm text-gray-300 whitespace-pre-wrap leading-relaxed print-notes">
-                    {{ load.notes }}
-                  </p>
-                  <p v-else class="text-sm text-gray-500 italic">No cargo notes created yet.</p>
-                </UCard>
-
               </div>
 
               <!-- RIGHT COL -->
@@ -687,6 +680,14 @@ const handleMarkAsLoaded = async () => {
               </div>
 
             </div>
+
+            <!-- Notes -->
+            <Notes 
+              v-if="permissions.canViewNotes"  
+              :load-id="load?.documentId" 
+              :notes="load?.notes || []" 
+              @refresh="handleRefresh" 
+              class="no-print" />
           </div>
         </div>
 
