@@ -40,13 +40,13 @@ function formatCurrency(value) {
       :title="`Total Spending (${dateRangeLabel})`"
       variant="subtle"
       :ui="{
-        container: 'gap-y-1.5',
+        container: 'gap-y-1',
         wrapper: 'items-start',
-        leading: 'p-2.5 rounded-full bg-primary/10 flex-col',
+        leadingIcon: 'size-6',
+        leading: 'p-2 rounded-full bg-primary/10 flex-col',
         title: 'font-normal text-muted text-xs uppercase',
       }"
-      class="lg:rounded-none first:rounded-l-lg hover:z-1"
-    >
+      class="lg:rounded-none first:rounded-l-lg hover:z-1">
       <div class="flex items-center gap-2">
         <span class="text-2xl font-semibold text-highlighted">
           {{ formatCurrency(props.totalSpending) }}
@@ -60,13 +60,13 @@ function formatCurrency(value) {
       title="Active Cards"
       variant="subtle"
       :ui="{
-        container: 'gap-y-1.5',
+        container: 'gap-y-1',
         wrapper: 'items-start',
-        leading: 'p-2.5 rounded-full bg-primary/10 flex-col',
+        leadingIcon: 'size-6',
+        leading: 'p-2 rounded-full bg-primary/10 flex-col',
         title: 'font-normal text-muted text-xs uppercase',
       }"
-      class="lg:rounded-none hover:z-1"
-    >
+      class="lg:rounded-none hover:z-1">
       <div class="flex items-center gap-2">
         <span class="text-2xl font-semibold text-highlighted">
           {{ props.activeCardsCount }}
@@ -81,13 +81,13 @@ function formatCurrency(value) {
       title="Drivers Linked"
       variant="subtle"
       :ui="{
-        container: 'gap-y-1.5',
+        container: 'gap-y-1',
         wrapper: 'items-start',
-        leading: 'p-2.5 rounded-full bg-primary/10 flex-col',
+        leadingIcon: 'size-6',
+        leading: 'p-2 rounded-full bg-primary/10 flex-col',
         title: 'font-normal text-muted text-xs uppercase',
       }"
-      class="lg:rounded-none last:rounded-r-lg hover:z-1"
-    >
+      class="lg:rounded-none last:rounded-r-lg hover:z-1">
       <div class="flex items-center gap-2">
         <span class="text-2xl font-semibold text-highlighted">
           {{ props.linkedDriversCount }}

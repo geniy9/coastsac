@@ -26,6 +26,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['view-card'])
+const { copyBoofer } = useConfig()
 
 const UBadge = resolveComponent("UBadge")
 const UButton = resolveComponent("UButton")
@@ -72,13 +73,21 @@ const calculatedCards = computed(() => {
 
 const columns = [{
   accessorKey: "card_number",
-  header: "Card Details",
+  header: "Card",
   cell: ({ row }) => {
     const cardNum = row.original.card_number || 'Unknown'
     const status = row.original.status || 'Inactive'
     const isSuccess = status === 'Active'
-    return h("div", { class: "flex flex-col gap-1" }, [
-      h("span", { class: "font-mono font-medium text-highlighted" }, cardNum),
+    return h("div", { class: "flex flex-col items-start gap-0.5" }, [
+
+      h(UButton, {
+        icon: "hugeicons:credit-card",
+        color: "neutral",
+        variant: "outline",
+        size: "sm",
+        onClick: () => copyBoofer(cardNum)
+      }, () => cardNum),
+
       h("div", undefined, [
         h(UBadge, { 
           color: isSuccess ? 'success' : 'neutral', 
@@ -119,7 +128,7 @@ const columns = [{
   cell: ({ row }) => {
     const tx = row.original.lastTx
     if (!tx || (!tx.merchant_city && !tx.city && !tx.transaction_timestamp)) {
-      return h("span", { class: "text-xs text-gray-500" }, "No recent activity")
+      return h("span", { class: "text-xs text-gray-500 italic" }, "No recent activity")
     }
     const city = tx.merchant_city || tx.city || ""
     const state = tx.merchant_state || tx.state || ""
@@ -132,14 +141,14 @@ const columns = [{
   }
 }, {
   id: "actions",
+  header: "Details",
+  meta: { class: { th: 'text-right' }},
   cell: ({ row }) => {
     return h("div", { class: "text-right" }, [
       h(UButton, {
-        icon: "i-lucide-eye",
+        icon: "hugeicons:view",
         color: "neutral",
-        variant: "ghost",
-        label: "Details",
-        size: "sm",
+        variant: "soft",
         onClick: () => emit('view-card', row.original)
       })
     ])
@@ -161,10 +170,9 @@ const pagination = ref({ pageIndex: 0, pageSize: 15 })
     <div class="flex items-center justify-between">
       <UInput
         v-model="cardSearchFilter"
-        class="max-w-xs"
+        class="max-w-full w-xs"
         icon="i-lucide-search"
-        placeholder="Search by card number..."
-      />
+        placeholder="Search by card number..." />
     </div>
 
     <UTable
@@ -183,10 +191,9 @@ const pagination = ref({ pageIndex: 0, pageSize: 15 })
         th: 'py-2 first:rounded-l-lg last:rounded-r-lg border-y border-default first:border-l last:border-r',
         td: 'border-b border-default',
         separator: 'h-0'
-      }"
-    />
+      }" />
 
-    <div class="flex items-center justify-between gap-3 border-t border-default pt-4">
+    <div class="flex items-center justify-between gap-3 mb-6">
       <div class="text-sm text-muted">
         Total cards: {{ calculatedCards.length }}
       </div>
@@ -194,8 +201,7 @@ const pagination = ref({ pageIndex: 0, pageSize: 15 })
         :default-page="(table?.tableApi?.getState().pagination.pageIndex || 0) + 1"
         :items-per-page="table?.tableApi?.getState().pagination.pageSize"
         :total="table?.tableApi?.getFilteredRowModel().rows.length"
-        @update:page="(p) => table?.tableApi?.setPageIndex(p - 1)"
-      />
+        @update:page="(p) => table?.tableApi?.setPageIndex(p - 1)" />
     </div>
   </div>
 </template>

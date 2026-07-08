@@ -129,11 +129,7 @@ const handleRefresh = async () => {
           </template>
           <template #right>
             <div v-if="permissions.canViewFuels" class="flex items-center gap-2">
-              <USelect 
-                v-model="dateRange" 
-                :items="dateRangeOptions" 
-                class="w-48" 
-                size="sm" />
+              <USelect v-model="dateRange" :items="dateRangeOptions" class="w-48" />
               <UButton 
                 icon="hugeicons:reload" 
                 variant="ghost" 
@@ -146,7 +142,7 @@ const handleRefresh = async () => {
       </template>
 
       <template #body>
-        <div v-if="permissions.canViewFuels" class="flex-1 flex flex-col min-h-0 p-4 space-y-6">
+        <div v-if="permissions.canViewFuels" class="flex-1 flex flex-col min-h-0 gap-4">
           
           <FuelStats 
             :total-spending="totalSpending"
@@ -156,16 +152,13 @@ const handleRefresh = async () => {
             :date-range-label="dateRangeOptions.find(o => o.value === dateRange)?.label" />
 
           <!-- CARDS -->
-          <div class="flex-1 min-h-0">
-            <FuelList 
-              :cards="cards" 
-              :drivers="drivers" 
-              :transactions="transactions" 
-              :loading="txsStatus === 'pending' || cardsStatus === 'pending'"
-              :date-range="dateRange"
-              @view-card="handleViewCard"
-            />
-          </div>
+          <FuelList 
+            :cards="cards" 
+            :drivers="drivers" 
+            :transactions="transactions" 
+            :loading="txsStatus === 'pending' || cardsStatus === 'pending'"
+            :date-range="dateRange"
+            @view-card="handleViewCard" />
 
           <!-- CARD DETAILS -->
           <FuelCard 

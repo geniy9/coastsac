@@ -77,7 +77,7 @@ const toggleAccess = async (driver, isGranted) => {
           .replace(/[^a-z0-9]/g, '') || `driver_${driver.id}`
         const name = `${driver.first_name ? driver.first_name + ' ' : ''}${driver.last_name || ''}` || ''
 
-        // 1. Создаем пользователя в Strapi
+        // 1. Создаем пользователя
         const newUser = await client('/users', {
           method: 'POST',
           body: {
@@ -163,7 +163,8 @@ const columns = [{
     })
 },{
   accessorKey: "email",
-  header: "Name/Email",
+  header: "Driver",
+  meta: { class: { td: 'cursor-pointer' }},
   cell: ({ row }) => {
     const first = row.original.first_name || ''
     const last = row.original.last_name || ''
@@ -172,7 +173,7 @@ const columns = [{
     const type = row.original.driver_type
     const isOwner = (type === 'owner_operator' ? 'Owner Operator' : 'Company Driver') || false
 
-    return h("div", { class: "flex flex-col gap-1 items-start cursor-pointer" }, [
+    return h("div", { class: "flex flex-col gap-1 items-start" }, [
       h("div", { class: "flex items-center gap-3" }, [
         h(UAvatar, { src: avatarSrc, alt: displayName, size: "md" }),
         h("div", undefined, [
@@ -186,33 +187,39 @@ const columns = [{
   }
 },{
   id: "numbers",
-  header: "No. #",
+  header: "No.",
+  meta: { class: { td: 'cursor-pointer' }},
   cell: ({ row }) => {
     const driver_number = row.original.driver_number || '-'
     const truck = row.original.truck_number || '-'
     const trailer = row.original.trailer || '-'
-    return h("div", { class: "text-xs font-mono text-gray-500" }, [
-      h("div", undefined, [ 'Driver #: ',
-        h("span", { class: "text-highlighted" }, driver_number),
+    return h("div", { class: "text-xs font-mono" }, [
+      h("div", undefined, [
+        h("p", { class: "text-gray-500" }, 'Driver:'),
+        h("p", { class: "text-highlighted" }, driver_number),
       ]),
-      h("div", undefined, [ 'Truck #: ',
-        h("span", { class: "text-highlighted" }, truck),
+      h("div", undefined, [
+        h("p", { class: "text-gray-500" }, 'Truck:'),
+        h("p", { class: "text-highlighted" }, truck),
       ]),
-      h("div", undefined, [ 'Trailer: ',
-        h("span", { class: "text-highlighted capitalize" }, trailer.replace('_', ' ')),
+      h("div", undefined, [
+        h("p", { class: "text-gray-500" }, 'Trailer:'),
+        h("p", { class: "text-highlighted capitalize" }, trailer.replace('_', ' ')),
       ]),
     ])
   }
 },{
   accessorKey: "dispatcher",
   header: "Dispatcher",
+  meta: { class: { th: 'text-center', td: 'cursor-pointer text-center' }},
   cell: ({ row }) => {
     const dispatcher = row.original.assigned_dispatcher
-    return h("span", { class: "text-sm text-gray-500" }, dispatcher?.name || dispatcher?.username)
+    return h("span", { class: "text-sm text-gray-500 text-wrap" }, dispatcher?.name || dispatcher?.username)
   }
 },{
   accessorKey: "commission_rate",
   header: "Commission",
+  meta: { class: { th: 'text-center', td: 'cursor-pointer text-center' }},
   cell: ({ row }) => {
     const commission = row.original.commission_rate
     return h("span", { class: "text-sm" }, `${commission}%` || '-')
@@ -220,21 +227,23 @@ const columns = [{
 },{
   id: "deductions",
   header: "Deductions",
+  meta: { class: { td: 'cursor-pointer' }},
   cell: ({ row }) => {
     const eld = row.original.deductions.eld || '0'
     const insurance = row.original.deductions.insurance || '0'
     const plates = row.original.deductions.plates || '0'
     const ifta = row.original.deductions.ifta || '0'
     return h("div", { class: "text-xs text-gray-500 font-mono" }, [
-      h("p", undefined, `${eld}$ ELD`),
-      h("p", undefined, `${insurance}$ Insurance`),
-      h("p", undefined, `${plates}$ Plates`),
-      h("p", undefined, `${ifta}$ IFTA`)
+      h("p", undefined, `$${eld} ELD`),
+      h("p", undefined, `$${insurance} Insurance`),
+      h("p", undefined, `$${plates} Plates`),
+      h("p", undefined, `$${ifta} IFTA`)
     ])
   }
 },{
   id: "expirations",
   header: "Expirations",
+  meta: { class: { td: 'cursor-pointer' }},
   cell: ({ row }) => {
     const cdl = row.original.cdl_expiry || '-'
     const medical = row.original.medical_expiry || '-'
@@ -252,13 +261,14 @@ const columns = [{
 },{
   id: "access",
   header: "Access",
+  meta: { class: { th: 'text-center', td: 'text-center' }},
   cell: ({ row }) => {
     const driverEmail = row.original.email
     const driverId = row.original.id
     const hasAccess = !!row.original.user_account && !row.original.user_account?.blocked
 
     return h("div", { 
-      class: "flex flex-col gap-1 items-start",
+      class: "flex flex-col gap-1 items-center",
       onClick: (e) => e.stopPropagation() 
     }, [
       h(USwitch, {

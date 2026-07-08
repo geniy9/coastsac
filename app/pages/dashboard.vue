@@ -3,6 +3,7 @@
 definePageMeta({ 
   layout: 'dashboard'
 })
+const { isNotificationsOpen, hasUnread } = useNotifications()
 const user = useStrapiUser()
 const open = ref(false)
 
@@ -18,19 +19,25 @@ const links = computed(() => {
   })
   
   const userRole = user.value?.role?.type
+
   if (['admin', 'dispatcher', 'accounting'].includes(userRole)) {
     items.push({
       label: "Drivers",
       icon: "hugeicons:user-group-02",
       to: "/dashboard/drivers",
       onSelect: () => { open.value = false }
-    },{
+    })
+  }
+
+  if (['admin', 'dispatcher', 'accounting', 'driver'].includes(userRole)) {
+    items.push({
       label: "Loads",
       icon: "hugeicons:lift-truck",
       to: "/dashboard/loads",
       onSelect: () => { open.value = false }
     })
   }
+
   if (['admin', 'accounting'].includes(userRole)) {
     items.push({
       label: "Fuels",
@@ -51,6 +58,7 @@ const links = computed(() => {
       { label: "Security", to: "/dashboard/settings/security", onSelect: () => { open.value = false } }
     ]
   })
+
   return [items]
 })
 const groups = computed(() => [{
@@ -68,8 +76,7 @@ const groups = computed(() => [{
         collapsible
         resizable
         class="bg-elevated/25"
-        :ui="{ footer: 'lg:border-t lg:border-default' }"
-      >
+        :ui="{ footer: 'lg:border-t lg:border-default' }">
         <template #header="{ collapsed }">
           <GeneralMenu :collapsed="collapsed" />
         </template>
@@ -84,12 +91,23 @@ const groups = computed(() => [{
             orientation="vertical"
             tooltip
             popover />
-          <UNavigationMenu
-            :collapsed="collapsed"
-            :items="links[1]"
-            orientation="vertical"
+          <UButton 
+            label="Notifications"
+            color="neutral"
+            variant="ghost" 
+            class="mt-auto group" 
+            :square="collapsed" 
             tooltip
-            class="mt-auto" />
+            @click="isNotificationsOpen = true">
+            <div class="flex items-center gap-1 text-gray-400 group-hover:text-white">
+              <UChip color="error" :show="hasUnread" inset>
+                <UIcon name="hugeicons:notification-01" class="size-5 shrink-0" />
+              </UChip>
+              <span v-if="!collapsed" class="">
+                Notifications
+              </span>
+            </div>
+          </UButton>
         </template>
 
         <template #footer="{ collapsed }">
