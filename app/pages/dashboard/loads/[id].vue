@@ -55,38 +55,35 @@ const timelineItems = computed(() => {
   const receiver = load.value.receiver_address
   const active = isDelivered.value
 
-  return [
-    {
-      title: 'Shipper',
-      icon: 'hugeicons:delivery-box-01',
-      slot: 'shipper',
-      cityState: `${shipper?.city || 'N/A'}, ${shipper?.state || 'N/A'}`,
-      fullAddress: shipper?.full_address || 'No full address specified',
-      pickupDate: load.value.pickup_date || '-',
-      time: load.value.pickup_time ? load.value.pickup_time.slice(0, 5) : null,
-      ui: {
-        indicator: 'text-white bg-primary dark:bg-primary dark:text-inverted border-2 border-primary',
-        separator: active 
-          ? 'bg-primary flex-1 rounded-full' 
-          : 'bg-gray-300 dark:bg-gray-600 flex-1 rounded-full'
-      }
-    },
-    {
-      title: 'Receiver',
-      icon: 'hugeicons:dropbox',
-      slot: 'receiver',
-      cityState: `${receiver?.city || 'N/A'}, ${receiver?.state || 'N/A'}`,
-      fullAddress: receiver?.full_address || 'No full address specified',
-      deliveryDate: load.value.delivery_date || 'Not yet',
-      time: load.value.delivery_time ? load.value.delivery_time.slice(0, 5) : null,
-      ui: {
-        indicator: active
-          ? 'text-white bg-primary border-2 border-primary'
-          : 'text-gray-400 bg-transparent dark:bg-transparent border-2 border-gray-300 dark:border-gray-500 dark:text-gray-500',
-        separator: 'hidden'
-      }
+  return [{
+    title: 'Shipper',
+    icon: 'hugeicons:delivery-box-01',
+    slot: 'shipper',
+    cityState: `${shipper?.city || 'N/A'}, ${shipper?.state || 'N/A'}`,
+    fullAddress: shipper?.full_address || 'No full address specified',
+    pickupDate: load.value.pickup_date || '-',
+    time: load.value.pickup_time ? load.value.pickup_time.slice(0, 5) : null,
+    ui: {
+      indicator: 'text-white bg-primary dark:bg-primary dark:text-inverted border-2 border-primary',
+      separator: active 
+        ? 'bg-primary flex-1 rounded-full' 
+        : 'bg-gray-300 dark:bg-gray-600 flex-1 rounded-full'
     }
-  ]
+  },{
+    title: 'Receiver',
+    icon: 'hugeicons:dropbox',
+    slot: 'receiver',
+    cityState: `${receiver?.city || 'N/A'}, ${receiver?.state || 'N/A'}`,
+    fullAddress: receiver?.full_address || 'No full address specified',
+    deliveryDate: load.value.delivery_date || 'Not yet',
+    time: load.value.delivery_time ? load.value.delivery_time.slice(0, 5) : null,
+    ui: {
+      indicator: active
+        ? 'text-white bg-primary dark:bg-primary dark:text-inverted border-2 border-primary'
+        : 'text-gray-400 bg-transparent dark:bg-transparent border-2 border-gray-300 dark:border-gray-500 dark:text-gray-500',
+      separator: 'hidden'
+    }
+  }]
 })
 
 const handleRefresh = async () => {
@@ -130,7 +127,6 @@ const handleFileClick = (file) => {
   }
 }
 
-
 // Ссылки на загрузчики страниц
 const rateUploaderPageRef = ref(null)
 const podUploaderPageRef = ref(null)
@@ -139,9 +135,7 @@ const uploadingPagePod = ref(false)
 const statusUpdating = ref(false)
 const isQuickActionsOpen = ref(false)
 
-const openQuickActions = () => {
-  isQuickActionsOpen.value = true
-}
+const openQuickActions = () => { isQuickActionsOpen.value = true }
 
 // Определение элементов аккордеона в зависимости от роли
 const accordionItems = computed(() => {
@@ -161,7 +155,7 @@ const accordionItems = computed(() => {
   return items
 })
 
-// Обработчик загрузки Rate Confirmation со страницы деталей
+// Загрузка Rate Confirmation
 const handleUploadPageRate = async () => {
   if (!rateUploaderPageRef.value?.hasFiles) return
   uploadingPageRate.value = true
@@ -188,7 +182,7 @@ const handleUploadPageRate = async () => {
   }
 }
 
-// Обработчик загрузки POD / BOL со страницы деталей
+// Загрузка POD / BOL
 const handleUploadPagePod = async () => {
   if (!podUploaderPageRef.value?.hasFiles) return
   uploadingPagePod.value = true
@@ -215,9 +209,9 @@ const handleUploadPagePod = async () => {
   }
 }
 
-// Прямая смена статуса для диспетчера
+// CHANGE STATUS
 const changeStatusDirectly = async (newStatus) => {
-  if (!confirm(`Are you sure you want to set status to "${newStatus}"?`)) return
+  if (!confirm(`Are you sure you want to set status to "${newStatus.replace('_', ' ')}"?`)) return
   statusUpdating.value = true
   try {
     await client(`/loads/${load.value.documentId}`, {
@@ -228,51 +222,18 @@ const changeStatusDirectly = async (newStatus) => {
         }
       }
     })
-    toast.add({ title: 'Status Updated', description: `Load is now ${newStatus}`, color: 'success' })
-    
-    isQuickActionsOpen.value = false // Закрываем модальное окно быстрых действий
-    
+    toast.add({ 
+      title: 'Status Updated', 
+      description: `Load is now ${newStatus.replace('_', ' ')}`, 
+      color: 'success'
+    })
+    isQuickActionsOpen.value = false
     await handleRefresh()
   } catch (error) {
     console.error(error)
     toast.add({ title: 'Error', description: 'Failed to update status', color: 'error' })
   } finally {
     statusUpdating.value = false
-  }
-}
-
-const updatingStatusToLoaded = ref(false)
-
-const handleMarkAsLoaded = async () => {
-  if (!load.value?.documentId) return
-  updatingStatusToLoaded.value = true
-  try {
-    await client(`/loads/${load.value.documentId}`, {
-      method: 'PUT',
-      body: {
-        data: {
-          status_load: 'loaded'
-        }
-      }
-    })
-    
-    toast.add({
-      title: 'Success',
-      description: 'Load status updated to Loaded!',
-      color: 'success'
-    })
-    isQuickActionsOpen.value = false
-
-    await handleRefresh()
-  } catch (error) {
-    console.error(error)
-    toast.add({
-      title: 'Error',
-      description: 'Failed to update status to Loaded',
-      color: 'error'
-    })
-  } finally {
-    updatingStatusToLoaded.value = false
   }
 }
 </script>
@@ -462,7 +423,6 @@ const handleMarkAsLoaded = async () => {
                   </template>
                   
                   <div class="space-y-6">
-                    <!-- Rate Confirmation -->
                     <div>
                       <h4 class="text-xs text-gray-500 font-semibold uppercase mb-2">
                         Rate Confirmation
@@ -497,7 +457,6 @@ const handleMarkAsLoaded = async () => {
 
                     <USeparator />
 
-                    <!-- POD / BOL -->
                     <div>
                       <h4 class="text-xs text-gray-500 font-semibold uppercase mb-2">
                         Proof of Delivery
@@ -741,12 +700,12 @@ const handleMarkAsLoaded = async () => {
               </p>
               <div class="flex flex-col gap-3">
                 <UButton 
-                  v-if="load?.status_load === 'in_transit' && (permissions.isDriver || permissions.isDispatcher || permissions.isAdmin)"
+                  v-if="(permissions.isDriver || permissions.isDispatcher || permissions.isAdmin)"
                   icon="hugeicons:package-delivered" 
-                  label="Mark as Loaded" 
+                  :label="load?.status_load === 'in_transit' ? 'Mark as Loaded' : 'Mark as In Transit'" 
                   color="info" 
-                  :loading="updatingStatusToLoaded" 
-                  @click="handleMarkAsLoaded" 
+                  :loading="statusUpdating" 
+                  @click="changeStatusDirectly(load?.status_load === 'in_transit' ? 'loaded' : 'in_transit')" 
                   block />
                 <UButton 
                   label="Set TONU" 

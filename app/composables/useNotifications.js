@@ -12,21 +12,21 @@ export function useNotifications() {
   const { permissions } = useRolePermissions()
   const route = useRoute()
 
-  // Автоматически закрываем слайдовер при переходе на другую страницу
+  // закрываем слайдовер при переходе
   watch(() => route.fullPath, () => {
     isNotificationsOpen.value = false
   })
 
-  // Заметки могут видеть только роли с правами (Admin, Dispatcher, Accounting)
+  // Заметки могут видеть только (Admin, Dispatcher, Accounting)
   const shouldFetch = computed(() => permissions.value?.canViewNotes)
 
-  // Запрос последних 15 заметок со всеми связями
+  // Запрос последних 24 заметок со всеми связями
   const { data: response, refresh, status } = useAsyncData('recent-notes', () => {
     if (!shouldFetch.value) return { data: [] }
     return client('/notes', {
       query: {
         sort: 'createdAt:desc',
-        pagination: { limit: 15 },
+        pagination: { limit: 24 },
         populate: ['user.avatar', 'load']
       }
     })
@@ -38,7 +38,7 @@ export function useNotifications() {
 
   const notesList = computed(() => response.value?.data || response.value || [])
 
-  // Вычисляем, есть ли новые (непрочитанные) заметки
+  // Вычисляем, есть ли новые (непрочитанные)
   const hasUnread = computed(() => {
     if (!shouldFetch.value || notesList.value.length === 0) return false
     

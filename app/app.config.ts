@@ -200,6 +200,23 @@ export default defineAppConfig({
           }
         }
       ]
+    },
+
+    chatMessage: {
+      slots: {
+        content: '!px-3 !py-1 !min-h-8',
+        leading: '!mt-0',
+      },
+      variants: {
+        compact: {
+          true: {
+            container: 'gap-1.5 pb-2',
+          },
+          false: {
+            container: 'gap-3 pb-4',
+          }
+        }
+      },
     }
 
   }

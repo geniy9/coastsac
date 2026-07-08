@@ -18,7 +18,7 @@ export default () => {
     switch (status) {
       case 'not_started': return 'neutral'
       case 'in_transit': return 'info'
-      case 'loaded': return 'warning'
+      case 'loaded': return 'primary'
       case 'unloaded': return 'success'
       case 'cancelled': return 'error'
       case 'tonu': return 'error'

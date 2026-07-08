@@ -33,14 +33,11 @@ watch(isNotificationsOpen, async (isOpen) => {
           v-for="note in notes"
           :key="note.documentId || note.id"
           :to="`/dashboard/loads/${note.load?.documentId}`"
-          class="px-3 py-3 rounded-md hover:bg-elevated/50 flex items-start gap-3 transition -mx-3 first:-mt-3 last:-mb-3 border-b border-default/30 last:border-0"
-        >
-          <!-- Аватар автора заметки -->
+          class="px-3 py-3 rounded-md hover:bg-elevated/50 flex items-start gap-3 transition -mx-3 first:-mt-3 last:-mb-3 border-b border-default/30 last:border-0">
           <UAvatar
             v-bind="getAvatar(note.user?.avatar, note.user?.name || note.user?.username)"
             size="md"
-            class="mt-0.5 shrink-0"
-          />
+            class="mt-0.5 shrink-0" />
 
           <div class="text-sm flex-1 min-w-0">
             <div class="flex items-baseline justify-between gap-1.5">
