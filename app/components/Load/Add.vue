@@ -19,7 +19,8 @@ const state = reactive({
   driver: null,
   broker: '',
   shipper_address: { city: '', state: 'AL', full_address: '' },
-  receiver_address: { city: '', state: 'AL', full_address: '' }
+  receiver_address: { city: '', state: 'AL', full_address: '' },
+  miles: 0,
 })
 const rateUploaderRef = ref(null)
 const loading = ref(false)
@@ -151,6 +152,7 @@ const onSubmit = async () => {
         pickup_time: state.pickup_time ? `${state.pickup_time.toString()}.000` : null,
         shipper_address: state.shipper_address,
         receiver_address: state.receiver_address,
+        miles: state.miles,
         driver: state.driver || null,
         broker: state.broker || null,
         dispatcher: user.value?.id || null,
@@ -184,7 +186,8 @@ const onSubmit = async () => {
       driver: null,
       broker: '',
       shipper_address: { city: '', state: 'AL', full_address: '' },
-      receiver_address: { city: '', state: 'AL', full_address: '' }
+      receiver_address: { city: '', state: 'AL', full_address: '' },
+      miles: 0
     })
     rateUploaderRef.value?.clear()
     selectedBrokerModel.value = null
@@ -267,14 +270,12 @@ const onSubmit = async () => {
         <USeparator label="Shipper (Pickup)" />
 
         <div class="grid gap-4">
-          <div class="grid grid-cols-2 gap-4">
-            <UFormField label="City" name="shipper_address.city" required>
-              <UInput v-model="state.shipper_address.city" required class="w-full" />
-            </UFormField>
-            <UFormField label="State" name="shipper_address.state" required>
-              <USelect v-model="state.shipper_address.state" :items="statesList" required class="w-full" />
-            </UFormField>
-          </div>
+          <UFormField label="Shipper City/Sate" name="shipper_address.city" required>
+            <UFieldGroup>
+              <UInput v-model="state.shipper_address.city" placeholder="City" required class="w-50" />
+              <USelectMenu v-model="state.shipper_address.state" :items="statesList" class="w-20" />
+            </UFieldGroup>
+          </UFormField>
           <UFormField label="Full Address" name="shipper_address.full_address">
             <UInput v-model="state.shipper_address.full_address" class="w-full" />
           </UFormField>
@@ -292,16 +293,22 @@ const onSubmit = async () => {
         <USeparator label="Receiver (Delivery)" />
 
         <div class="grid gap-4">
-          <div class="grid grid-cols-2 gap-4">
-            <UFormField label="City" name="receiver_address.city" required>
-              <UInput v-model="state.receiver_address.city" required class="w-full" />
-            </UFormField>
-            <UFormField label="State" name="receiver_address.state" required>
-              <USelect v-model="state.receiver_address.state" :items="statesList" required class="w-full" />
-            </UFormField>
-          </div>
+          <UFormField label="Receiver City/Sate" name="receiver_address.city" required>
+            <UFieldGroup>
+              <UInput v-model="state.receiver_address.city" placeholder="City" required class="w-50" />
+              <USelectMenu v-model="state.receiver_address.state" :items="statesList" class="w-20" />
+            </UFieldGroup>
+          </UFormField>
           <UFormField label="Full Address" name="receiver_address.full_address">
             <UInput v-model="state.receiver_address.full_address" class="w-full" />
+          </UFormField>
+          <UFormField label="Total Miles" name="miles" required>
+            <UInput v-model.number="state.miles" type="number" required :ui="{
+                base: 'pl-12 pr-2',
+                leading: 'pointer-events-none'
+              }">
+              <template #leading><p class="text-sm text-muted">Miles</p></template>
+            </UInput>
           </UFormField>
         </div>
 

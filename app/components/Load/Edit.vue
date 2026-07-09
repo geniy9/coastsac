@@ -39,6 +39,7 @@ const state = reactive({
   broker: '',
   shipper_address: { city: '', state: 'AL', full_address: '' },
   receiver_address: { city: '', state: 'AL', full_address: '' },
+  miles: 0,
   factoring_status: 'not_submitted',
   factoring: {
     invoice_amount: 0,
@@ -142,6 +143,7 @@ watch(() => props.load, (newVal) => {
         state: newVal.receiver_address?.state || 'AL',
         full_address: newVal.receiver_address?.full_address || ''
       },
+      miles: newVal.miles || 0,
       factoring_status: newVal.factoring_status || 'not_submitted',
       factoring: {
         invoice_amount: newVal.factoring?.invoice_amount || 0,
@@ -384,11 +386,11 @@ const onDelete = async () => {
             <USeparator orientation="vertical" type="dashed" icon="hugeicons:delivery-box-01" 
               :ui="{ icon: `size-8 ${isPickupDisabled ? 'text-gray-500' : 'text-(--ui-primary)' }` }" />
           </div>
-          <UFormField label="Shipper City" name="shipper_address.city" required>
-            <UInput v-model="state.shipper_address.city" required class="w-full" />
-          </UFormField>
-          <UFormField label="State" name="shipper_address.state" required>
-            <USelect v-model="state.shipper_address.state" :items="statesList" required class="w-full" />
+          <UFormField label="Shipper City/Sate" name="shipper_address.city" required class="col-span-2">
+            <UFieldGroup>
+              <UInput v-model="state.shipper_address.city" placeholder="City" required class="w-50" />
+              <USelectMenu v-model="state.shipper_address.state" :items="statesList" class="w-20" />
+            </UFieldGroup>
           </UFormField>
           <UFormField label="Pickup Date" name="pickup_date" required>
             <UInput v-model="state.pickup_date" 
@@ -405,11 +407,11 @@ const onDelete = async () => {
             <USeparator orientation="vertical" type="dashed" icon="hugeicons:dropbox" 
               :ui="{ icon: `size-8 ${isDeliveryDisabled ? 'text-gray-500' : 'text-(--ui-primary)' }` }" />
           </div>
-          <UFormField label="Receiver City" name="receiver_address.city" required>
-            <UInput v-model="state.receiver_address.city" required class="w-full" />
-          </UFormField>
-          <UFormField label="State" name="receiver_address.state" required>
-            <USelect v-model="state.receiver_address.state" :items="statesList" required class="w-full" />
+          <UFormField label="Receiver City/Sate" name="receiver_address.city" required class="col-span-2">
+            <UFieldGroup>
+              <UInput v-model="state.receiver_address.city" placeholder="City" required class="w-50" />
+              <USelectMenu v-model="state.receiver_address.state" :items="statesList" class="w-20" />
+            </UFieldGroup>
           </UFormField>
           <UFormField label="Delivery Date" name="delivery_date">
             <UInput v-model="state.delivery_date" 
@@ -419,6 +421,15 @@ const onDelete = async () => {
           </UFormField>
           <UFormField label="Delivery Time" name="delivery_time">
             <UInputTime v-model="state.delivery_time" :disabled="isDeliveryDisabled" />
+          </UFormField>
+
+          <UFormField label="Total Miles" name="miles" required class="col-span-3">
+            <UInput v-model.number="state.miles" type="number" required :ui="{
+                base: 'pl-12 pr-2',
+                leading: 'pointer-events-none'
+              }">
+              <template #leading><p class="text-sm text-muted">Miles</p></template>
+            </UInput>
           </UFormField>
         </div>
 

@@ -154,7 +154,7 @@ const formatDate = (dateStr) => {
       </div>
     </template>
 
-    <div class="flex-1 min-h-40 max-h-screen flex flex-col justify-between">
+    <div class="flex-1 min-h-40 max-h-[60vh] flex flex-col justify-between">
       <!-- Scrollable Message List -->
       <div class="flex-1 min-h-0 overflow-y-auto pr-1">
         <div v-if="!notes || notes.length === 0" class="h-full flex flex-col items-center justify-center p-6 text-center text-gray-500 text-sm gap-2">
@@ -166,9 +166,9 @@ const formatDate = (dateStr) => {
           :messages="mappedMessages"
           :user="{ side: 'right', variant: 'soft' }"
           :assistant="{ side: 'left', variant: 'solid' }"
-          should-scroll-to-bottom>
+          should-scroll-to-bottom class="relative">
           <template #header="{ message }">
-            <div class="flex items-center gap-1.5 text-xs mb-1" :class="message.side === 'right' ? 'justify-end' : 'justify-start'">
+            <div class="flex items-center gap-2 text-xs" :class="message.side === 'right' ? 'justify-end' : 'justify-start'">
               <span class="font-semibold text-highlighted/80">
                 {{ message.metadata.userName }}
               </span>

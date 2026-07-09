@@ -136,14 +136,11 @@
     pointer-events: none !important;
   }
 
-  h1, h2, h3, h4, .text-highlighted, .text-primary, .print-text-primary, .print-notes {
+  h1, h2, h3, h4, .text-highlighted, .text-primary, .print-text-primary {
     color: #000000 !important;
     font-weight: bold !important;
   }
   .text-gray-400, .text-gray-500 {
     color: #374151 !important; 
-  }
-  .print-icon { 
-    color: #4b5563 !important; 
   }
 }

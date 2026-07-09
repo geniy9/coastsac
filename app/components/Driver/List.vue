@@ -229,15 +229,22 @@ const columns = [{
   header: "Deductions",
   meta: { class: { td: 'cursor-pointer' }},
   cell: ({ row }) => {
-    const eld = row.original.deductions.eld || '0'
-    const insurance = row.original.deductions.insurance || '0'
-    const plates = row.original.deductions.plates || '0'
-    const ifta = row.original.deductions.ifta || '0'
+    const deductions = row.original.deductions || {}
+    const eld = deductions.eld || '0'
+    const insurance = deductions.insurance || '0'
+    const plates = deductions.plates || '0'
+    const ifta = deductions.ifta || '0'
+    const other_reason = deductions.other_reason || ''
+    const other_cost = deductions.other_cost || 0
+
     return h("div", { class: "text-xs text-gray-500 font-mono" }, [
       h("p", undefined, `$${eld} ELD`),
       h("p", undefined, `$${insurance} Insurance`),
       h("p", undefined, `$${plates} Plates`),
-      h("p", undefined, `$${ifta} IFTA`)
+      h("p", undefined, `$${ifta} IFTA`),
+      other_cost > 0 && other_reason 
+        ? h("p", { class: "text-primary font-semibold" }, `$${other_cost} ${other_reason}`) 
+        : null
     ])
   }
 },{

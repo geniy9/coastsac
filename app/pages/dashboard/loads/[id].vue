@@ -64,7 +64,7 @@ const timelineItems = computed(() => {
     pickupDate: load.value.pickup_date || '-',
     time: load.value.pickup_time ? load.value.pickup_time.slice(0, 5) : null,
     ui: {
-      indicator: 'text-white bg-primary dark:bg-primary dark:text-inverted border-2 border-primary',
+      indicator: 'text-white bg-primary dark:bg-primary dark:text-black border-2 border-primary print:text-gray-500',
       separator: active 
         ? 'bg-primary flex-1 rounded-full' 
         : 'bg-gray-300 dark:bg-gray-600 flex-1 rounded-full'
@@ -79,7 +79,7 @@ const timelineItems = computed(() => {
     time: load.value.delivery_time ? load.value.delivery_time.slice(0, 5) : null,
     ui: {
       indicator: active
-        ? 'text-white bg-primary dark:bg-primary dark:text-inverted border-2 border-primary'
+        ? 'text-white bg-primary dark:bg-primary dark:text-black border-2 border-primary print:text-gray-500'
         : 'text-gray-400 bg-transparent dark:bg-transparent border-2 border-gray-300 dark:border-gray-500 dark:text-gray-500',
       separator: 'hidden'
     }
@@ -352,8 +352,19 @@ const changeStatusDirectly = async (newStatus) => {
               <div class="md:col-span-2 space-y-4 print-col-span-2">
                 
                 <!-- ROUTE (Timeline) -->
-                <UCard variant="soft" title="Route Information" class="print-card">
-                  <UTimeline :items="timelineItems" class="w-full">
+                <UCard variant="soft" class="print-card">
+                  <template #header>
+                    <div class="flex items-center justify-between">
+                      <h3 class="font-semibold text-highlighted">
+                        Route
+                      </h3>
+                      <div class="flex items-center gap-2">
+                        <UIcon name="hugeicons:road-location-01" class="w-6 h-6" />
+                        <UBadge :label="`${load.miles || 0} Miles`" />
+                      </div>
+                    </div>
+                  </template>
+                  <UTimeline :items="timelineItems" orientation="horizontal" class="w-full">
                     <!-- Shipper -->
                     <template #shipper-title="{ item }">
                       <div class="flex flex-col gap-0.5">
@@ -372,11 +383,11 @@ const changeStatusDirectly = async (newStatus) => {
                         </p>
                         <div class="flex items-center gap-3 mt-1.5 font-mono text-xs">
                           <span class="flex items-center gap-1">
-                            <UIcon name="hugeicons:calendar-03" class="w-4 h-4 text-gray-400 print-icon" />
+                            <UIcon name="hugeicons:calendar-03" class="w-4 h-4 text-gray-400" />
                             {{ item.pickupDate }}
                           </span>
                           <span v-if="item.time" class="flex items-center gap-1">
-                            <UIcon name="hugeicons:clock-01" class="w-4 h-4 text-gray-400 print-icon" />
+                            <UIcon name="hugeicons:clock-01" class="w-4 h-4 text-gray-400" />
                             {{ item.time }}
                           </span>
                         </div>
@@ -467,7 +478,7 @@ const changeStatusDirectly = async (newStatus) => {
                           @click="handleFileClick(file)">
                           <div class="w-12 h-12 shrink-0 rounded-md overflow-hidden flex items-center justify-center">
                             <img v-if="isImageFile(file)" :src="thumbImg(file)" class="w-full h-full object-cover" />
-                            <UIcon v-else :name="getFileIcon(file)" class="w-8 h-8 text-primary print-icon" />
+                            <UIcon v-else :name="getFileIcon(file)" class="w-8 h-8 text-primary" />
                           </div>
                           <div class="min-w-0 flex-1">
                             <p class="text-xs font-semibold text-highlighted truncate group-hover:text-primary transition">
@@ -588,19 +599,19 @@ const changeStatusDirectly = async (newStatus) => {
                 <UCard 
                   v-if="permissions.isAdmin || permissions.isAccounting"
                   variant="soft" 
-                  title="Accounting / Factoring" 
+                  title="Factoring" 
                   class="print-card">
                   
                   <div class="space-y-3 font-mono text-xs">
-                    <div class="flex justify-between items-center py-1 border-b border-default/40">
-                      <span class="text-gray-500">Factoring Status</span>
+                    <div class="flex justify-between items-center">
+                      <span class="text-gray-500">Status</span>
                       <UBadge color="neutral" variant="solid" class="capitalize print-badge">
                         {{ (load.factoring_status || 'not_submitted').replace('_', ' ') }}
                       </UBadge>
                     </div>
                     <div class="flex justify-between items-center">
                       <span class="text-gray-500">Invoice Amount</span>
-                      <span class="text-sm font-bold text-highlighted">
+                      <span class="text-sm text-highlighted">
                         ${{ load.factoring?.invoice_amount || 0 }}
                       </span>
                     </div>

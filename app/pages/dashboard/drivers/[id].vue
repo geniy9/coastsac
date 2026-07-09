@@ -363,10 +363,19 @@ const handleFileClick = (file) => {
                         ${{ driver.deductions?.ifta || 0 }}
                       </span>
                     </div>
+                    <!-- Отображение дополнительного вычета -->
+                    <div v-if="driver.deductions?.other_cost && driver.deductions?.other_reason" class="flex justify-between items-center">
+                      <span class="text-xs text-gray-500 truncate max-w-40" :title="driver.deductions.other_reason">
+                        {{ driver.deductions.other_reason }}
+                      </span>
+                      <span class="text-sm text-highlighted">
+                        ${{ driver.deductions.other_cost }}
+                      </span>
+                    </div>
                     <div class="pt-2 flex justify-between items-center font-semibold">
                       <span class="text-xs text-gray-400">Total</span>
                       <span class="text-sm text-primary">
-                        ${{ (driver.deductions?.eld || 0) + (driver.deductions?.insurance || 0) + (driver.deductions?.plates || 0) + (driver.deductions?.ifta || 0) }}
+                        ${{ (driver.deductions?.eld || 0) + (driver.deductions?.insurance || 0) + (driver.deductions?.plates || 0) + (driver.deductions?.ifta || 0) + (driver.deductions?.other_cost || 0) }}
                       </span>
                     </div>
                   </div>

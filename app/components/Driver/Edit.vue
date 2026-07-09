@@ -37,7 +37,9 @@ const state = reactive({
     eld: 0,
     insurance: 0,
     plates: 0,
-    ifta: 0
+    ifta: 0,
+    other_reason: '',
+    other_cost: 0
   },
   extra_info: {
     emergency_phone: '',
@@ -108,7 +110,9 @@ watch(() => props.driver, (newVal) => {
         eld: newVal.deductions?.eld || 0,
         insurance: newVal.deductions?.insurance || 0,
         plates: newVal.deductions?.plates || 0,
-        ifta: newVal.deductions?.ifta || 0
+        ifta: newVal.deductions?.ifta || 0,
+        other_reason: newVal.deductions?.other_reason || '',
+        other_cost: newVal.deductions?.other_cost || 0
       },
       extra_info: {
         emergency_phone: newVal.extra_info?.emergency_phone || '',
@@ -134,6 +138,19 @@ const assignedDispatcherName = computed(() => {
 
 const onSubmit = async () => {
   if (!props.driver?.documentId) return
+
+  // Проверка взаимозависимости полей "Other deduction"
+  const otherReason = state.deductions.other_reason?.trim()
+  const otherCost = Number(state.deductions.other_cost) || 0
+
+  if ((otherReason && otherCost <= 0) || (!otherReason && otherCost > 0)) {
+    toast.add({
+      title: 'Validation Error',
+      description: 'Please provide both a valid reason and an amount (> 0) for the Other Deduction.',
+      color: 'error'
+    })
+    return
+  }
 
   loading.value = true
   try {
@@ -384,6 +401,28 @@ const onDelete = async () => {
               <template #trailing><div class="input_trailing">$</div></template>
             </UInput>
           </UFormField>
+          <!-- Дополнительный вычет -->
+          <UCollapsible class="col-span-2 flex flex-col gap-2">
+            <UButton
+              label="Other deduction"
+              color="neutral"
+              variant="subtle"
+              trailing-icon="i-lucide-chevron-down"
+              block
+              type="button" />
+            <template #content>
+              <div class="grid grid-cols-2 gap-4 pt-2">
+                <UFormField label="Deduction Reason" name="deductions.other_reason">
+                  <UInput v-model="state.deductions.other_reason" placeholder="e.g. Escrow, Fine" class="w-full" />
+                </UFormField>
+                <UFormField label="Deduction Amount" name="deductions.other_cost">
+                  <UInput v-model.number="state.deductions.other_cost" type="number" min="0" class="w-full">
+                    <template #trailing><div class="input_trailing">$</div></template>
+                  </UInput>
+                </UFormField>
+              </div>
+            </template>
+          </UCollapsible>
         </div>
 
         <USeparator label="Notes" />

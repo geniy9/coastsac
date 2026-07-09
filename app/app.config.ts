@@ -23,6 +23,14 @@ export default defineAppConfig({
       variants: {
         variant: {
           agreement: 'text-black bg-black/10 hover:bg-black/20 focus:bg-black/20 '
+        }
+      }
+    },
+
+    selectMenu: {
+      variants: {
+        fieldGroup: {
+          horizontal: '!rounded-r-md',
         },
       }
     },

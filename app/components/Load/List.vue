@@ -77,7 +77,8 @@ const columns = [{
   cell: ({ row }) => {
     const shipper = row.original.shipper_address
     const receiver = row.original.receiver_address
-    return h("div", { class: "flex flex-col text-xs text-gray-500" }, [
+    const miles = row.original.miles
+    return h("div", { class: "flex flex-col items-start text-xs text-gray-500" }, [
       h("span", undefined, [
         'From: ',
         h("span", { class: "text-highlighted" }, `${shipper?.city || '-'}, ${shipper?.state || '-'}`)
@@ -91,6 +92,10 @@ const columns = [{
       ]),
       h(UTooltip, { text: receiver?.full_address }, [
         h('span', { class: "cursor-pointer" }, truncate(receiver?.full_address, 20) || '')
+      ]),
+      h("span", { class: "mt-2" }, [
+        h("span", { class: "text-highlighted font-semibold" }, miles || '0'), 
+        ' Miles'
       ]),
     ])
   }
