@@ -300,6 +300,26 @@ const handleFileClick = (file) => {
                   </div>
                 </UCard>
 
+                <!-- Completed Loads -->
+                <UCard variant="soft">
+                  <template #header>
+                    <div class="flex items-center justify-between">
+                      <h2 class="text-md font-semibold text-highlighted">
+                        Recent Completed Loads
+                      </h2>
+                      <UButton 
+                        :to="`/dashboard/loads?driver=${driver.documentId}`" 
+                        size="sm" 
+                        variant="soft" 
+                        trailing-icon="hugeicons:link-square-02"
+                        label="Open full ledger" />
+                    </div>
+                  </template>
+                  <DriverLoads 
+                    :driver-id="driver.documentId" 
+                    :commission-rate="driver.commission_rate || 0" />
+                </UCard>
+
                 <UCard variant="soft" title="Notes">
                   <p v-if="driver.notes" class="text-sm text-gray-300 whitespace-pre-wrap leading-relaxed">
                     {{ driver.notes }}

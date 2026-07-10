@@ -1,6 +1,6 @@
 export function useFuel() {
-  // Дефолтный Customer ID
-  const defaultCustomerId = '46876'
+  const config = useRuntimeConfig()
+  const defaultCustomerId = config.public.fuelCardApiCustomerId
 
   // Получить список всех карт
   const getCards = async (customerId = defaultCustomerId) => {

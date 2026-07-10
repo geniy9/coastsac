@@ -38,6 +38,15 @@ const links = computed(() => {
     })
   }
 
+  // if (['admin', 'accounting', 'dispatcher'].includes(userRole)) {
+  //   items.push({
+  //     label: "Settlements",
+  //     icon: "hugeicons:briefcase-dollar",
+  //     to: "/dashboard/settlements",
+  //     onSelect: () => { open.value = false }
+  //   })
+  // }
+
   if (['admin', 'accounting'].includes(userRole)) {
     items.push({
       label: "Fuels",

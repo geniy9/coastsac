@@ -190,12 +190,26 @@ const handleUploadPagePod = async () => {
     const newIds = await podUploaderPageRef.value.uploadFiles()
     const existingIds = load.value?.doc_pod_bol?.map(f => f.id) || []
     
+    // Формируем объект для обновления
+    const updateData = {
+      doc_pod_bol: [...existingIds, ...newIds],
+      status_load: 'unloaded',
+      category: 'completed'
+    }
+
+    // Устанавливаем дату и время доставки, только если они пусты
+    if (!load.value?.delivery_date) {
+      updateData.delivery_date = new Date().toISOString().split('T')[0]
+    }
+    if (!load.value?.delivery_time) {
+      const now = new Date()
+      updateData.delivery_time = new Time(now.getHours(), now.getMinutes())
+    }
+    
     await client(`/loads/${load.value.documentId}`, {
       method: 'PUT',
       body: {
-        data: {
-          doc_pod_bol: [...existingIds, ...newIds]
-        }
+        data: updateData
       }
     })
     
@@ -204,6 +218,7 @@ const handleUploadPagePod = async () => {
     await handleRefresh()
   } catch (error) {
     console.error(error)
+    toast.add({ title: 'Error', description: 'Failed to upload POD / BOL', color: 'error' })
   } finally {
     uploadingPagePod.value = false
   }

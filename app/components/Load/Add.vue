@@ -16,6 +16,8 @@ const state = reactive({
   original_rate: 0,
   pickup_date: new Date().toISOString().split('T')[0],
   pickup_time: new Time(12, 0, 0),
+  delivery_date: new Date().toISOString().split('T')[0],
+  delivery_time: new Time(12, 0, 0),
   driver: null,
   broker: '',
   shipper_address: { city: '', state: 'AL', full_address: '' },
@@ -150,6 +152,8 @@ const onSubmit = async () => {
         original_rate: state.original_rate,
         pickup_date: state.pickup_date,
         pickup_time: state.pickup_time ? `${state.pickup_time.toString()}.000` : null,
+        delivery_date: state.delivery_date,
+        delivery_time: state.delivery_time ? `${state.delivery_time.toString()}.000` : null,
         shipper_address: state.shipper_address,
         receiver_address: state.receiver_address,
         miles: state.miles,
@@ -183,6 +187,8 @@ const onSubmit = async () => {
       original_rate: 0,
       pickup_date: new Date().toISOString().split('T')[0],
       pickup_time: new Time(12, 0, 0),
+      delivery_date: new Date().toISOString().split('T')[0],
+      delivery_time: new Time(12, 0, 0),
       driver: null,
       broker: '',
       shipper_address: { city: '', state: 'AL', full_address: '' },
@@ -302,6 +308,18 @@ const onSubmit = async () => {
           <UFormField label="Full Address" name="receiver_address.full_address">
             <UInput v-model="state.receiver_address.full_address" class="w-full" />
           </UFormField>
+          <div class="grid grid-cols-2 gap-4">
+            <UFormField label="Delivery Date" name="delivery_date">
+              <UInput v-model="state.delivery_date" 
+                :disabled="isDeliveryDisabled" 
+                type="date" 
+                class="w-full" />
+            </UFormField>
+            <UFormField label="Delivery Time" name="delivery_time">
+              <UInputTime v-model="state.delivery_time" :disabled="isDeliveryDisabled" />
+            </UFormField>
+          </div>
+          
           <UFormField label="Total Miles" name="miles" required>
             <UInput v-model.number="state.miles" type="number" required :ui="{
                 base: 'pl-12 pr-2',

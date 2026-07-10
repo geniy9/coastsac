@@ -1,10 +1,15 @@
 // composables/useConfig.js
 export default () => {
-  const route = useRoute()
   const config = useRuntimeConfig()
   const imageUrl = config.public.STRAPI_URL
   const originUrl = config.public.ORIGIN
   const toast = useToast()
+  const getPayableAmount = (rate, commissionRate) => {
+    const r = Number(rate) || 0
+    const c = Number(commissionRate) || 0
+    if (c <= 0) return r
+    return r - (r * c / 100)
+  }
   const getAvatar = (img, name) => {
     return {
       src: thumbImg(img),
@@ -75,6 +80,7 @@ export default () => {
   return {
     imageUrl,
     originUrl,
+    getPayableAmount,
     getAvatar,
     getMime,
     getStatusColor,

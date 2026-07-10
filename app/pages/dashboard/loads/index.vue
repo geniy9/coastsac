@@ -35,13 +35,7 @@ const { data: response, status, refresh } = await useAsyncData('loads', () => {
 
   // Если это водитель, запрашиваем только его грузы по ID его аккаунта
   if (permissions.value.isDriver) {
-    query.filters = {
-      driver: {
-        user_account: {
-          id: { $eq: user.value?.id }
-        }
-      }
-    }
+    query['filters[driver][user_account][id][$eq]'] = user.value?.id
   }
 
   return client('/loads', { query })

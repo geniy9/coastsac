@@ -70,6 +70,7 @@ export default defineNuxtConfig({
     fuelCardApiUsername: process.env.FUEL_CARD_API_USERNAME || '',
     fuelCardApiPassword: process.env.FUEL_CARD_API_PASSWORD || '',
     public: {
+      fuelCardApiCustomerId: process.env.FUEL_CARD_API_CUSTOMER_ID || '46876',
       ORIGIN: process.env.ORIGIN,
       STRAPI_URL: process.env.STRAPI_URL,
       RECAPTCHA_SITE_KEY: process.env.NUXT_PUBLIC_RECAPTCHA_SITE_KEY

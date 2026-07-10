@@ -28,11 +28,13 @@ jobs:
           RECAPTCHA_SECRET_KEY: ${{ secrets.RECAPTCHA_SECRET_KEY }}
           FUEL_CARD_API_USERNAME: ${{ secrets.FUEL_CARD_API_USERNAME }}
           FUEL_CARD_API_PASSWORD: ${{ secrets.FUEL_CARD_API_PASSWORD }}
+          FUEL_CARD_API_CUSTOMER_ID: ${{ secrets.FUEL_CARD_API_CUSTOMER_ID }}
 
       - name: Create .env file
         run: |
           echo "FUEL_CARD_API_USERNAME=${{ secrets.FUEL_CARD_API_USERNAME }}" >> .env
           echo "FUEL_CARD_API_PASSWORD=${{ secrets.FUEL_CARD_API_PASSWORD }}" >> .env
+          echo "FUEL_CARD_API_CUSTOMER_ID=${{ secrets.FUEL_CARD_API_CUSTOMER_ID }}" >> .env
           echo "STRAPI_URL=${{ secrets.STRAPI_URL }}" >> .env
           echo "ORIGIN=${{ secrets.ORIGIN }}" >> .env
 
