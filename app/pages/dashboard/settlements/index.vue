@@ -1,5 +1,8 @@
 <!-- pages/dashboard/settlements/index.vue -->
 <script setup>
+import { getPaginationRowModel } from "@tanstack/table-core"
+import { sub, format, differenceInCalendarDays } from "date-fns"
+
 definePageMeta({ layout: 'dashboard' })
 
 const { permissions } = useRolePermissions()
@@ -7,11 +10,14 @@ const client = useStrapiClient()
 const toast = useToast()
 
 const selectedDriver = ref(null)
-const startDate = ref('')
-const endDate = ref('')
+const range = shallowRef({
+  start: sub(new Date(), { days: 7 }),
+  end: new Date(),
+})
+
 const isCreating = ref(false)
 const bulkInterval = ref(10)
-const isBulkDeleting = ref(false)
+const isDeleting = ref(false)
 const router = useRouter()
 
 // Списки
@@ -57,21 +63,23 @@ const startPolling = (jobId) => {
 
 // Запустить расчет и сохранить в драфт
 const handleCreateSettlement = async () => {
-  if (!selectedDriver.value || !startDate.value || !endDate.value) {
+  if (!selectedDriver.value || !range.value?.start || !range.value?.end) {
     toast.add({ title: 'Validation Error', description: 'Please fill all fields', color: 'error' })
     return
   }
-
   isCreating.value = true
   try {
+    const formattedStart = format(range.value.start, 'yyyy-MM-dd')
+    const formattedEnd = format(range.value.end, 'yyyy-MM-dd')
+
     const calc = await client('/settlements/calculate', {
-      query: { driverId: selectedDriver.value, startDate: startDate.value, endDate: endDate.value }
+      query: { driverId: selectedDriver.value, startDate: formattedStart, endDate: formattedEnd }
     })
 
     const payload = {
       data: {
-        start_date: startDate.value,
-        end_date: endDate.value,
+        start_date: formattedStart,
+        end_date: formattedEnd,
         driver: selectedDriver.value,
         loads: calc.loads.map(l => l.documentId),
         gross_freight: calc.gross_freight,
@@ -93,68 +101,182 @@ const handleCreateSettlement = async () => {
   }
 }
 
-// Массовая рассылка выбранных драфтов
-const selectedIds = ref([])
-const handleBulkSend = async () => {
-  if (selectedIds.value.length === 0) return
+const isCalculateDisabled = computed(() => {
+  if (!selectedDriver.value) return true
+  if (!range.value?.start || !range.value?.end) return true
+  const daysDifference = differenceInCalendarDays(range.value.end, range.value.start)
+  return daysDifference <= 0
+})
+
+const table = useTemplateRef("table")
+const rowSelection = ref({})
+const pagination = ref({ pageIndex: 0, pageSize: 24 })
+
+const selectedIds = computed(() => {
+  return Object.keys(rowSelection.value)
+    .filter(key => rowSelection.value[key])
+    .map(index => settlements.value[Number(index)]?.documentId)
+    .filter(Boolean)
+})
+
+// Email отправка (одиночная / массовая)
+const handleSendSettlements = async (ids) => {
+  const targetIds = Array.isArray(ids) ? ids : [ids]
+  if (targetIds.length === 0) return
   
   try {
     const res = await client('/settlement-jobs', {
       method: 'POST',
       body: {
-        settlementIds: selectedIds.value,
+        settlementIds: targetIds,
         interval_sec: bulkInterval.value
       }
     })
     activeJob.value = res.job
     startPolling(res.job.documentId)
+    rowSelection.value = {}
   } catch (e) {
-    toast.add({ title: 'Bulk send failed', description: e.message, color: 'error' })
+    toast.add({ title: 'Send failed', description: e.message, color: 'error' })
   }
 }
 
-// удаление
+// Удаление
 const handleDeleteSettlement = async (documentId) => {
   if (!confirm('Are you sure you want to delete this settlement?')) return
 
+  isDeleting.value = true
   try {
     await client(`/settlements/${documentId}`, { method: 'DELETE' })
     toast.add({ title: 'Settlement deleted successfully', color: 'success' })
     
-    // Исключаем удаленный ID из списка выбранных, если он там был
-    selectedIds.value = selectedIds.value.filter(id => id !== documentId)
+    // Сбрасываем выборку, чтобы избежать несоответствия индексов
+    rowSelection.value = {}
     refresh()
   } catch (error) {
     toast.add({ title: 'Failed to delete settlement', description: error.message, color: 'error' })
-  }
-}
-
-// Массовое удаление выделенных записей
-const handleBulkDelete = async () => {
-  if (selectedIds.value.length === 0) return
-  if (!confirm(`Are you sure you want to delete ${selectedIds.value.length} selected settlements?`)) return
-
-  isBulkDeleting.value = true
-  try {
-    // Выполняем параллельное удаление всех выбранных сущностей
-    await Promise.all(
-      selectedIds.value.map(id => client(`/settlements/${id}`, { method: 'DELETE' }))
-    )
-    toast.add({ title: 'Selected settlements deleted', color: 'success' })
-    selectedIds.value = []
-    refresh()
-  } catch (error) {
-    toast.add({ title: 'Bulk deletion encountered errors', description: error.message, color: 'error' })
-    refresh() // Обновляем список, чтобы синхронизировать то, что успешно удалилось
   } finally {
-    isBulkDeleting.value = false
+    isDeleting.value = false
   }
 }
 
-const goToSett = (id) => {
-  router.push(`/dashboard/settlements/${id}`)
+const handleRowClick = (event, row) => {
+  const documentId = row.original?.documentId
+  if (documentId) {
+    router.push(`/dashboard/settlements/${documentId}`)
+  }
 }
 
+const UButton = resolveComponent("UButton")
+const UDropdownMenu = resolveComponent("UDropdownMenu")
+const UCheckbox = resolveComponent("UCheckbox")
+const UBadge = resolveComponent("UBadge")
+
+const columns = [{
+  id: "select",
+  header: ({ table }) =>
+    h(UCheckbox, {
+      modelValue: table.getIsSomePageRowsSelected()
+        ? "indeterminate"
+        : table.getIsAllPageRowsSelected(),
+      "onUpdate:modelValue": (value) => table.toggleAllPageRowsSelected(!!value),
+      ariaLabel: "Select all"
+    }),
+  cell: ({ row }) =>
+    h(UCheckbox, {
+      modelValue: row.getIsSelected(),
+      "onUpdate:modelValue": (value) => row.toggleSelected(!!value),
+      onClick: (e) => e.stopPropagation(),
+      ariaLabel: "Select row"
+    })
+},{
+  id: "driver",
+  header: "Driver",
+  cell: ({ row }) => {
+    const driver = row.original.driver
+    const name = driver ? `${driver.first_name} ${driver.last_name}` : '-'
+    return h("span", { class: "font-semibold text-highlighted" }, name)
+  }
+},{
+  id: "period",
+  header: "Period",
+  cell: ({ row }) => {
+    return h("div", { class: "font-mono flex flex-col items-start gap-1" }, [
+      h(UBadge, { 
+        label: row.original.start_date || '', 
+        variant: "soft", 
+        icon: "hugeicons:calendar-add-02" 
+      }),
+      h(UBadge, { 
+        label: row.original.end_date || '', 
+        variant: "soft", 
+        icon: "hugeicons:calendar-minus-02" 
+      })
+    ])
+  }
+},{
+  id: "status",
+  header: "Status",
+  cell: ({ row }) => {
+    const status = row.original.status_settlement
+    const color = status === 'sent' ? 'success' : (status === 'generated' ? 'info' : 'neutral')
+    return h(UBadge, { color, variant: "soft" }, () => status)
+  }
+},{
+  id: "gross",
+  header: () => h("div", { class: "text-right" }, "Gross"),
+  cell: ({ row }) => {
+    return h("div", { class: "text-right font-mono text-highlighted" }, `$${row.original.gross_payable || 0}`)
+  }
+},{
+  id: "fuel",
+  header: () => h("div", { class: "text-right" }, "Fuel Expense"),
+  cell: ({ row }) => {
+    return h("div", { class: "text-right font-mono text-red-500" }, `$${row.original.total_fuel || 0}`)
+  }
+},{
+  id: "net_payout",
+  header: () => h("div", { class: "text-right" }, "Net Payout"),
+  cell: ({ row }) => {
+    const net = row.original.net_payout || 0
+    const isNegative = net < 0
+    return h("div", { 
+      class: ["text-right font-mono", isNegative ? 'text-red-500' : 'text-highlighted'] 
+    }, `$ ${net}`)
+  }
+},{
+  id: "actions",
+  cell: ({ row }) => {
+    return h("div", { class: "text-right", onClick: (e) => e.stopPropagation() },
+      h(UDropdownMenu, { 
+        content: { align: "center", side: "left" }, 
+        items: getRowItems(row) 
+      },
+        () => h(UButton, {
+          icon: "hugeicons:more-vertical-circle-01",
+          color: "neutral",
+          variant: "soft",
+        })
+      )
+    )
+  }
+}]
+
+function getRowItems(row) {
+  return [{
+    label: "Send Email",
+    icon: "hugeicons:mail-send-01",
+    onSelect() {
+      handleSendSettlements(row.original.documentId)
+    }
+  },{
+    label: "Delete",
+    icon: "hugeicons:delete-02",
+    class: "text-red-500 hover:text-red-600",
+    onSelect() {
+      handleDeleteSettlement(row.original.documentId)
+    }
+  }]
+}
 onBeforeUnmount(() => {
   if (pollingInterval) clearInterval(pollingInterval)
 })
@@ -163,35 +285,52 @@ onBeforeUnmount(() => {
   <div class="dashboard_main">
     <UDashboardPanel id="settlements">
       <template #header>
-        <UDashboardNavbar title="Settlements" />
-
+        <UDashboardNavbar title="Settlements">
+          <template #leading>
+            <UDashboardSidebarCollapse />
+          </template>        
+        </UDashboardNavbar>
         <UDashboardToolbar v-if="permissions.canViewSettlements">
-          <template #left>
-            <!-- GENERATE NEW SETTLEMENT WIDGET -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-2 items-end">
-              <USelect v-model="selectedDriver" :items="driverItems" placeholder="Choose Driver" class="min-w-40" />
-              <UFieldGroup>
-                <UBadge label="Start Date" variant="soft" />
-                <UInput v-model="startDate" type="date" class="w-full" />
-              </UFieldGroup>
-              <UFieldGroup>
-                <UBadge label="End Date" variant="soft" />
-                <UInput v-model="endDate" type="date" class="w-full" />
-              </UFieldGroup>
-              <div class="flex">
-                <UButton 
-                label="Calculate & Save" 
-                color="primary" 
-                :loading="isCreating" 
-                @click="handleCreateSettlement" />
+          <template #default>
+            <div class="flex flex-col lg:flex-row items-center justify-between gap-4 py-2 w-full">
+              <div class="flex flex-col sm:flex-row items-center gap-2">
+                <HomeDateRangePicker v-model="range" />
+                <div class="flex items-center gap-2">
+                  <USelect 
+                    v-model="selectedDriver" 
+                    :items="driverItems" 
+                    placeholder="Choose Driver" 
+                    class="min-w-40" />
+                  <UButton 
+                    label="Calculate & Save" 
+                    color="primary" 
+                    :loading="isCreating" 
+                    @click="handleCreateSettlement" 
+                    :disabled="isCalculateDisabled" />
+                </div>
               </div>
+              <UFieldGroup v-show="selectedIds.length > 0">
+                <UBadge label="Interval" variant="soft" />
+                <UInput v-model="bulkInterval" type="number" class="w-20" placeholder="delay" :ui="{
+                    base: 'pr-8',
+                    trailing: 'pointer-events-none'
+                  }">
+                  <template #trailing><p class="text-sm text-muted">sec</p></template>
+                </UInput>
+                <UButton 
+                  icon="hugeicons:mail-send-02"
+                  label="Bulk Send" 
+                  color="info" 
+                  :disabled="selectedIds.length === 0" 
+                  @click="handleSendSettlements(selectedIds)" />
+              </UFieldGroup>
             </div>
           </template>
         </UDashboardToolbar>
       </template>
 
       <template #body>
-        <div class="space-y-6" v-if="permissions.canViewSettlements">
+        <div class="flex-1 flex flex-col min-h-0 space-y-4" v-if="permissions.canViewSettlements">
           
           <!-- PROGRESS BAR -->
           <div v-if="activeJob" class="border border-primary/20 bg-primary/5 p-4 rounded-xl space-y-2">
@@ -206,85 +345,38 @@ onBeforeUnmount(() => {
           </div>
 
           <!-- LIST OF SETTLEMENTS -->
-          <div class="space-y-4">
-            <div class="flex justify-between items-center">
-              <h3 class="font-bold text-highlighted text-md">
-                Settlements Registry
-              </h3>
-              <div class="flex items-center gap-3">
-                <UFieldGroup>
-                  <UBadge label="Interval" variant="soft" />
-                  <UInput v-model="bulkInterval" type="number" class="w-24" placeholder="delay" :ui="{
-                      base: 'pr-8',
-                      trailing: 'pointer-events-none'
-                    }">
-                    <template #trailing><p class="text-sm text-muted">sec</p></template>
-                  </UInput>
-                  <UButton 
-                    label="Bulk Send" 
-                    color="info" 
-                    :disabled="selectedIds.length === 0" 
-                    @click="handleBulkSend" />
-                </UFieldGroup>
-                <UTooltip text="Delete selected" v-if="permissions.isAdmin">
-                  <UButton 
-                    color="error" 
-                    variant="soft"
-                    icon="hugeicons:delete-02"
-                    :disabled="selectedIds.length === 0" 
-                    :loading="isBulkDeleting"
-                    @click="handleBulkDelete" />
-                </UTooltip>
+          <div class="flex-1 flex flex-col min-h-0 space-y-4">
+            <UTable
+              ref="table"
+              v-model:row-selection="rowSelection"
+              v-model:pagination="pagination"
+              :pagination-options="{ getPaginationRowModel: getPaginationRowModel() }"
+              class="shrink-0 flex-1 overflow-auto"
+              :data="settlements"
+              :columns="columns"
+              @select="handleRowClick"
+              :ui="{
+                base: 'table-fixed border-separate border-spacing-0',
+                thead: '[&>tr]:bg-elevated/50 [&>tr]:after:content-none',
+                tbody: '[&>tr]:last:[&>td]:border-b-0 [&>tr]:hover:bg-elevated/10 [&>tr]:cursor-pointer',
+                th: 'py-2 first:rounded-l-lg last:rounded-r-lg border-y border-default first:border-l last:border-r',
+                td: 'border-b border-default',
+                separator: 'h-0'
+              }" />
+
+            <div class="flex items-center justify-between gap-3 mt-auto">
+              <div class="text-sm text-muted">
+                Selected: {{ selectedIds.length }} of {{ table?.tableApi?.getFilteredRowModel().rows.length || 0 }}
+              </div>
+              <div class="flex items-center gap-1.5">
+                <UPagination
+                  :default-page="(table?.tableApi?.getState().pagination.pageIndex || 0) + 1"
+                  :items-per-page="table?.tableApi?.getState().pagination.pageSize"
+                  :total="table?.tableApi?.getFilteredRowModel().rows.length"
+                  @update:page="(p) => table?.tableApi?.setPageIndex(p - 1)" />
               </div>
             </div>
 
-            <div class="border border-default rounded-lg overflow-hidden">
-              <table class="w-full text-left text-sm border-collapse">
-                <thead class="bg-elevated/50 text-primary border-b border-default">
-                  <tr>
-                    <th class="p-3 text-center">
-                      <input type="checkbox" @change="(e) => selectedIds = e.target.checked ? settlements.map(s => s.documentId) : []" /></th>
-                    <th class="p-3">Driver</th>
-                    <th class="p-3">Period</th>
-                    <th class="p-3">Status</th>
-                    <th class="p-3 text-right">Gross</th>
-                    <th class="p-3 text-right">Fuel Expense</th>
-                    <th class="p-3 text-right">Net Payout</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="sett in settlements" :key="sett.id" 
-                    class="border-b border-default hover:bg-elevated/10 text-sm cursor-pointer">
-                    <td class="p-3 text-center">
-                      <input type="checkbox" :value="sett.documentId" v-model="selectedIds" />
-                    </td>
-                    <td @click="goToSett(sett.documentId)" class="p-3 font-semibold text-highlighted">
-                      {{ sett.driver?.first_name }} {{ sett.driver?.last_name }}
-                    </td>
-                    <td @click="goToSett(sett.documentId)" class="p-3 font-mono flex flex-col items-start gap-1">
-                      <UBadge :label="sett.start_date" variant="soft" icon="hugeicons:calendar-add-02" />
-                      <UBadge :label="sett.end_date" variant="soft" icon="hugeicons:calendar-minus-02" />
-                    </td>
-                    <td @click="goToSett(sett.documentId)" class="p-3">
-                      <UBadge :color="sett.status_settlement === 'sent' ? 'success' : (sett.status_settlement === 'generated' ? 'info' : 'neutral')" variant="soft">
-                        {{ sett.status_settlement }}
-                      </UBadge>
-                    </td>
-                    <td @click="goToSett(sett.documentId)" class="p-3 text-right font-mono">
-                      ${{ sett.gross_payable }}
-                    </td>
-                    <td @click="goToSett(sett.documentId)" class="p-3 text-right font-mono text-red-500">
-                      ${{ sett.total_fuel }}
-                    </td>
-                    <td @click="goToSett(sett.documentId)" class="p-3 text-right font-mono">
-                      <span :class="(sett.net_payout >= 0) ? 'text-highlighted' : 'text-red-500'">
-                        ${{ sett.net_payout }}
-                      </span>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
           </div>
 
         </div>

@@ -4,6 +4,7 @@ definePageMeta({ layout: 'dashboard' })
 
 const route = useRoute()
 const client = useStrapiClient()
+const { permissions } = useRolePermissions()
 const { getPayableAmount } = useConfig()
 const toast = useToast()
 
@@ -15,7 +16,8 @@ const { data: response, refresh } = await useAsyncData(`settlement-detail-${id}`
     query: {
       populate: [
         'driver.deductions', 
-        'loads'
+        'loads.shipper_address',
+        'loads.receiver_address'
       ]
     } 
   })
@@ -26,9 +28,12 @@ const settlement = computed(() => response.value?.data || null)
 const newAdjReason = ref('')
 const newAdjAmount = ref(0)
 const newAdjType = ref('deduction')
+const isOpenAdjust = ref(false)
+const loadingAdjust = ref(false)
 
 const handleAddAdjustment = async () => {
   if (!newAdjReason.value || newAdjAmount.value <= 0) return
+  loadingAdjust.value = true
 
   const adjs = settlement.value.custom_adjustments || []
   adjs.push({
@@ -59,10 +64,13 @@ const handleAddAdjustment = async () => {
     refresh()
   } catch (e) {
     toast.add({ title: 'Failed to update', description: e.message, color: 'error' })
+  } finally {
+    loadingAdjust.value = false
+    isOpenAdjust.value = false
   }
 }
 
-// Отправка
+// SENDING
 const handleSendEmail = async () => {
   isSending.value = true
   try {
@@ -76,6 +84,9 @@ const handleSendEmail = async () => {
   }
 }
 
+const toggleAdjustment = () => {
+  isOpenAdjust.value = isOpenAdjust.value ? false : true
+}
 const handlePrint = () => {
   window.print()
 }
@@ -86,161 +97,179 @@ const handlePrint = () => {
       <template #header>
         <UDashboardNavbar title="Settlement Worksheet" class="no-print">
           <template #leading>
+            <UDashboardSidebarCollapse />
             <UButton icon="i-lucide-arrow-left" to="/dashboard/settlements" variant="ghost" />
           </template>
           <template #right>
             <div class="flex items-center gap-2">
               <UButton icon="hugeicons:printer" color="neutral" variant="outline" @click="handlePrint" />
-              <UButton icon="hugeicons:mail-send-02" label="Send" color="primary" :loading="isSending" @click="handleSendEmail" />
+              <UButton icon="hugeicons:mail-send-02" label="Send" color="info" :loading="isSending" @click="handleSendEmail" />
             </div>
           </template>
         </UDashboardNavbar>
+
+        <UDashboardToolbar v-if="permissions.canViewSettlements" class="no-print">
+          <template #left>
+            <!-- ADJUSTMENTS -->
+            <div class="flex gap-2">
+              <div v-if="isOpenAdjust" class="flex flex-col md:flex-row items-start gap-2 py-2 transition-all">
+                <UInput v-model="newAdjReason" placeholder="Reason: e.g. Physical Damage" class="w-full md:min-w-60 lg:min-w-80" />
+                <UFieldGroup>
+                  <UInput v-model.number="newAdjAmount" type="number" :ui="{
+                      base: 'pl-6 pr-2 w-30',
+                      leading: 'pointer-events-none'
+                    }">
+                    <template #leading><p class="text-sm text-muted">$</p></template>
+                  </UInput>
+                  <USelect 
+                    v-model="newAdjType" 
+                    :items="[{value: 'deduction', label: 'Deduction'},{value: 'bonus', label: 'Bonus'}]" class="w-30" />
+                </UFieldGroup>
+                <div class="flex justify-between gap-2">
+                  <UButton 
+                    label="Apply Adjustment" 
+                    :disabled="(!newAdjReason || newAdjAmount <= 0)"
+                    :loading="loadingAdjust" 
+                    color="primary" 
+                    @click="handleAddAdjustment" />
+                  <UButton label="Cancel" @click="toggleAdjustment" variant="soft" />
+                </div>
+              </div>
+              <UButton v-else
+                label="Add manual adjustment" 
+                icon="hugeicons:add-money-circle"
+                @click="toggleAdjustment" 
+                variant="soft" />
+            </div>
+          </template>
+        </UDashboardToolbar>
       </template>
 
       <template #body>
-        <div v-if="settlement" class="grid grid-cols-1 md:grid-cols-3 gap-6 print-layout">
+        <div v-if="settlement" class="grid gap-6 print-area">
           
-          <!-- PRINT TEMPLATE & MAIN VIEW -->
-          <div class="md:col-span-2 space-y-6 printable-area">
-            
-            <div class="border border-default rounded-xl p-6 bg-elevated/10 space-y-6">
-              
-              <!-- Statement Head -->
-              <div class="flex justify-between items-start">
-                <div class="flex flex-col gap-x-4 gap-y-8">
-                  <h1 class="text-xl font-bold text-highlighted">
+          <!-- SHEET -->
+          <div class="border-default rounded-lg not-print:border p-6 space-y-6">
+            <!-- HEAD -->
+            <div class="flex justify-between items-start px-2">
+              <div class="flex flex-col gap-x-4 gap-y-12">
+                <div>
+                  <h1 class="text-2xl font-bold text-highlighted">
                     Weekly Statement
                   </h1>
-                  <div class="grid gap-2">
-                    <p class="text-sm font-medium">
-                      <span class="text-gray-500">To: </span>
-                      {{ settlement.driver?.first_name }} {{ settlement.driver?.last_name }}
-                    </p>
-                    <p class="text-sm font-mono">
-                      <span class="text-gray-500">Date Range: </span>
-                      {{ settlement.start_date }} / {{ settlement.end_date }}
-                    </p>
-                  </div>
+                  <p class="text-xs text-gray-500 font-mono">
+                    ID: SETT-{{ settlement.id }}
+                  </p>
                 </div>
-                <div class="text-right">
-                  <h2 class="text-md font-bold text-primary">
-                    COAST TO COAST INC.</h2>
-                  <p class="text-xs text-gray-500 font-mono">ID: SETT-{{ settlement.id }}</p>
+                <div class="grid gap-1">
+                  <p class="text-sm font-medium">
+                    <span class="text-gray-500">To: </span>
+                    {{ settlement.driver?.first_name }} {{ settlement.driver?.last_name }}
+                  </p>
+                  <p class="text-sm font-mono">
+                    <span class="text-gray-500">Date Range: </span>
+                    {{ settlement.start_date }} / {{ settlement.end_date }}
+                  </p>
                 </div>
               </div>
-
-              <!-- Loads table -->
-              <div class="space-y-2">
-                <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                  RC Detail
-                </h3>
-                <div class="border-y border-default py-2">
-                  <div class="grid grid-cols-4 font-bold text-highlighted text-xs pb-1">
-                    <span>Load ID</span>
-                    <span class="text-center">Loaded Miles</span>
-                    <span class="text-right">Freight Amount</span>
-                    <span class="text-right">Payable Amount</span>
-                  </div>
-                  <div v-for="load in settlement.loads" :key="load.id" class="grid grid-cols-4 text-xs py-1 text-gray-300">
-                    <span>#{{ load.load_number }}</span>
-                    <span class="text-center font-mono">{{ load.miles || 0 }}</span>
-                    <span class="text-right font-mono">${{ load.drivers_rate }}</span>
-                    <span class="text-right font-mono">
-                      ${{ getPayableAmount(load.drivers_rate, settlement.driver?.commission_rate).toFixed(2) }}
-                    </span>
-                  </div>
-                </div>
+              <div class="text-right">
+                <img src="/coast_to_coast_480x200.png" class="w-50" alt="COAST TO COAST INC." />
               </div>
-
-              <!-- Aggregates / Gross -->
-              <div class="flex justify-between items-center bg-elevated/40 p-3 text-xs font-bold text-highlighted">
-                <span>Gross Accumulations:</span>
-                <div class="flex gap-12 font-mono">
-                  <span>Freight: ${{ settlement.gross_freight }}</span>
-                  <span>Payable: ${{ settlement.gross_payable }}</span>
-                </div>
-              </div>
-
-              <!-- Deductions ledger -->
-              <div class="space-y-2">
-                <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                  Weekly Deductions
-                </h3>
-                <div class="space-y-1.5 text-xs font-mono">
-                  <div class="flex justify-between pb-2 border-b border-default">
-                    <span>Fuel Expenses</span>
-                    <span class="text-red-500">${{ settlement.total_fuel }}</span>
-                  </div>
-                  <div class="flex justify-between pb-2 border-b border-default">
-                    <span>ELD</span>
-                    <span>${{ settlement.driver?.deductions?.eld || 0 }}</span>
-                  </div>
-                  <div class="flex justify-between pb-2 border-b border-default">
-                    <span>Insurance</span>
-                    <span>${{ settlement.driver?.deductions?.insurance || 0 }}</span>
-                  </div>
-                  <div class="flex justify-between pb-2 border-b border-default">
-                    <span>IFTA</span>
-                    <span>${{ settlement.driver?.deductions?.ifta || 0 }}</span>
-                  </div>
-                  <div v-if="settlement.driver?.deductions?.other_reason" class="flex justify-between pb-2 border-b border-default">
-                    <span>{{ settlement.driver?.deductions?.other_reason }}</span>
-                    <span>${{ settlement.driver?.deductions?.other_cost || 0 }}</span>
-                  </div>
-
-                  <!-- Динамические корректировки -->
-                  <div v-for="(adj, idx) in settlement.custom_adjustments" :key="idx" class="flex justify-between pb-2 border-b border-default">
-                    <span>{{ adj.reason }}</span>
-                    <span :class="adj.type === 'deduction' ? 'text-red-500' : 'text-green-500'">
-                      {{ adj.type === 'deduction' ? '-' : '+' }}${{ adj.amount }}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Net Payout -->
-              <div class="flex justify-between items-center font-bold">
-                <span class="text-sm text-highlighted">
-                  Total Amount After Deductions (Net Payout):
-                </span>
-                <span class="text-lg" :class="(settlement.net_payout >= 0) ? 'text-primary' : 'text-red-500'">
-                  $ {{ settlement.net_payout }}
-                </span>
-              </div>
-
             </div>
 
-          </div>
-
-          <!-- SIDEBAR EDIT MANUAL ADJUSTMENTS (NO PRINT) -->
-          <div class="space-y-4 no-print">
-            <UCard variant="soft" title="Add manual adjustment">
-              <div class="grid gap-4">
-                <UFormField label="Reason">
-                  <UInput v-model="newAdjReason" placeholder="e.g. Physical Damage" class="w-full" />
-                </UFormField>
-                <div class="grid grid-cols-2 gap-2">
-                  <UFormField label="Type">
-                    <USelect v-model="newAdjType" :items="[{value: 'deduction', label: 'Deduction'}, {value: 'bonus', label: 'Bonus'}]" class="w-full" />
-                  </UFormField>
-                  <UFormField label="Amount">
-                    <UInput v-model.number="newAdjAmount" type="number" :ui="{
-                        base: 'pl-6 pr-2',
-                        leading: 'pointer-events-none'
-                      }">
-                      <template #leading><p class="text-sm text-muted">$</p></template>
-                    </UInput>
-                  </UFormField>
+            <!-- LOADS -->
+            <div class="space-y-2">
+              <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                RC Detail
+              </h3>
+              <div class="text-highlighted text-sm">
+                <div class="grid grid-cols-5 font-bold border-y border-default py-2 pb-2 px-3">
+                  <span class="col-span-2">Load ID</span>
+                  <span class="text-center">Miles</span>
+                  <span class="text-right">Freight Amount</span>
+                  <span class="text-right">Payable Amount</span>
                 </div>
-                <UButton 
-                  label="Apply Adjustment" 
-                  :disabled="(!newAdjReason || newAdjAmount <= 0)"
-                  variant="soft" 
-                  color="primary" 
-                  block 
-                  @click="handleAddAdjustment" />
+                <div v-for="load in settlement.loads" :key="load.id" class="grid grid-cols-5 text-sm py-1 px-3">
+                  <div class="col-span-2 grid">
+                    <span>#{{ load.load_number }}</span>
+                    <span class="text-gray-500 text-xs">
+                      {{ `${load.shipper_address.city}, ${load.shipper_address.state}` }} - {{ `${load.receiver_address.city}, ${load.receiver_address.state}` }}
+                    </span>
+                  </div>
+                  <span class="text-center font-mono">
+                    {{ load.miles || 0 }}
+                  </span>
+                  <span class="text-right font-mono">
+                    ${{ load.drivers_rate }}
+                  </span>
+                  <span class="text-right font-mono">
+                    ${{ getPayableAmount(load.drivers_rate, settlement.driver?.commission_rate) }}
+                  </span>
+                </div>
               </div>
-            </UCard>
+              <!-- GROSS -->
+              <div class="grid grid-cols-5 gap-2 dark:bg-elevated/20 p-3 text-sm font-mono text-highlighted">
+                <span class="col-span-3 font-bold">
+                  Gross Accumulations:
+                </span>
+                <span class="text-right">Freight: ${{ settlement.gross_freight }}</span>
+                <span class="text-right">Payable: ${{ settlement.gross_payable }}</span>
+              </div>
+            </div>
+
+            <!-- DEDUCTIONS -->
+            <div class="space-y-2">
+              <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                Weekly Deductions
+              </h3>
+              <div class="space-y-2 text-sm font-mono">
+                <div class="flex justify-between pb-2 px-3 border-b border-default">
+                  <span>Fuel Expenses</span>
+                  <span class="text-red-500">${{ settlement.total_fuel }}</span>
+                </div>
+                <div class="flex justify-between pb-2 px-3 border-b border-default">
+                  <span>ELD</span>
+                  <span>${{ settlement.driver?.deductions?.eld || 0 }}</span>
+                </div>
+                <div class="flex justify-between pb-2 px-3 border-b border-default">
+                  <span>Insurance</span>
+                  <span>${{ settlement.driver?.deductions?.insurance || 0 }}</span>
+                </div>
+                <div class="flex justify-between pb-2 px-3 border-b border-default">
+                  <span>IFTA</span>
+                  <span>${{ settlement.driver?.deductions?.ifta || 0 }}</span>
+                </div>
+                <div v-if="settlement.driver?.deductions?.other_reason" class="flex justify-between pb-2 px-3 border-b border-default">
+                  <span>{{ settlement.driver?.deductions?.other_reason }}</span>
+                  <span>${{ settlement.driver?.deductions?.other_cost || 0 }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- EXTRA ADJUSTMENTS -->
+            <div class="space-y-2">
+              <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                Extra Adjustments
+              </h3>
+              <div class="grid gap-2 bg-elevated/20 p-3 text-sm font-mono text-highlighted">
+                <div v-for="(adj, idx) in settlement.custom_adjustments" :key="idx" class="flex items-center justify-between">
+                  <span>{{ adj.reason }}</span>
+                  <span :class="adj.type === 'deduction' ? 'text-red-500' : 'text-green-500'">
+                    $ {{ adj.type === 'deduction' ? '-' : '+' }}{{ adj.amount }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- NET PAYOUT -->
+            <div class="flex justify-between items-center font-bold px-3">
+              <span class="text-sm text-highlighted">
+                Total Amount (Net Payout):
+              </span>
+              <span class="text-lg" :class="(settlement.net_payout >= 0) ? 'text-primary' : 'text-red-500'">
+                $ {{ settlement.net_payout }}
+              </span>
+            </div>
           </div>
 
         </div>
@@ -248,21 +277,3 @@ const handlePrint = () => {
     </UDashboardPanel>
   </div>
 </template>
-<style>
-@media print {
-  body {
-    background: white !important;
-    color: black !important;
-  }
-  .no-print {
-    display: none !important;
-  }
-  .print-layout {
-    display: block !important;
-  }
-  .printable-area {
-    width: 100% !important;
-    max-width: 100% !important;
-  }
-}
-</style>

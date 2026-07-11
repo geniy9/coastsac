@@ -82,16 +82,13 @@
 
 /* СТИЛИ ДЛЯ ПЕЧАТИ */
 @media print {
-  .no-print { 
-    display: none !important; 
-  }
-
   body, .dashboard, main, .print-area {
     background: #ffffff !important;
     color: #000000 !important;
     margin: 0 !important;
     padding: 0 !important;
     width: 100% !important;
+    max-width: 100% !important;
     box-shadow: none !important;
     overflow: visible !important;
   }
@@ -110,12 +107,19 @@
     grid-column: span 2 / span 2 !important; 
   }
 
-  .print-card, .print-file-row, .rounded-lg, .border {
+  .print-card, .print-file-row {
     background: #ffffff !important;
     border: 1px solid #cbd5e1 !important;
     border-radius: 0.375rem !important;
     box-shadow: none !important;
     margin-bottom: 1rem !important;
+  }
+  .border-b {
+    border-bottom: 1px solid #cbd5e1 !important;
+  }
+  .border-y {
+    border-top: 1px solid #cbd5e1 !important;
+    border-bottom: 1px solid #cbd5e1 !important;
   }
   .print-file-row { 
     background: #f8fafc !important; 
@@ -141,6 +145,9 @@
     font-weight: bold !important;
   }
   .text-gray-400, .text-gray-500 {
-    color: #374151 !important; 
+    color: #333333 !important; 
+  }
+  .no-print { 
+    display: none !important; 
   }
 }

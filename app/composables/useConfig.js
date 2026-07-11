@@ -4,11 +4,11 @@ export default () => {
   const imageUrl = config.public.STRAPI_URL
   const originUrl = config.public.ORIGIN
   const toast = useToast()
-  const getPayableAmount = (rate, commissionRate) => {
-    const r = Number(rate) || 0
-    const c = Number(commissionRate) || 0
+  const getPayableAmount = (r = 0, c = 0) => {
+    // const r = Number(rate) || 0
+    // const c = Number(commission) || 0
     if (c <= 0) return r
-    return r - (r * c / 100)
+    return (r - (r * c / 100)).toFixed(2)
   }
   const getAvatar = (img, name) => {
     return {
