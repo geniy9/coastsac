@@ -149,7 +149,7 @@ const handlePrint = () => {
         <div v-if="settlement" class="grid gap-6 print-area">
           
           <!-- SHEET -->
-          <div class="border-default rounded-lg not-print:border p-6 space-y-6">
+          <div class="border-default rounded-lg not-print:border p-6 space-y-6 min-w-xl overflow-y-auto">
             <!-- HEAD -->
             <div class="flex justify-between items-start px-2">
               <div class="flex flex-col gap-x-4 gap-y-12">

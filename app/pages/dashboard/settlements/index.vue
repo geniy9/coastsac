@@ -189,14 +189,6 @@ const columns = [{
       ariaLabel: "Select row"
     })
 },{
-  id: "driver",
-  header: "Driver",
-  cell: ({ row }) => {
-    const driver = row.original.driver
-    const name = driver ? `${driver.first_name} ${driver.last_name}` : '-'
-    return h("span", { class: "font-semibold text-highlighted" }, name)
-  }
-},{
   id: "period",
   header: "Period",
   cell: ({ row }) => {
@@ -214,12 +206,25 @@ const columns = [{
     ])
   }
 },{
+  id: "driver",
+  header: "Driver",
+  cell: ({ row }) => {
+    const driver = row.original.driver
+    const name = driver ? `${driver.first_name} ${driver.last_name}` : '-'
+    return h("span", { class: "font-semibold text-highlighted" }, name)
+  }
+},{
   id: "status",
   header: "Status",
   cell: ({ row }) => {
     const status = row.original.status_settlement
     const color = status === 'sent' ? 'success' : (status === 'generated' ? 'info' : 'neutral')
-    return h(UBadge, { color, variant: "soft" }, () => status)
+    return h(UBadge, { 
+      icon: status === 'sent' ? 'hugeicons:mail-01' : 'hugeicons:file-01',
+      color, 
+      variant: "soft", 
+      class: "uppercase"
+    }, () => status)
   }
 },{
   id: "gross",
@@ -333,15 +338,15 @@ onBeforeUnmount(() => {
         <div class="flex-1 flex flex-col min-h-0 space-y-4" v-if="permissions.canViewSettlements">
           
           <!-- PROGRESS BAR -->
-          <div v-if="activeJob" class="border border-primary/20 bg-primary/5 p-4 rounded-xl space-y-2">
-            <div class="flex justify-between items-center text-xs text-primary font-semibold">
+          <div v-if="activeJob" class="bg-primary/5 p-4 rounded-xl space-y-2">
+            <div class="flex justify-between items-center text-sm text-primary font-semibold">
               <span class="flex items-center gap-1.5 animate-pulse">
                 <UIcon name="i-lucide-loader-2" class="animate-spin" />
-                Sending weekly settlements...
+                Sending settlements...
               </span>
               <span>{{ activeJob.processed_items }} / {{ activeJob.total_items }} sent ({{ jobProgress }}%)</span>
             </div>
-            <UProgress v-model="jobProgress" size="xs" color="primary" />
+            <UProgress v-model="jobProgress" color="primary" />
           </div>
 
           <!-- LIST OF SETTLEMENTS -->
