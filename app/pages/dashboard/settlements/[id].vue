@@ -206,7 +206,7 @@ const handlePrint = () => {
                     ${{ load.status_load === 'tonu' ? load.tonu_amount : load.drivers_rate }}
                   </span>
                   <span class="text-right font-mono">
-                    ${{ load.status_load === 'tonu' ? load.tonu_amount : getPayableAmount(load.drivers_rate, settlement.driver?.commission_rate) }}
+                    ${{ getPayableAmount(load.status_load === 'tonu' ? load.tonu_amount : load.drivers_rate, settlement.driver?.commission_rate) }}
                   </span>
                 </div>
               </div>

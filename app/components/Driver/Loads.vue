@@ -31,7 +31,8 @@ onMounted(fetchCompletedLoads)
 const totalFreight = computed(() => loads.value.reduce((sum, l) => sum + (l.drivers_rate || 0), 0))
 const totalPayable = computed(() => {
   return loads.value.reduce((sum, l) => {
-    return sum + getPayableAmount(l.drivers_rate, props.commissionRate)
+    let rate = l.status_load === 'tonu' ? l.tonu_amount : l.drivers_rate
+    return sum + getPayableAmount(rate, props.commissionRate)
   }, 0)
 })
 </script>
@@ -62,16 +63,18 @@ const totalPayable = computed(() => {
               </NuxtLink>
             </td>
             <td class="p-3">{{ load.delivery_date || 'N/A' }}</td>
-            <td class="p-3 capitalize">{{ load.status_load }}</td>
-            <td class="p-3 text-right font-mono">${{ load.drivers_rate }}</td>
+            <td class="p-3 uppercase">{{ load.status_load }}</td>
+            <td class="p-3 text-right font-mono">
+              ${{ load.status_load === 'tonu' ? load.tonu_amount : load.drivers_rate }}
+            </td>
             <td class="p-3 text-right font-mono text-highlighted">
-              ${{ getPayableAmount(load.drivers_rate, props.commissionRate).toFixed(2) }}
+              ${{ getPayableAmount(load.status_load === 'tonu' ? load.tonu_amount : load.drivers_rate, props.commissionRate) }}
             </td>
           </tr>
           <tr class="font-bold">
             <td colspan="3" class="p-3 text-gray-500">Total:</td>
             <td class="p-3 text-right font-mono">${{ totalFreight }}</td>
-            <td class="p-3 text-right font-mono text-primary">${{ totalPayable.toFixed(2) }}</td>
+            <td class="p-3 text-right font-mono text-primary">${{ totalPayable }}</td>
           </tr>
         </tbody>
       </table>
