@@ -191,19 +191,22 @@ const handlePrint = () => {
                 </div>
                 <div v-for="load in settlement.loads" :key="load.id" class="grid grid-cols-5 text-sm py-1 px-3">
                   <div class="col-span-2 grid">
-                    <span>#{{ load.load_number }}</span>
+                    <span>
+                      #{{ load.load_number }}
+                      <span v-if="load.status_load === 'tonu'" class="text-red-500 font-bold text-xs">(TONU)</span>
+                    </span>
                     <span class="text-gray-500 text-xs">
-                      {{ `${load.shipper_address.city}, ${load.shipper_address.state}` }} - {{ `${load.receiver_address.city}, ${load.receiver_address.state}` }}
+                      {{ `${load.shipper_address?.city || 'N/A'}, ${load.shipper_address?.state || 'N/A'}` }} - {{ `${load.receiver_address?.city || 'N/A'}, ${load.receiver_address?.state || 'N/A'}` }}
                     </span>
                   </div>
                   <span class="text-center font-mono">
-                    {{ load.miles || 0 }}
+                    {{ load.status_load === 'tonu' ? '0' : (load.miles || 0) }}
                   </span>
                   <span class="text-right font-mono">
-                    ${{ load.drivers_rate }}
+                    ${{ load.status_load === 'tonu' ? load.tonu_amount : load.drivers_rate }}
                   </span>
                   <span class="text-right font-mono">
-                    ${{ getPayableAmount(load.drivers_rate, settlement.driver?.commission_rate) }}
+                    ${{ load.status_load === 'tonu' ? load.tonu_amount : getPayableAmount(load.drivers_rate, settlement.driver?.commission_rate) }}
                   </span>
                 </div>
               </div>
@@ -234,6 +237,10 @@ const handlePrint = () => {
                 <div class="flex justify-between pb-2 px-3 border-b border-default">
                   <span>Insurance</span>
                   <span>${{ settlement.driver?.deductions?.insurance || 0 }}</span>
+                </div>
+                <div class="flex justify-between pb-2 px-3 border-b border-default">
+                  <span>Plates</span>
+                  <span>${{ settlement.driver?.deductions?.plates || 0 }}</span>
                 </div>
                 <div class="flex justify-between pb-2 px-3 border-b border-default">
                   <span>IFTA</span>

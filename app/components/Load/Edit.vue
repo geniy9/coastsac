@@ -29,6 +29,7 @@ const state = reactive({
   load_number: '',
   drivers_rate: 0,
   original_rate: 0,
+  tonu_amount: 0,
   pickup_date: '',
   pickup_time: null,
   delivery_date: '',
@@ -126,6 +127,7 @@ watch(() => props.load, (newVal) => {
       load_number: newVal.load_number || '',
       drivers_rate: newVal.drivers_rate || 0,
       original_rate: newVal.original_rate || 0,
+      tonu_amount: newVal.tonu_amount || 0,
       pickup_date: newVal.pickup_date ? newVal.pickup_date.split('T')[0] : '',
       pickup_time: parseTime(newVal.pickup_time),
       delivery_date: newVal.delivery_date ? newVal.delivery_date.split('T')[0] : '',
@@ -210,6 +212,16 @@ const driverOptions = computed(() => {
 const onSubmit = async () => {
   if (!props.load?.documentId) return
 
+  // Валидация: если выбран TONU, сумма компенсации должна быть строго больше 0
+  if (state.status_load === 'tonu' && (!state.tonu_amount || state.tonu_amount <= 0)) {
+    toast.add({
+      title: 'Validation Error',
+      description: 'TONU compensation amount is required and must be greater than 0',
+      color: 'error'
+    })
+    return
+  }
+
   loading.value = true
   try {
     // 1. Проверяем дубликат
@@ -234,6 +246,17 @@ const onSubmit = async () => {
       finalPodIds = [...finalPodIds, ...newPodIds]
     }
 
+    // Если статус TONU — обнуляем рейты и мили, фиксируем дату "доставки" на сегодня
+    if (state.status_load === 'tonu') {
+      state.drivers_rate = 0
+      state.original_rate = 0
+      state.miles = 0
+      state.category = 'completed'
+      if (!state.delivery_date) {
+        state.delivery_date = new Date().toISOString().split('T')[0]
+      }
+    }
+
     // Очистка дат: заменяем "" на null
     const cleanDate = (dateStr) => {
       return dateStr && dateStr.trim() !== '' ? dateStr : null;
@@ -253,7 +276,7 @@ const onSubmit = async () => {
         delivery_time: formatTime(state.delivery_time),
         doc_rate_confirmation: finalRateIds,
         doc_pod_bol: finalPodIds,
-        category: state.status_load === 'cancelled' || state.status_load === 'unloaded' ? 'completed' : state.category
+        category: state.status_load === 'cancelled' || state.status_load === 'unloaded' || state.status_load === 'tonu' ? 'completed' : state.category
       }
     }
 
@@ -349,6 +372,12 @@ const onDelete = async () => {
           <UFormField label="Status" name="status_load">
             <USelect v-model="state.status_load" :items="loadStatusOptions" class="w-full capitalize" />
           </UFormField>
+          <!-- TONU Amount if status "tonu" -->
+          <UFormField v-if="state.status_load === 'tonu'" label="TONU Amount" name="tonu_amount" required class="col-span-2">
+            <UInput v-model.number="state.tonu_amount" type="number" required class="w-full">
+              <template #trailing><div class="input_trailing">$</div></template>
+            </UInput>
+          </UFormField>
           <UFormField label="Driver">
             <USelect v-model="state.driver" :items="driverOptions" class="w-full" placeholder="Unassigned" />
           </UFormField>
@@ -367,13 +396,14 @@ const onDelete = async () => {
               @create="handleBrokerCreate" />
           </UFormField>
 
+          <!-- Поля блокируются, если статус равен "tonu" -->
           <UFormField label="Driver's Rate" name="drivers_rate" required>
-            <UInput v-model.number="state.drivers_rate" type="number" required class="w-full">
+            <UInput v-model.number="state.drivers_rate" type="number" required :disabled="state.status_load === 'tonu'" class="w-full">
               <template #trailing><div class="input_trailing">$</div></template>
             </UInput>
           </UFormField>
           <UFormField label="Original Rate" name="original_rate" required>
-            <UInput v-model.number="state.original_rate" type="number" required class="w-full">
+            <UInput v-model.number="state.original_rate" type="number" required :disabled="state.status_load === 'tonu'" class="w-full">
               <template #trailing><div class="input_trailing">$</div></template>
             </UInput>
           </UFormField>

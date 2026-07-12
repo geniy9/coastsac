@@ -166,7 +166,7 @@ const formatDate = (dateStr) => {
           :messages="mappedMessages"
           :user="{ side: 'right', variant: 'soft' }"
           :assistant="{ side: 'left', variant: 'solid' }"
-          should-scroll-to-bottom class="relative">
+          should-scroll-to-bottom>
           <template #header="{ message }">
             <div class="flex items-center gap-2 text-xs" :class="message.side === 'right' ? 'justify-end' : 'justify-start'">
               <span class="font-semibold text-highlighted/80">
@@ -193,7 +193,8 @@ const formatDate = (dateStr) => {
           <UChatPrompt
             v-model="messageText"
             placeholder="Type note"
-            :disabled="sending"
+            :disabled="sending" 
+            :autofocus="false"
             class="flex-1"
             @submit="onSend">
             <template #submit>

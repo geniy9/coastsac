@@ -24,6 +24,23 @@ const isEditOpen = ref(false)
 const isPreviewOpen = ref(false)
 const previewFile = ref(null)
 
+const rateUploaderPageRef = ref(null)
+const podUploaderPageRef = ref(null)
+const uploadingPageRate = ref(false)
+const uploadingPagePod = ref(false)
+const statusUpdating = ref(false)
+const isOpenActions = ref(false)
+
+const isTonuMode = ref(false)
+const tonuAmount = ref(0)
+
+watch(isOpenActions, (newVal) => {
+  if (!newVal) {
+    isTonuMode.value = false
+    tonuAmount.value = 0
+  }
+})
+
 // Запрос детальной информации о грузе
 const { data: response, status, refresh } = await useAsyncData(`load-${loadId}`, () => 
   client(`/loads/${loadId}`, {
@@ -86,20 +103,9 @@ const timelineItems = computed(() => {
   }]
 })
 
-const handleRefresh = async () => {
-  await refresh()
-}
-
-const printProfile = () => {
-  if (import.meta.client) {
-    window.print()
-  }
-}
-const downloadFile = (url) => {
-  if (import.meta.client) {
-    window.open(url, '_blank')
-  }
-}
+const handleRefresh = async () => { await refresh() }
+const printProfile = () => { if (import.meta.client) { window.print() } }
+const downloadFile = (url) => { if (import.meta.client) { window.open(url, '_blank') } }
 
 // HELPERS
 const getTrailerIcon = (type) => {
@@ -126,16 +132,6 @@ const handleFileClick = (file) => {
     downloadFile(fullUrl)
   }
 }
-
-// Ссылки на загрузчики страниц
-const rateUploaderPageRef = ref(null)
-const podUploaderPageRef = ref(null)
-const uploadingPageRate = ref(false)
-const uploadingPagePod = ref(false)
-const statusUpdating = ref(false)
-const isQuickActionsOpen = ref(false)
-
-const openQuickActions = () => { isQuickActionsOpen.value = true }
 
 // Определение элементов аккордеона в зависимости от роли
 const accordionItems = computed(() => {
@@ -171,7 +167,6 @@ const handleUploadPageRate = async () => {
         }
       }
     })
-    
     toast.add({ title: 'Success', description: 'Rate Confirmation uploaded', color: 'success' })
     rateUploaderPageRef.value.clear()
     await handleRefresh()
@@ -242,11 +237,47 @@ const changeStatusDirectly = async (newStatus) => {
       description: `Load is now ${newStatus.replace('_', ' ')}`, 
       color: 'success'
     })
-    isQuickActionsOpen.value = false
+    isOpenActions.value = false
     await handleRefresh()
   } catch (error) {
     console.error(error)
     toast.add({ title: 'Error', description: 'Failed to update status', color: 'error' })
+  } finally {
+    statusUpdating.value = false
+  }
+}
+// функция изменения статуса на TONU с обязательной суммой компенсации
+const confirmTonuDirectly = async () => {
+  if (tonuAmount.value <= 0) {
+    toast.add({ title: 'Validation Error', description: 'TONU amount must be greater than 0', color: 'error' })
+    return
+  }
+  statusUpdating.value = true
+  try {
+    await client(`/loads/${load.value.documentId}`, {
+      method: 'PUT',
+      body: {
+        data: {
+          status_load: 'tonu',
+          category: 'completed',
+          tonu_amount: tonuAmount.value,
+          drivers_rate: 0,
+          original_rate: 0,
+          miles: 0,
+          delivery_date: new Date().toISOString().split('T')[0]
+        }
+      }
+    })
+    toast.add({ 
+      title: 'Status Updated', 
+      description: `Load status changed to TONU with compensation $${tonuAmount.value}`, 
+      color: 'success'
+    })
+    isOpenActions.value = false
+    await handleRefresh()
+  } catch (error) {
+    console.error(error)
+    toast.add({ title: 'Error', description: 'Failed to update status to TONU', color: 'error' })
   } finally {
     statusUpdating.value = false
   }
@@ -314,16 +345,17 @@ const changeStatusDirectly = async (newStatus) => {
                         :color="getStatusColor(load.status_load)" 
                         variant="solid" 
                         size="sm" 
-                        class="capitalize print-button">
+                        class="uppercase print-button">
                         {{ (load.status_load || 'not_started').replace('_', ' ') }}
                       </UButton>
                       <UButton 
                         v-if="permissions.isDriver || permissions.isDispatcher || permissions.isAdmin"
                         icon="hugeicons:pencil-edit-02" 
-                        variant="soft" 
+                        color="neutral"
+                        variant="outline"
                         size="sm"
                         class="no-print"
-                        @click="openQuickActions" />
+                        @click="isOpenActions = true" />
                     </UFieldGroup>
                     
                   </div>
@@ -344,18 +376,26 @@ const changeStatusDirectly = async (newStatus) => {
                   </p>
                 </div>
                 <div class="flex flex-col gap-2 sm:items-end sm:text-right">
-                  <div v-if="permissions.canViewDriversRate">
-                    <p class="text-xs text-gray-500">Driver's Rate</p>
-                    <p class="text-highlighted mt-1">
-                      $ {{ load.drivers_rate }}
+                  <div v-if="load.status_load === 'tonu'">
+                    <p class="text-xs text-red-500 font-semibold uppercase">TONU Amount</p>
+                    <p class="text-red-500 font-bold text-md mt-1">
+                      $ {{ load.tonu_amount || 0 }}
                     </p>
                   </div>
-                  <div v-if="permissions.canViewOriginalRate">
-                    <p class="text-xs text-gray-500">Original Rate</p>
-                    <p class="text-highlighted mt-1">
-                      $ {{ load.original_rate }}
-                    </p>
-                  </div>
+                  <template v-else>
+                    <div v-if="permissions.canViewDriversRate">
+                      <p class="text-xs text-gray-500">Driver's Rate</p>
+                      <p class="text-highlighted mt-1">
+                        $ {{ load.drivers_rate }}
+                      </p>
+                    </div>
+                    <div v-if="permissions.canViewOriginalRate">
+                      <p class="text-xs text-gray-500">Original Rate</p>
+                      <p class="text-highlighted mt-1">
+                        $ {{ load.original_rate }}
+                      </p>
+                    </div>
+                  </template>
                 </div>
               </div>
             </UCard>
@@ -716,38 +756,55 @@ const changeStatusDirectly = async (newStatus) => {
         </UModal>
 
         <!-- CHANGE LOAD STATUS -->
-        <UModal v-model:open="isQuickActionsOpen" :title="`Change status load: ${load?.load_number}`" close-icon="hugeicons:cancel-01" :ui="{ content: 'sm:max-w-xs' }">
+        <UModal v-model:open="isOpenActions" :title="`Change status load: ${load?.load_number}`" close-icon="hugeicons:cancel-01" :ui="{ content: 'sm:max-w-xs' }">
           <template #body>
             <div v-if="(permissions.isDispatcher || permissions.isAdmin) && ['not_started', 'in_transit', 'loaded'].includes(load.status_load)" class="space-y-3">
-              <p class="text-xs text-gray-500 font-semibold">
-                Current: <span class="uppercase text-highlighted">
-                  {{ (load?.status_load).replace('_', ' ') }}
-                </span>
-              </p>
-              <div class="flex flex-col gap-3">
-                <UButton 
-                  v-if="(permissions.isDriver || permissions.isDispatcher || permissions.isAdmin)"
-                  icon="hugeicons:package-delivered" 
-                  :label="load?.status_load === 'in_transit' ? 'Mark as Loaded' : 'Mark as In Transit'" 
-                  color="info" 
-                  :loading="statusUpdating" 
-                  @click="changeStatusDirectly(load?.status_load === 'in_transit' ? 'loaded' : 'in_transit')" 
-                  block />
-                <UButton 
-                  label="Set TONU" 
-                  color="error" 
-                  icon="hugeicons:alert-02" 
-                  :loading="statusUpdating"
-                  @click="changeStatusDirectly('tonu')" 
-                  block />
-                <UButton 
-                  label="Cancel Load" 
-                  color="error" 
-                  icon="hugeicons:cancel-circle" 
-                  :loading="statusUpdating"
-                  @click="changeStatusDirectly('cancelled')" 
-                  block />
-              </div>
+              <template v-if="!isTonuMode">
+                <p class="text-xs text-gray-500 font-semibold">
+                  Current: <span class="uppercase text-highlighted">
+                    {{ (load?.status_load).replace('_', ' ') }}
+                  </span>
+                </p>
+                <div class="flex flex-col gap-3">
+                  <UButton 
+                    v-if="(permissions.isDriver || permissions.isDispatcher || permissions.isAdmin)"
+                    icon="hugeicons:package-delivered" 
+                    :label="load?.status_load === 'in_transit' ? 'Mark as Loaded' : 'Mark as In Transit'" 
+                    color="info" 
+                    :loading="statusUpdating" 
+                    @click="changeStatusDirectly(load?.status_load === 'in_transit' ? 'loaded' : 'in_transit')" 
+                    block />
+                  <UButton 
+                    label="Set TONU" 
+                    color="error" 
+                    icon="hugeicons:alert-02" 
+                    @click="isTonuMode = true" 
+                    block />
+                  <UButton 
+                    label="Cancel Load" 
+                    color="error" 
+                    icon="hugeicons:cancel-circle" 
+                    :loading="statusUpdating"
+                    @click="changeStatusDirectly('cancelled')" 
+                    block />
+                </div>
+              </template>
+              <template v-else>
+                <div class="space-y-4">
+                  <p class="text-sm text-gray-500">
+                    Please specify the TONU compensation amount for the driver:
+                  </p>
+                  <UFormField label="TONU Amount" required>
+                    <UInput v-model.number="tonuAmount" type="number" step="0.01" min="0.01" placeholder="Enter amount (e.g. 150)" class="w-full">
+                      <template #trailing><div class="input_trailing">$</div></template>
+                    </UInput>
+                  </UFormField>
+                  <div class="flex gap-2">
+                    <UButton label="Cancel" color="neutral" variant="ghost" @click="isTonuMode = false" class="flex-1" />
+                    <UButton label="Confirm TONU" color="error" :loading="statusUpdating" :disabled="tonuAmount <= 0" @click="confirmTonuDirectly" class="flex-1" />
+                  </div>
+                </div>
+              </template>
             </div>
             <div v-else>
               <p class="text-sm text-gray-400 italic">

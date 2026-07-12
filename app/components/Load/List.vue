@@ -65,19 +65,21 @@ const columns = [{
         h("div", { class: "text-gray-500 text-xs mb-1" }, 'Status:'),
         h(UBadge, { 
           color: getStatusColor(status), 
-          class: 'capitalize'
+          class: 'uppercase'
         }, () => status.replace('_', ' '))
       ])
     ])
   }
-},{
+},
+{
   id: "route",
   header: "Route",
   meta: { class: { td: 'cursor-pointer' }},
   cell: ({ row }) => {
     const shipper = row.original.shipper_address
     const receiver = row.original.receiver_address
-    const miles = row.original.miles
+    const status = row.original.status_load
+    const miles = status === 'tonu' ? 0 : row.original.miles
     return h("div", { class: "flex flex-col items-start text-xs text-gray-500" }, [
       h("span", undefined, [
         'From: ',
@@ -99,7 +101,38 @@ const columns = [{
       ]),
     ])
   }
-},{
+},
+// {
+//   id: "route",
+//   header: "Route",
+//   meta: { class: { td: 'cursor-pointer' }},
+//   cell: ({ row }) => {
+//     const shipper = row.original.shipper_address
+//     const receiver = row.original.receiver_address
+//     const miles = row.original.miles
+//     return h("div", { class: "flex flex-col items-start text-xs text-gray-500" }, [
+//       h("span", undefined, [
+//         'From: ',
+//         h("span", { class: "text-highlighted" }, `${shipper?.city || '-'}, ${shipper?.state || '-'}`)
+//       ]),
+//       h(UTooltip, { text: shipper?.full_address }, [
+//         h('span', { class: "cursor-pointer" }, truncate(shipper?.full_address, 20) || '')
+//       ]),
+//       h("span", { class: "mt-2" }, [
+//         'To: ',
+//         h("span", { class: "text-highlighted" }, `${receiver?.city || '-'}, ${receiver?.state || '-'}`)
+//       ]),
+//       h(UTooltip, { text: receiver?.full_address }, [
+//         h('span', { class: "cursor-pointer" }, truncate(receiver?.full_address, 20) || '')
+//       ]),
+//       h("span", { class: "mt-2" }, [
+//         h("span", { class: "text-highlighted font-semibold" }, miles || '0'), 
+//         ' Miles'
+//       ]),
+//     ])
+//   }
+// },
+{
   id: "pickup",
   header: "Date",
   meta: { class: { td: 'cursor-pointer' }},
@@ -151,15 +184,26 @@ const columns = [{
   cell: ({ row }) => h("span", { 
     class: "text-highlighted text-sm text-wrap" 
   }, row.original.broker?.name || '-')
-},{
+},
+{
   id: "rate",
   header: "Rate",
   meta: { class: { td: 'cursor-pointer' }},
   cell: ({ row }) => {
     const driversRate = row.original.drivers_rate
     const originalRate = row.original.original_rate
+    const tonuAmount = row.original.tonu_amount
+    const status = row.original.status_load
     const showDriversRate = permissions.value.canViewDriversRate
     const showOriginalRate = permissions.value.canViewOriginalRate
+
+    if (status === 'tonu') {
+      return h("div", { class: "text-xs space-y-1 text-red-500 font-semibold" }, [
+        h("p", undefined, "TONU Amount:"),
+        h("p", { class: "font-mono" }, '$ ' + (tonuAmount || 0))
+      ])
+    }
+
     return h("div", { class: "text-xs space-y-1" }, [
       showDriversRate && h("div", undefined, [
         h("p", { class: "text-gray-500" }, "Driver's Rate:"),
@@ -171,7 +215,29 @@ const columns = [{
       ].filter(Boolean)),
     ])
   }
-},{
+},
+// {
+//   id: "rate",
+//   header: "Rate",
+//   meta: { class: { td: 'cursor-pointer' }},
+//   cell: ({ row }) => {
+//     const driversRate = row.original.drivers_rate
+//     const originalRate = row.original.original_rate
+//     const showDriversRate = permissions.value.canViewDriversRate
+//     const showOriginalRate = permissions.value.canViewOriginalRate
+//     return h("div", { class: "text-xs space-y-1" }, [
+//       showDriversRate && h("div", undefined, [
+//         h("p", { class: "text-gray-500" }, "Driver's Rate:"),
+//         h("p", { class: "text-highlighted font-mono" }, '$ ' + driversRate),
+//       ]),
+//       showOriginalRate && h("div", undefined, [
+//         h("p", { class: "text-gray-500" }, "Original Rate:"),
+//         h("p", { class: "text-highlighted font-mono" }, '$ ' + originalRate)
+//       ].filter(Boolean)),
+//     ])
+//   }
+// },
+{
   id: "rate_confirmation",
   header: "Docs.",
   cell: ({ row }) => {
