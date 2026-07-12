@@ -37,12 +37,12 @@ const period = ref("daily");
           </template>
         </UDashboardNavbar>
 
-        <UDashboardToolbar v-if="permissions.canViewStats">
+        <!-- <UDashboardToolbar v-if="permissions.canViewStats">
           <template #left>
-            <HomeDateRangePicker v-model="range" class="-ms-1" />
+            <HomeDateRangePicker v-model="range" />
             <HomePeriodSelect v-model="period" :range="range" />
           </template>
-        </UDashboardToolbar>
+        </UDashboardToolbar> -->
       </template>
 
       <template #body>

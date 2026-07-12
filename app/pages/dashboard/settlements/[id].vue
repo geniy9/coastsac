@@ -247,7 +247,7 @@ const handlePrint = () => {
             </div>
 
             <!-- EXTRA ADJUSTMENTS -->
-            <div class="space-y-2">
+            <div class="space-y-2" v-if="settlement.custom_adjustments?.length > 0">
               <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
                 Extra Adjustments
               </h3>

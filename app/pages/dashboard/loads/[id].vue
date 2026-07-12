@@ -559,8 +559,8 @@ const changeStatusDirectly = async (newStatus) => {
                   <div v-if="load.driver" class="flex flex-col gap-4">
                     <div class="flex items-center gap-3">
                       <UAvatar 
-                        v-if="thumbImg(load.driver.user_account.avatar)"
-                        :src="thumbImg(load.driver.user_account.avatar)" 
+                        v-if="thumbImg(load.driver?.user_account?.avatar)"
+                        :src="thumbImg(load.driver?.user_account?.avatar)" 
                         :alt="`${load.driver.first_name} ${load.driver.last_name}`"
                         size="2xl"
                         class="border border-primary print-avatar" />

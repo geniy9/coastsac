@@ -29,19 +29,41 @@ const toCalendarDate = (date) => {
   );
 };
 
+// const calendarRange = computed({
+//   get: () => ({
+//     start: selected.value.start
+//       ? toCalendarDate(selected.value.start)
+//       : undefined,
+//     end: selected.value.end ? toCalendarDate(selected.value.end) : undefined,
+//   }),
+//   set: (newValue) => {
+//     selected.value = {
+//       start: newValue.start
+//         ? newValue.start.toDate(getLocalTimeZone())
+//         : new Date(),
+//       end: newValue.end ? newValue.end.toDate(getLocalTimeZone()) : new Date(),
+//     };
+//   },
+// });
+
 const calendarRange = computed({
   get: () => ({
-    start: selected.value.start
+    start: selected.value?.start
       ? toCalendarDate(selected.value.start)
       : undefined,
-    end: selected.value.end ? toCalendarDate(selected.value.end) : undefined,
+    end: selected.value?.end 
+      ? toCalendarDate(selected.value.end) 
+      : undefined,
   }),
   set: (newValue) => {
+    // Сохраняем undefined, если дата еще не выбрана (вместо принудительного "new Date()")
     selected.value = {
-      start: newValue.start
-        ? newValue.start.toDate(getLocalTimeZone())
-        : new Date(),
-      end: newValue.end ? newValue.end.toDate(getLocalTimeZone()) : new Date(),
+      start: newValue?.start 
+        ? newValue.start.toDate(getLocalTimeZone()) 
+        : undefined,
+      end: newValue?.end 
+        ? newValue.end.toDate(getLocalTimeZone()) 
+        : undefined,
     };
   },
 });
@@ -93,7 +115,7 @@ const selectRange = (range) => {
     <UButton
       color="neutral"
       variant="ghost"
-      icon="i-lucide-calendar"
+      icon="hugeicons:calendar-03"
       class="data-[state=open]:bg-elevated group"
     >
       <span class="truncate">

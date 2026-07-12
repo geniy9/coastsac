@@ -5,8 +5,6 @@ export default () => {
   const originUrl = config.public.ORIGIN
   const toast = useToast()
   const getPayableAmount = (r = 0, c = 0) => {
-    // const r = Number(rate) || 0
-    // const c = Number(commission) || 0
     if (c <= 0) return r
     return (r - (r * c / 100)).toFixed(2)
   }
