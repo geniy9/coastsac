@@ -273,7 +273,8 @@ const handlePrint = () => {
               <span class="text-sm text-highlighted">
                 Total Amount (Net Payout):
               </span>
-              <span class="text-lg" :class="(settlement.net_payout >= 0) ? 'text-primary' : 'text-red-500'">
+              <span class="text-lg" 
+                :class="(settlement.net_payout >= 0) ? 'text-primary' : 'text-red-500'">
                 $ {{ settlement.net_payout }}
               </span>
             </div>
