@@ -33,8 +33,8 @@ export function useRolePermissions() {
       // Доступ к использованию и просмотру заметок
       canViewNotes: ['admin', 'dispatcher', 'accounting'].includes(role),
 
-      // Доступ к использованию и просмотру заметок
-      canViewSettlements: ['admin', 'dispatcher', 'accounting'].includes(role),
+      // Доступ к использованию и просмотру settlements
+      canViewSettlements: ['admin', 'accounting'].includes(role),
 
       // role helpers
       isAdmin: role === 'admin',

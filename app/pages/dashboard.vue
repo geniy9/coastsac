@@ -38,7 +38,7 @@ const links = computed(() => {
     })
   }
 
-  if (['admin', 'accounting', 'dispatcher'].includes(userRole)) {
+  if (['admin', 'accounting'].includes(userRole)) {
     items.push({
       label: "Settlements",
       icon: "hugeicons:briefcase-dollar",

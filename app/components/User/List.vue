@@ -22,6 +22,7 @@ const UCheckbox = resolveComponent("UCheckbox");
 const UBadge = resolveComponent("UBadge");
 const USelect = resolveComponent("USelect");
 const USwitch = resolveComponent("USwitch");
+const UDropdownMenu = resolveComponent("UDropdownMenu");
 
 const toast = useToast()
 const client = useStrapiClient()
@@ -35,6 +36,10 @@ const table = useTemplateRef("table")
 const columnFilters = ref([{ id: "email", value: "" }])
 const columnVisibility = ref()
 const rowSelection = ref({})
+
+const isConfirmDeleteOpen = ref(false)
+const userToDelete = ref(null)
+const isDeleting = ref(false)
 
 onMounted(async () => {
   try {
@@ -199,7 +204,61 @@ const columns = [{
       })
     )
   }
+},{
+  id: "actions",
+  meta: { class: { th: 'text-right', td: 'text-right' }},
+  cell: ({ row }) => {
+    return h(UDropdownMenu, { content: { align: "center", side: "left" }, items: getRowItems(row) },
+      () => h(UButton, {
+        icon: "hugeicons:more-vertical-circle-01",
+        color: "neutral",
+        variant: "soft",
+      })
+    )
+  }
 }]
+
+function getRowItems(row) {
+  const isSelf = row.original.id === currentUser.value?.id
+  return [[{
+    label: "Delete",
+    icon: "hugeicons:user-remove-01",
+    color: "error",
+    disabled: isSelf,
+    onSelect() {
+      userToDelete.value = row.original
+      isConfirmDeleteOpen.value = true
+    }
+  }]]
+}
+
+// Запрос на удаление пользователя
+const confirmDelete = async () => {
+  if (!userToDelete.value) return
+  isDeleting.value = true
+  try {
+    await client(`/users/${userToDelete.value.id}`, {
+      method: 'DELETE'
+    })
+    toast.add({
+      title: 'Success',
+      description: `User ${userToDelete.value.username} has been deleted.`,
+      color: 'success'
+    })
+    emit('refresh')
+    isConfirmDeleteOpen.value = false
+  } catch (err) {
+    console.error(err)
+    toast.add({
+      title: 'Error',
+      description: err?.data?.error?.message || 'Failed to delete user.',
+      color: 'error'
+    })
+  } finally {
+    isDeleting.value = false
+    userToDelete.value = null
+  }
+}
 
 const emailSearch = computed({
   get: () => table.value?.tableApi?.getColumn("email")?.getFilterValue() || "",
@@ -254,5 +313,43 @@ const pagination = ref({ pageIndex: 0, pageSize: 24 })
           @update:page="(p) => table?.tableApi?.setPageIndex(p - 1)" />
       </div>
     </div>
+
+    <!-- Модальное окно подтверждения удаления -->
+    <UModal v-model:open="isConfirmDeleteOpen" :ui="{ width: 'sm:max-w-sm' }">
+      <template #content>
+        <div class="p-6 flex flex-col gap-4">
+          <div class="flex items-center gap-3">
+            <div class="flex items-center justify-center bg-error/10 rounded-full text-error w-12 h-12">
+              <UIcon name="hugeicons:user-remove-01" class="w-6 h-6" />
+            </div>
+            <h4 class="text-base font-bold text-highlighted">
+              Delete {{ userToDelete?.name || 'User' }}
+            </h4>
+          </div>
+          
+          <div class="text-sm text-gray-400 leading-relaxed">
+            <p>Are you sure you want to delete user 
+              <span class="font-semibold text-highlighted">@{{ userToDelete?.username }}</span>? 
+            </p>
+            <p>This action cannot be undone.</p>
+          </div>
+
+          <div class="flex justify-end gap-2 mt-2">
+            <UButton 
+              label="Cancel" 
+              color="neutral" 
+              variant="outline" 
+              :disabled="isDeleting"
+              @click="isConfirmDeleteOpen = false" />
+            <UButton 
+              label="Delete" 
+              color="error" 
+              :loading="isDeleting"
+              @click="confirmDelete" />
+          </div>
+        </div>
+      </template>
+    </UModal>
+    
   </div>
 </template>

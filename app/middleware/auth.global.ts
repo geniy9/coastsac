@@ -31,15 +31,21 @@ export default defineNuxtRouteMiddleware((to) => {
   // ЕСЛИ АВТОРИЗОВАН -> ПРОВЕРЯЕМ ПРАВА ДОСТУПА
   if (user.value) {
     
-    // Защита страниц управления водителями (листинг и динамические карточки)
+    // Защита страниц управления водителями
     const isDriversRoute = cleanPath === '/dashboard/drivers' || cleanPath.startsWith('/dashboard/drivers/')
     if (isDriversRoute && !permissions.value.canViewDrivers) {
       return navigateTo('/dashboard')
     }
 
-    // Защита страниц управления грузами (листинг и динамические карточки)
+    // Защита страниц управления грузами
     const isLoadsRoute = cleanPath === '/dashboard/loads' || cleanPath.startsWith('/dashboard/loads/')
     if (isLoadsRoute && !permissions.value.canViewLoads) {
+      return navigateTo('/dashboard')
+    }
+
+    // Защита страниц управления settlements
+    const isSettlementsRoute = cleanPath === '/dashboard/settlements' || cleanPath.startsWith('/dashboard/settlements/')
+    if (isSettlementsRoute && !permissions.value.canViewSettlements) {
       return navigateTo('/dashboard')
     }
 
