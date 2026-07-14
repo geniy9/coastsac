@@ -218,7 +218,6 @@ const onSubmit = async () => {
       ? `${deliveryTimeRange.value.end.toString()}.000`
       : null
 
-    // Формируем тело запроса и сохраняем груз
     const payload = {
       data: {
         load_number: state.load_number,
@@ -256,7 +255,6 @@ const onSubmit = async () => {
     emit('success')
     open.value = false
 
-    // Сброс состояния и очистка
     Object.assign(state, {
       load_number: '',
       drivers_rate: 0,
@@ -286,109 +284,6 @@ const onSubmit = async () => {
     loading.value = false
   }
 }
-// const onSubmit = async () => {
-//   // Требуем обязательную загрузку файлов Rate confirmation
-//   if (!rateUploaderRef.value?.hasFiles) {
-//     toast.add({
-//       title: 'Validation Error',
-//       description: 'Rate Confirmation document is required!',
-//       color: 'error'
-//     })
-//     return
-//   }
-
-//   loading.value = true
-//   try {
-//     // 1. Проверяем дубликат номера
-//     const isDuplicate = await isLoadNumberDuplicate(state.load_number)
-//     if (isDuplicate) {
-//       throw new Error(`Load with number "${state.load_number}" already exists.`)
-//     }
-
-//     // 2. Логика назначения категорий
-//     let category = 'active'
-//     let status_load = 'in_transit'
-
-//     if (state.driver) {
-//       const hasActive = await checkDriverHasActiveLoad(state.driver)
-//       if (hasActive) {
-//         category = 'next'
-//         status_load = 'not_started'
-//         toast.add({
-//           title: 'Driver Busy',
-//           description: 'This driver already has an active load. This load is set to scheduled (Next).',
-//           color: 'warning'
-//         })
-//       }
-//     }
-
-//     // 3. Загружаем файлы на сервер и получаем их IDs
-//     const fileIds = await rateUploaderRef.value.uploadFiles()
-
-//     // 4. Формируем тело запроса и сохраняем груз
-//     const payload = {
-//       data: {
-//         load_number: state.load_number,
-//         drivers_rate: state.drivers_rate,
-//         original_rate: state.original_rate,
-//         pickup_date: state.pickup_date,
-//         pickup_time: state.pickup_time ? `${state.pickup_time.toString()}.000` : null,
-//         delivery_date: state.delivery_date,
-//         delivery_time: state.delivery_time ? `${state.delivery_time.toString()}.000` : null,
-//         shipper_address: state.shipper_address,
-//         receiver_address: state.receiver_address,
-//         miles: state.miles,
-//         driver: state.driver || null,
-//         broker: state.broker || null,
-//         dispatcher: user.value?.id || null,
-//         doc_rate_confirmation: fileIds, // Передаем полученные ID
-//         category,
-//         status_load
-//       }
-//     }
-
-//     await client('/loads', {
-//       method: 'POST',
-//       body: payload
-//     })
-
-//     toast.add({
-//       title: 'Success',
-//       description: "Load created successfully!",
-//       color: 'success'
-//     })
-
-//     emit('success')
-//     open.value = false
-
-//     // Сброс состояния и очистка 
-//     Object.assign(state, {
-//       load_number: '',
-//       drivers_rate: 0,
-//       original_rate: 0,
-//       pickup_date: new Date().toISOString().split('T')[0],
-//       pickup_time: new Time(12, 0, 0),
-//       delivery_date: new Date().toISOString().split('T')[0],
-//       delivery_time: new Time(12, 0, 0),
-//       driver: null,
-//       broker: '',
-//       shipper_address: { city: '', state: 'AL', full_address: '' },
-//       receiver_address: { city: '', state: 'AL', full_address: '' },
-//       miles: 0
-//     })
-//     rateUploaderRef.value?.clear()
-//     selectedBrokerModel.value = null
-//   } catch (error) {
-//     console.error(error)
-//     toast.add({
-//       title: 'Error',
-//       description: error?.message || 'Failed to create load',
-//       color: 'error'
-//     })
-//   } finally {
-//     loading.value = false
-//   }
-// }
 </script>
 <template>
   <UModal v-model:open="open">
@@ -456,26 +351,6 @@ const onSubmit = async () => {
 
         <USeparator label="Shipper (Pickup)" />
 
-        <!-- <div class="grid gap-4">
-          <UFormField label="Shipper City/Sate" name="shipper_address.city" required>
-            <UFieldGroup>
-              <UInput v-model="state.shipper_address.city" placeholder="City" required class="w-50" />
-              <USelectMenu v-model="state.shipper_address.state" :items="statesList" class="w-20" />
-            </UFieldGroup>
-          </UFormField>
-          <UFormField label="Full Address" name="shipper_address.full_address">
-            <UInput v-model="state.shipper_address.full_address" class="w-full" />
-          </UFormField>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
-          <UFormField label="Pickup Date" name="pickup_date" required>
-            <UInput v-model="state.pickup_date" type="date" required class="w-full" />
-          </UFormField>
-          <UFormField label="Pickup Time" name="pickup_time" required>
-            <UInputTime v-model="state.pickup_time" :hour-cycle="24" />
-          </UFormField>
-        </div> -->
         <div class="grid gap-4">
           <UFormField label="Shipper City/Sate" name="shipper_address.city" required>
             <UFieldGroup>
@@ -535,38 +410,6 @@ const onSubmit = async () => {
             </UInput>
           </UFormField>
         </div>
-
-        <!-- <div class="grid gap-4">
-          <UFormField label="Receiver City/Sate" name="receiver_address.city" required>
-            <UFieldGroup>
-              <UInput v-model="state.receiver_address.city" placeholder="City" required class="w-50" />
-              <USelectMenu v-model="state.receiver_address.state" :items="statesList" class="w-20" />
-            </UFieldGroup>
-          </UFormField>
-          <UFormField label="Full Address" name="receiver_address.full_address">
-            <UInput v-model="state.receiver_address.full_address" class="w-full" />
-          </UFormField>
-          <div class="grid grid-cols-2 gap-4">
-            <UFormField label="Delivery Date" name="delivery_date">
-              <UInput v-model="state.delivery_date" 
-                :disabled="isDeliveryDisabled" 
-                type="date" 
-                class="w-full" />
-            </UFormField>
-            <UFormField label="Delivery Time" name="delivery_time">
-              <UInputTime v-model="state.delivery_time" :hour-cycle="24" :disabled="isDeliveryDisabled" />
-            </UFormField>
-          </div>
-          
-          <UFormField label="Total Miles" name="miles" required>
-            <UInput v-model.number="state.miles" type="number" required :ui="{
-                base: 'pl-12 pr-2',
-                leading: 'pointer-events-none'
-              }">
-              <template #leading><p class="text-sm text-muted">Miles</p></template>
-            </UInput>
-          </UFormField>
-        </div> -->
 
         <div class="flex justify-end gap-3 pt-4">
           <UButton color="neutral" variant="ghost" label="Cancel" @click="open = false" />

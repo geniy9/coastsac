@@ -144,13 +144,26 @@ async function uploadFiles() {
   } catch (error) {
     console.error('Upload error:', error)
     finishSimulatedProgress(false)
+    
+    let errorDescription = error?.message || 'Unknown network error'
+    
+    const statusCode = error?.status || error?.response?.status
+    if (statusCode === 413) {
+      errorDescription = 'The file is too large for the server configuration. Please increase limits.'
+    } else if (statusCode === 404) {
+      errorDescription = 'Upload endpoint not found (HTTP 404). Please check your backend configurations.'
+    } else if (error?.response?._data?.error?.message) {
+      errorDescription = error.response._data.error.message
+    }
+    
     toast.add({
       title: 'File upload failed',
-      description: error?.message,
+      description: errorDescription,
       color: 'error',
       icon: 'i-hugeicons-cancel-circle',
     })
-    throw error
+    
+    throw new Error(errorDescription)
   } finally {
     state.loading = false
   }

@@ -133,33 +133,7 @@ const columns = [{
       ])
     ])
   }
-},
-// {
-//   id: "pickup",
-//   header: "Date",
-//   meta: { class: { td: 'cursor-pointer' }},
-//   cell: ({ row }) => {
-//     const pDate = row.original.pickup_date || ''
-//     const pTime = row.original.pickup_time ? row.original.pickup_time.slice(0, 5) : ''
-//     const dDate = row.original.delivery_date || ''
-//     const dTime = row.original.delivery_time ? row.original.delivery_time.slice(0, 5) : ''
-//     return h("div", { class: "flex flex-col gap-1 text-xs font-mono" }, [
-//       h("div", undefined, [
-//         h("p", { class: "text-gray-500" }, "Pickup:"),
-//         h("p", { class: "text-highlighted" }, pDate),
-//         h(UBadge, { label: pTime, size: 'sm', class: 'font-bold', color: 'neutral' })
-//       ]),
-//       h("div", undefined, [
-//         h("p", { class: "text-gray-500" }, "Delivery:"),
-//         (dDate && dTime) ? h("div", undefined, [
-//           h("p", { class: "text-highlighted" }, dDate),
-//           h(UBadge, { label: dTime, size: 'sm', class: 'font-bold', color: 'neutral' })
-//         ]) : h("span", { class: "text-red-500 text-xs" }, "not yet")
-//       ])
-//     ])
-//   }
-// },
-{
+},{
   id: "driver",
   header: "Driver",
   meta: { class: { td: 'cursor-pointer' }},
