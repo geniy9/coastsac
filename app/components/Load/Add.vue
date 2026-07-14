@@ -32,6 +32,17 @@ const brokersList = ref([])
 const selectedBrokerModel = ref(null) // (documentId или новое имя)
 const brokerSearchQuery = ref('')
 
+const pickupType = ref('Strict Appointment') // 'Strict Appointment' | 'FCFS'
+const deliveryType = ref('Strict Appointment') // 'Strict Appointment' | 'FCFS'
+const pickupTimeRange = shallowRef({
+  start: new Time(12, 0, 0),
+  end: new Time(14, 0, 0)
+})
+const deliveryTimeRange = shallowRef({
+  start: new Time(12, 0, 0),
+  end: new Time(14, 0, 0)
+})
+
 watch(selectedBrokerModel, (newVal) => {
   state.broker = newVal || ''
 })
@@ -105,26 +116,72 @@ const checkDriverHasActiveLoad = async (driverDocId) => {
   return res.data && res.data.length > 0
 }
 
+
 const onSubmit = async () => {
-  // Требуем обязательную загрузку файлов Rate confirmation
+  // 1. Валидация полей перед отправкой
+  const errors = []
+  
+  if (!state.load_number?.trim()) {
+    errors.push("Load Number is required.")
+  }
+  if (!state.broker) {
+    errors.push("Broker is required.")
+  }
+  if (state.drivers_rate === undefined || state.drivers_rate === null || state.drivers_rate === '') {
+    errors.push("Driver's Rate is required.")
+  }
+  if (state.original_rate === undefined || state.original_rate === null || state.original_rate === '') {
+    errors.push("Original Rate is required.")
+  }
   if (!rateUploaderRef.value?.hasFiles) {
-    toast.add({
-      title: 'Validation Error',
-      description: 'Rate Confirmation document is required!',
-      color: 'error'
+    errors.push("Rate Confirmation document is required.")
+  }
+  if (!state.shipper_address?.city?.trim()) {
+    errors.push("Shipper City is required.")
+  }
+  if (!state.pickup_date) {
+    errors.push("Pickup Date is required.")
+  }
+  
+  // Проверка Pickup Time в зависимости от режима (FCFS / Strict)
+  if (pickupType.value === 'FCFS') {
+    if (!pickupTimeRange.value?.start || !pickupTimeRange.value?.end) {
+      errors.push("Pickup Time Range is required for FCFS.")
+    }
+  } else {
+    if (!state.pickup_time) {
+      errors.push("Pickup Time is required.")
+    }
+  }
+
+  if (!state.receiver_address?.city?.trim()) {
+    errors.push("Receiver City is required.")
+  }
+  if (state.miles === undefined || state.miles === null || state.miles === '') {
+    errors.push("Total Miles is required.")
+  }
+
+  // Если есть ошибки, прерываем выполнение и показываем тостеры
+  if (errors.length > 0) {
+    errors.forEach(err => {
+      toast.add({
+        title: 'Validation Error',
+        description: err,
+        color: 'error'
+      })
     })
     return
   }
 
   loading.value = true
   try {
-    // 1. Проверяем дубликат номера
+    // Проверяем дубликат номера
     const isDuplicate = await isLoadNumberDuplicate(state.load_number)
     if (isDuplicate) {
       throw new Error(`Load with number "${state.load_number}" already exists.`)
     }
 
-    // 2. Логика назначения категорий
+    // Логика назначения категорий
     let category = 'active'
     let status_load = 'in_transit'
 
@@ -141,26 +198,45 @@ const onSubmit = async () => {
       }
     }
 
-    // 3. Загружаем файлы на сервер и получаем их IDs
+    // Загружаем файлы на сервер и получаем их IDs
     const fileIds = await rateUploaderRef.value.uploadFiles()
 
-    // 4. Формируем тело запроса и сохраняем груз
+    // Форматируем время с учетом FCFS или Strict Appointment
+    const pickup_time_val = pickupType.value === 'FCFS' && pickupTimeRange.value?.start
+      ? `${pickupTimeRange.value.start.toString()}.000`
+      : (state.pickup_time ? `${state.pickup_time.toString()}.000` : null)
+
+    const pickup_time_end_val = pickupType.value === 'FCFS' && pickupTimeRange.value?.end
+      ? `${pickupTimeRange.value.end.toString()}.000`
+      : null
+
+    const delivery_time_val = deliveryType.value === 'FCFS' && deliveryTimeRange.value?.start
+      ? `${deliveryTimeRange.value.start.toString()}.000`
+      : (state.delivery_time ? `${state.delivery_time.toString()}.000` : null)
+
+    const delivery_time_end_val = deliveryType.value === 'FCFS' && deliveryTimeRange.value?.end
+      ? `${deliveryTimeRange.value.end.toString()}.000`
+      : null
+
+    // Формируем тело запроса и сохраняем груз
     const payload = {
       data: {
         load_number: state.load_number,
         drivers_rate: state.drivers_rate,
         original_rate: state.original_rate,
         pickup_date: state.pickup_date,
-        pickup_time: state.pickup_time ? `${state.pickup_time.toString()}.000` : null,
-        delivery_date: state.delivery_date,
-        delivery_time: state.delivery_time ? `${state.delivery_time.toString()}.000` : null,
+        pickup_time: pickup_time_val,
+        pickup_time_end: pickup_time_end_val,
+        delivery_date: state.delivery_date || null,
+        delivery_time: delivery_time_val,
+        delivery_time_end: delivery_time_end_val,
         shipper_address: state.shipper_address,
         receiver_address: state.receiver_address,
         miles: state.miles,
         driver: state.driver || null,
         broker: state.broker || null,
         dispatcher: user.value?.id || null,
-        doc_rate_confirmation: fileIds, // Передаем полученные ID
+        doc_rate_confirmation: fileIds,
         category,
         status_load
       }
@@ -180,7 +256,7 @@ const onSubmit = async () => {
     emit('success')
     open.value = false
 
-    // Сброс состояния и очистка 
+    // Сброс состояния и очистка
     Object.assign(state, {
       load_number: '',
       drivers_rate: 0,
@@ -197,6 +273,8 @@ const onSubmit = async () => {
     })
     rateUploaderRef.value?.clear()
     selectedBrokerModel.value = null
+    pickupType.value = 'Strict Appointment'
+    deliveryType.value = 'Strict Appointment'
   } catch (error) {
     console.error(error)
     toast.add({
@@ -208,6 +286,109 @@ const onSubmit = async () => {
     loading.value = false
   }
 }
+// const onSubmit = async () => {
+//   // Требуем обязательную загрузку файлов Rate confirmation
+//   if (!rateUploaderRef.value?.hasFiles) {
+//     toast.add({
+//       title: 'Validation Error',
+//       description: 'Rate Confirmation document is required!',
+//       color: 'error'
+//     })
+//     return
+//   }
+
+//   loading.value = true
+//   try {
+//     // 1. Проверяем дубликат номера
+//     const isDuplicate = await isLoadNumberDuplicate(state.load_number)
+//     if (isDuplicate) {
+//       throw new Error(`Load with number "${state.load_number}" already exists.`)
+//     }
+
+//     // 2. Логика назначения категорий
+//     let category = 'active'
+//     let status_load = 'in_transit'
+
+//     if (state.driver) {
+//       const hasActive = await checkDriverHasActiveLoad(state.driver)
+//       if (hasActive) {
+//         category = 'next'
+//         status_load = 'not_started'
+//         toast.add({
+//           title: 'Driver Busy',
+//           description: 'This driver already has an active load. This load is set to scheduled (Next).',
+//           color: 'warning'
+//         })
+//       }
+//     }
+
+//     // 3. Загружаем файлы на сервер и получаем их IDs
+//     const fileIds = await rateUploaderRef.value.uploadFiles()
+
+//     // 4. Формируем тело запроса и сохраняем груз
+//     const payload = {
+//       data: {
+//         load_number: state.load_number,
+//         drivers_rate: state.drivers_rate,
+//         original_rate: state.original_rate,
+//         pickup_date: state.pickup_date,
+//         pickup_time: state.pickup_time ? `${state.pickup_time.toString()}.000` : null,
+//         delivery_date: state.delivery_date,
+//         delivery_time: state.delivery_time ? `${state.delivery_time.toString()}.000` : null,
+//         shipper_address: state.shipper_address,
+//         receiver_address: state.receiver_address,
+//         miles: state.miles,
+//         driver: state.driver || null,
+//         broker: state.broker || null,
+//         dispatcher: user.value?.id || null,
+//         doc_rate_confirmation: fileIds, // Передаем полученные ID
+//         category,
+//         status_load
+//       }
+//     }
+
+//     await client('/loads', {
+//       method: 'POST',
+//       body: payload
+//     })
+
+//     toast.add({
+//       title: 'Success',
+//       description: "Load created successfully!",
+//       color: 'success'
+//     })
+
+//     emit('success')
+//     open.value = false
+
+//     // Сброс состояния и очистка 
+//     Object.assign(state, {
+//       load_number: '',
+//       drivers_rate: 0,
+//       original_rate: 0,
+//       pickup_date: new Date().toISOString().split('T')[0],
+//       pickup_time: new Time(12, 0, 0),
+//       delivery_date: new Date().toISOString().split('T')[0],
+//       delivery_time: new Time(12, 0, 0),
+//       driver: null,
+//       broker: '',
+//       shipper_address: { city: '', state: 'AL', full_address: '' },
+//       receiver_address: { city: '', state: 'AL', full_address: '' },
+//       miles: 0
+//     })
+//     rateUploaderRef.value?.clear()
+//     selectedBrokerModel.value = null
+//   } catch (error) {
+//     console.error(error)
+//     toast.add({
+//       title: 'Error',
+//       description: error?.message || 'Failed to create load',
+//       color: 'error'
+//     })
+//   } finally {
+//     loading.value = false
+//   }
+// }
 </script>
 <template>
   <UModal v-model:open="open">
@@ -275,7 +456,7 @@ const onSubmit = async () => {
 
         <USeparator label="Shipper (Pickup)" />
 
-        <div class="grid gap-4">
+        <!-- <div class="grid gap-4">
           <UFormField label="Shipper City/Sate" name="shipper_address.city" required>
             <UFieldGroup>
               <UInput v-model="state.shipper_address.city" placeholder="City" required class="w-50" />
@@ -292,13 +473,70 @@ const onSubmit = async () => {
             <UInput v-model="state.pickup_date" type="date" required class="w-full" />
           </UFormField>
           <UFormField label="Pickup Time" name="pickup_time" required>
-            <UInputTime v-model="state.pickup_time" />
+            <UInputTime v-model="state.pickup_time" :hour-cycle="24" />
+          </UFormField>
+        </div> -->
+        <div class="grid gap-4">
+          <UFormField label="Shipper City/Sate" name="shipper_address.city" required>
+            <UFieldGroup>
+              <UInput v-model="state.shipper_address.city" placeholder="City" required class="w-50" />
+              <USelectMenu v-model="state.shipper_address.state" :items="statesList" class="w-20" />
+            </UFieldGroup>
+          </UFormField>
+          <UFormField label="Full Address" name="shipper_address.full_address">
+            <UInput v-model="state.shipper_address.full_address" class="w-full" />
+          </UFormField>
+        </div>
+        <UFormField label="Pickup Type">
+          <URadioGroup v-model="pickupType" :items="['Strict Appointment', 'FCFS']" />
+        </UFormField>
+        <div class="grid grid-cols-2 gap-4">
+          <UFormField label="Pickup Date" name="pickup_date" required>
+            <UInput v-model="state.pickup_date" type="date" required class="w-full" />
+          </UFormField>
+          <UFormField :label="pickupType === 'FCFS' ? 'Pickup Time Range' : 'Pickup Time'" name="pickup_time" required>
+            <UInputTime v-if="pickupType === 'FCFS'" range v-model="pickupTimeRange" :hour-cycle="24" />
+            <UInputTime v-else v-model="state.pickup_time" :hour-cycle="24" />
           </UFormField>
         </div>
 
         <USeparator label="Receiver (Delivery)" />
 
         <div class="grid gap-4">
+          <UFormField label="Receiver City/Sate" name="receiver_address.city" required>
+            <UFieldGroup>
+              <UInput v-model="state.receiver_address.city" placeholder="City" required class="w-50" />
+              <USelectMenu v-model="state.receiver_address.state" :items="statesList" class="w-20" />
+            </UFieldGroup>
+          </UFormField>
+          <UFormField label="Full Address" name="receiver_address.full_address">
+            <UInput v-model="state.receiver_address.full_address" class="w-full" />
+          </UFormField>
+
+          <UFormField label="Delivery Type">
+            <URadioGroup v-model="deliveryType" :items="['Strict Appointment', 'FCFS']" />
+          </UFormField>
+          <div class="grid grid-cols-2 gap-4">
+            <UFormField label="Delivery Date" name="delivery_date">
+              <UInput v-model="state.delivery_date" type="date" class="w-full" />
+            </UFormField>
+            <UFormField :label="deliveryType === 'FCFS' ? 'Delivery Time Range' : 'Delivery Time'" name="delivery_time">
+              <UInputTime v-if="deliveryType === 'FCFS'" range v-model="deliveryTimeRange" :hour-cycle="24" />
+              <UInputTime v-else v-model="state.delivery_time" :hour-cycle="24" />
+            </UFormField>
+          </div>
+          
+          <UFormField label="Total Miles" name="miles" required>
+            <UInput v-model.number="state.miles" type="number" required :ui="{
+                base: 'pl-12 pr-2',
+                leading: 'pointer-events-none'
+              }">
+              <template #leading><p class="text-sm text-muted">Miles</p></template>
+            </UInput>
+          </UFormField>
+        </div>
+
+        <!-- <div class="grid gap-4">
           <UFormField label="Receiver City/Sate" name="receiver_address.city" required>
             <UFieldGroup>
               <UInput v-model="state.receiver_address.city" placeholder="City" required class="w-50" />
@@ -316,7 +554,7 @@ const onSubmit = async () => {
                 class="w-full" />
             </UFormField>
             <UFormField label="Delivery Time" name="delivery_time">
-              <UInputTime v-model="state.delivery_time" :disabled="isDeliveryDisabled" />
+              <UInputTime v-model="state.delivery_time" :hour-cycle="24" :disabled="isDeliveryDisabled" />
             </UFormField>
           </div>
           
@@ -328,7 +566,7 @@ const onSubmit = async () => {
               <template #leading><p class="text-sm text-muted">Miles</p></template>
             </UInput>
           </UFormField>
-        </div>
+        </div> -->
 
         <div class="flex justify-end gap-3 pt-4">
           <UButton color="neutral" variant="ghost" label="Cancel" @click="open = false" />

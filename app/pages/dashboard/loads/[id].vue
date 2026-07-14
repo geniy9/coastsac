@@ -65,12 +65,21 @@ const { data: response, status, refresh } = await useAsyncData(`load-${loadId}`,
 const load = computed(() => response.value?.data || response.value || null)
 
 const isDelivered = computed(() => !!load.value?.delivery_date)
+
 const timelineItems = computed(() => {
   if (!load.value) return []
 
   const shipper = load.value.shipper_address
   const receiver = load.value.receiver_address
   const active = isDelivered.value
+
+  const pTime = load.value.pickup_time ? load.value.pickup_time.slice(0, 5) : null
+  const pTimeEnd = load.value.pickup_time_end ? load.value.pickup_time_end.slice(0, 5) : null
+  const displayPickupTime = pTimeEnd ? `${pTime} - ${pTimeEnd}` : pTime
+
+  const dTime = load.value.delivery_time ? load.value.delivery_time.slice(0, 5) : null
+  const dTimeEnd = load.value.delivery_time_end ? load.value.delivery_time_end.slice(0, 5) : null
+  const displayDeliveryTime = dTimeEnd ? `${dTime} - ${dTimeEnd}` : dTime
 
   return [{
     title: 'Shipper',
@@ -79,7 +88,7 @@ const timelineItems = computed(() => {
     cityState: `${shipper?.city || 'N/A'}, ${shipper?.state || 'N/A'}`,
     fullAddress: shipper?.full_address || 'No full address specified',
     pickupDate: load.value.pickup_date || '-',
-    time: load.value.pickup_time ? load.value.pickup_time.slice(0, 5) : null,
+    time: displayPickupTime,
     ui: {
       indicator: 'text-white bg-primary dark:bg-primary dark:text-black border-2 border-primary print:text-gray-500',
       separator: active 
@@ -93,7 +102,7 @@ const timelineItems = computed(() => {
     cityState: `${receiver?.city || 'N/A'}, ${receiver?.state || 'N/A'}`,
     fullAddress: receiver?.full_address || 'No full address specified',
     deliveryDate: load.value.delivery_date || 'Not yet',
-    time: load.value.delivery_time ? load.value.delivery_time.slice(0, 5) : null,
+    time: displayDeliveryTime,
     ui: {
       indicator: active
         ? 'text-white bg-primary dark:bg-primary dark:text-black border-2 border-primary print:text-gray-500'

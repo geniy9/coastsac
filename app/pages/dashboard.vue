@@ -28,7 +28,6 @@ const links = computed(() => {
       onSelect: () => { open.value = false }
     })
   }
-
   if (['admin', 'dispatcher', 'accounting', 'driver'].includes(userRole)) {
     items.push({
       label: "Loads",
@@ -37,7 +36,6 @@ const links = computed(() => {
       onSelect: () => { open.value = false }
     })
   }
-
   if (['admin', 'accounting'].includes(userRole)) {
     items.push({
       label: "Settlements",
@@ -46,7 +44,6 @@ const links = computed(() => {
       onSelect: () => { open.value = false }
     })
   }
-
   if (['admin', 'accounting'].includes(userRole)) {
     items.push({
       label: "Fuels",
