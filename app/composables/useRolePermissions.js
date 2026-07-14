@@ -21,7 +21,7 @@ export function useRolePermissions() {
       canViewLoads: ['admin', 'dispatcher', 'accounting', 'driver'].includes(role),
       canCreateLoads: ['admin', 'dispatcher'].includes(role), // Бухгалтер не создает грузы
       canEditLoads: ['admin', 'dispatcher', 'accounting'].includes(role), // Бухгалтер правит факторинг
-      canDeleteLoads: ['admin'].includes(role),
+      canDeleteLoads: ['admin', 'dispatcher'].includes(role),
 
       // Access to fuels management
       canViewFuels: ['admin', 'accounting'].includes(role),
