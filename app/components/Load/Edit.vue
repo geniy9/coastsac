@@ -14,7 +14,7 @@ const emit = defineEmits(['success'])
 const client = useStrapiClient()
 const toast = useToast()
 const { permissions } = useRolePermissions()
-const { statesList, loadStatusOptions, factoringStatusOptions, imageUrl, getMime } = useConfig()
+const { statesList, loadStatusOptions, imageUrl, getMime } = useConfig()
 
 const parseTime = (timeStr) => {
   if (!timeStr) return null
@@ -40,16 +40,7 @@ const state = reactive({
   broker: '',
   shipper_address: { city: '', state: 'AL', full_address: '' },
   receiver_address: { city: '', state: 'AL', full_address: '' },
-  miles: 0,
-  factoring_status: 'not_submitted',
-  factoring: {
-    invoice_amount: 0,
-    funding_date: '',
-    advance_received: 0,
-    factoring_fee: 0,
-    remaining_balance: 0,
-    payment_date: ''
-  }
+  miles: 0
 })
 
 const pickupType = ref('Strict Appointment')
@@ -157,16 +148,7 @@ watch(() => props.load, (newVal) => {
         state: newVal.receiver_address?.state || 'AL',
         full_address: newVal.receiver_address?.full_address || ''
       },
-      miles: newVal.miles || 0,
-      factoring_status: newVal.factoring_status || 'not_submitted',
-      factoring: {
-        invoice_amount: newVal.factoring?.invoice_amount || 0,
-        funding_date: newVal.factoring?.funding_date ? newVal.factoring.funding_date.split('T')[0] : '',
-        advance_received: newVal.factoring?.advance_received || 0,
-        factoring_fee: newVal.factoring?.factoring_fee || 0,
-        remaining_balance: newVal.factoring?.remaining_balance || 0,
-        payment_date: newVal.factoring?.payment_date ? newVal.factoring.payment_date.split('T')[0] : ''
-      }
+      miles: newVal.miles || 0
     })
 
     // Инициализация типов времени на основе наличия *_time_end
@@ -363,19 +345,6 @@ const onSubmit = async () => {
         doc_pod_bol: finalPodIds,
         category: state.status_load === 'cancelled' || state.status_load === 'unloaded' || state.status_load === 'tonu' ? 'completed' : state.category
       }
-    }
-
-    if (payload.data.factoring) {
-      payload.data.factoring = {
-        ...state.factoring,
-        funding_date: cleanDate(state.factoring.funding_date),
-        payment_date: cleanDate(state.factoring.payment_date)
-      }
-    }
-
-    if (!permissions.value.isAdmin && !permissions.value.isAccounting) {
-      delete payload.data.factoring
-      delete payload.data.factoring_status
     }
 
     await client(`/loads/${props.load.documentId}`, {
@@ -603,46 +572,6 @@ const onDelete = async () => {
             description="Forces load status to 'Unloaded'"
             @change="handlePodFilesChange" />
         </div>
-
-        <template v-if="permissions.isAdmin || permissions.isAccounting">
-          
-          <USeparator label="Factoring (Accounting only)" />
-          
-          <div class="grid grid-cols-2 gap-4">
-            <UFormField label="Factoring Status" name="factoring_status" class="col-span-2">
-              <USelect 
-                v-model="state.factoring_status" 
-                :items="factoringStatusOptions" 
-                class="max-w-xs min-w-50" />
-            </UFormField>
-            <UFormField label="Invoice Amount" name="factoring.invoice_amount">
-              <UInput v-model.number="state.factoring.invoice_amount" type="number" step="0.01">
-                <template #trailing><div class="input_trailing">$</div></template>
-              </UInput>
-            </UFormField>
-            <UFormField label="Funding Date" name="factoring.funding_date">
-              <UInput v-model="state.factoring.funding_date" type="date" class="w-full" />
-            </UFormField>
-            <UFormField label="Advance Received" name="factoring.advance_received">
-              <UInput v-model.number="state.factoring.advance_received" type="number" step="0.01" class="w-full">
-                <template #trailing><div class="input_trailing">$</div></template>
-              </UInput>
-            </UFormField>
-            <UFormField label="Factoring Fee" name="factoring.factoring_fee">
-              <UInput v-model.number="state.factoring.factoring_fee" type="number" step="0.01" class="w-full">
-                <template #trailing><div class="input_trailing">$</div></template>
-              </UInput>
-            </UFormField>
-            <UFormField label="Remaining Balance" name="factoring.remaining_balance">
-              <UInput v-model.number="state.factoring.remaining_balance" type="number" step="0.01">
-                <template #trailing><div class="input_trailing">$</div></template>
-              </UInput>
-            </UFormField>
-            <UFormField label="Payment Date" name="factoring.payment_date">
-              <UInput v-model="state.factoring.payment_date" type="date" class="w-full" />
-            </UFormField>
-          </div>
-        </template>
 
         <div class="flex justify-between items-center pt-4">
           <div>

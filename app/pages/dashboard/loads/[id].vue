@@ -622,9 +622,6 @@ const confirmTonuDirectly = async () => {
                         </p>
                       </div>
                     </div>
-                    
-                    <USeparator />
-
                     <div class="space-y-2 text-xs font-mono">
                       <div class="flex justify-between items-center">
                         <span class="text-gray-500">Truck Number</span>
@@ -640,7 +637,7 @@ const confirmTonuDirectly = async () => {
                         <span v-else class="italic text-gray-500">N/A</span>
                       </div>
                       <div class="flex justify-between items-center py-1">
-                        <span class="text-gray-500">Trailer Type</span>
+                        <span class="text-gray-500">Trailer</span>
                         <div class="flex items-center gap-1 text-sm font-semibold text-highlighted capitalize">
                           <UIcon :name="getTrailerIcon(load.driver.trailer)" class="w-5 h-5 text-primary print-icon" />
                           {{ getTrailerLabel(load.driver.trailer) }}
@@ -652,62 +649,9 @@ const confirmTonuDirectly = async () => {
                       </div>
                     </div>
                   </div>
-                  
                   <div v-else class="text-center p-4">
                     <p class="text-sm text-red-500 font-semibold">Unassigned</p>
                     <p class="text-xs text-gray-500 mt-1">This load has no dispatcher/driver link.</p>
-                  </div>
-                </UCard>
-
-                <!-- Factoring -->
-                <UCard 
-                  v-if="permissions.isAdmin || permissions.isAccounting"
-                  variant="soft" 
-                  title="Factoring" 
-                  class="print-card">
-                  
-                  <div class="space-y-3 font-mono text-xs">
-                    <div class="flex justify-between items-center">
-                      <span class="text-gray-500">Status</span>
-                      <UBadge color="neutral" variant="solid" class="capitalize print-badge">
-                        {{ (load.factoring_status || 'not_submitted').replace('_', ' ') }}
-                      </UBadge>
-                    </div>
-                    <div class="flex justify-between items-center">
-                      <span class="text-gray-500">Invoice Amount</span>
-                      <span class="text-sm text-highlighted">
-                        ${{ load.factoring?.invoice_amount || 0 }}
-                      </span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                      <span class="text-gray-500">Advance Received</span>
-                      <span class="text-highlighted">
-                        ${{ load.factoring?.advance_received || 0 }}
-                      </span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                      <span class="text-gray-500">Factoring Fee</span>
-                      <span class="text-highlighted">
-                        ${{ load.factoring?.factoring_fee || 0 }}
-                      </span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                      <span class="text-gray-500">Remaining Balance</span>
-                      <span class="text-highlighted">
-                        ${{ load.factoring?.remaining_balance || 0 }}
-                      </span>
-                    </div>
-                    
-                    <USeparator />
-
-                    <div class="flex justify-between items-center">
-                      <span class="text-gray-500">Funding Date</span>
-                      <span class="text-highlighted">{{ load.factoring?.funding_date || '-' }}</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                      <span class="text-gray-500">Payment Date</span>
-                      <span class="text-highlighted">{{ load.factoring?.payment_date || '-' }}</span>
-                    </div>
                   </div>
                 </UCard>
 
