@@ -191,20 +191,25 @@ const columns = [{
   meta: { class: { td: 'cursor-pointer' }},
   cell: ({ row }) => {
     const driver_number = row.original.driver_number || '-'
-    const truck = row.original.truck_number || '-'
+    const truckNo = row.original.truck_number || '-'
     const trailer = row.original.trailer || '-'
+    const trailerNo = row.original.trailer_number || '-'
     return h("div", { class: "text-xs font-mono" }, [
       h("div", undefined, [
         h("p", { class: "text-gray-500" }, 'Driver:'),
         h("p", { class: "text-highlighted" }, driver_number),
       ]),
       h("div", undefined, [
-        h("p", { class: "text-gray-500" }, 'Truck:'),
-        h("p", { class: "text-highlighted" }, truck),
+        h("p", { class: "text-gray-500" }, 'Truck No:'),
+        h("p", { class: "text-highlighted" }, truckNo),
       ]),
       h("div", undefined, [
         h("p", { class: "text-gray-500" }, 'Trailer:'),
         h("p", { class: "text-highlighted capitalize" }, trailer.replace('_', ' ')),
+      ]),
+      h("div", undefined, [
+        h("p", { class: "text-gray-500" }, 'Trailer No:'),
+        h("p", { class: "text-highlighted" }, trailerNo),
       ]),
     ])
   }

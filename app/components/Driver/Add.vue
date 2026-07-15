@@ -26,6 +26,7 @@ const state = reactive({
   notes: '',
   truck_number: '',
   trailer: 'van',
+  trailer_number: '',
   fuel_card_number: '',
   deductions: {
     eld: 0,
@@ -125,6 +126,7 @@ const onSubmit = async () => {
       notes: '',
       truck_number: '',
       trailer: 'van',
+      trailer_number: '',
       fuel_card_number: '',
       deductions: { eld: 0, insurance: 0, plates: 0, ifta: 0, other_reason: '', other_cost: 0 },
       extra_info: {
@@ -178,7 +180,7 @@ const onSubmit = async () => {
           <UFormField label="Phone" name="phone">
             <UInput v-model="state.phone" class="w-full" />
           </UFormField>
-          <UFormField label="Driver number" name="driver_number">
+          <UFormField label="Driver number (driver license)" name="driver_number">
             <UInput v-model="state.driver_number" placeholder="D-123" class="w-full" />
           </UFormField>
           <UFormField label="Assigned dispatcher">
@@ -271,11 +273,14 @@ const onSubmit = async () => {
                 <template #trailing><div class="input_trailing">%</div></template>
               </UInput>
             </UFormField>
-            <UFormField label="Track number" name="truck_number">
+            <UFormField label="Track number" name="truck_number" class="col-span-2">
               <UInput v-model="state.truck_number" class="w-full" />
             </UFormField>
             <UFormField label="Trailer type" name="trailer">
               <USelect v-model="state.trailer" :items="trailerOptions" class="w-full" />
+            </UFormField>
+            <UFormField label="Trailer number" name="trailer_number">
+              <UInput v-model="state.trailer_number" class="w-full" />
             </UFormField>
           </div>
         </div>

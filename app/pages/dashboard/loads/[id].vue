@@ -51,7 +51,6 @@ const { data: response, status, refresh } = await useAsyncData(`load-${loadId}`,
         'broker', 
         'doc_rate_confirmation', 
         'doc_pod_bol', 
-        'factoring', 
         'shipper_address', 
         'receiver_address',
         'notes.user.avatar'
@@ -344,7 +343,7 @@ const confirmTonuDirectly = async () => {
                 <div class="flex flex-wrap items-center justify-between gap-4">
                   <div class="flex items-center flex-wrap gap-4">
                     <h1 class="text-2xl font-bold text-highlighted">
-                      #{{ load.load_number }}
+                      {{ load.load_number }}
                     </h1>
                     <UBadge color="primary" size="lg" class="capitalize print-badge">
                       {{ load.category }}
@@ -637,11 +636,24 @@ const confirmTonuDirectly = async () => {
                         <span v-else class="italic text-gray-500">N/A</span>
                       </div>
                       <div class="flex justify-between items-center py-1">
-                        <span class="text-gray-500">Trailer</span>
+                        <span class="text-gray-500">Trailer Type</span>
                         <div class="flex items-center gap-1 text-sm font-semibold text-highlighted capitalize">
                           <UIcon :name="getTrailerIcon(load.driver.trailer)" class="w-5 h-5 text-primary print-icon" />
                           {{ getTrailerLabel(load.driver.trailer) }}
                         </div>
+                      </div>
+                      <div class="flex justify-between items-center">
+                        <span class="text-gray-500">Trailer Number</span>
+                        <UFieldGroup v-if="load.driver.trailer_number">
+                          <UButton :label="load.driver.trailer_number" variant="soft" size="sm" />
+                          <UButton 
+                            icon="hugeicons:copy-01" 
+                            variant="soft" 
+                            size="sm"
+                            class="no-print"
+                            @click="copyBoofer(load.driver.trailer_number)" />
+                        </UFieldGroup>
+                        <span v-else class="italic text-gray-500">N/A</span>
                       </div>
                       <div class="flex justify-between items-center">
                         <span class="text-gray-500">Driver Phone</span>

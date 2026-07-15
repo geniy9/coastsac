@@ -32,6 +32,7 @@ const state = reactive({
   notes: '',
   truck_number: '',
   trailer: 'van',
+  trailer_number: '',
   fuel_card_number: '',
   deductions: {
     eld: 0,
@@ -105,6 +106,7 @@ watch(() => props.driver, (newVal) => {
       notes: newVal.notes || '',
       truck_number: newVal.truck_number || '',
       trailer: newVal.trailer || 'van',
+      trailer_number: newVal.trailer_number || '',
       fuel_card_number: newVal.fuel_card_number || '',
       deductions: {
         eld: newVal.deductions?.eld || 0,
@@ -370,11 +372,14 @@ const onDelete = async () => {
               <template #trailing><div class="input_trailing">%</div></template>
             </UInput>
           </UFormField>
-          <UFormField label="Track number" name="truck_number">
+          <UFormField label="Track number" name="truck_number" class="col-span-2">
             <UInput v-model="state.truck_number" class="w-full" />
           </UFormField>
           <UFormField label="Trailer type" name="trailer">
             <USelect v-model="state.trailer" :items="trailerOptions" class="w-full" />
+          </UFormField>
+          <UFormField label="Trailer number" name="trailer_number">
+            <UInput v-model="state.trailer_number" class="w-full" />
           </UFormField>
         </div>
 

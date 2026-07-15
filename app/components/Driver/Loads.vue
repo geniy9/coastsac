@@ -59,7 +59,7 @@ const totalPayable = computed(() => {
           <tr v-for="load in loads" :key="load.id" class="border-b border-default hover:bg-elevated/10">
             <td class="p-3 font-semibold text-primary">
               <NuxtLink :to="`/dashboard/loads/${load.documentId}`">
-                #{{ load.load_number }}
+                {{ load.load_number }}
               </NuxtLink>
             </td>
             <td class="p-3">{{ load.delivery_date || 'N/A' }}</td>

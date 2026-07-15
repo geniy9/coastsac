@@ -353,6 +353,18 @@ const handleFileClick = (file) => {
                         {{ getTrailerLabel(driver.trailer) }}
                       </div>
                     </div>
+                    <div class="flex justify-between items-center">
+                      <span class="text-xs text-gray-500">Trailer Number</span>
+                      <UFieldGroup v-if="driver.trailer_number">
+                        <UButton :label="driver.trailer_number" variant="soft" size="sm" />
+                        <UButton 
+                          icon="hugeicons:copy-01" 
+                          variant="soft" 
+                          size="sm"
+                          @click="copyBoofer(driver.trailer_number)" />
+                      </UFieldGroup>
+                      <p v-else class="text-xs text-gray-500 italic">N/A</p>
+                    </div>
                   </div>
                 </UCard>
 

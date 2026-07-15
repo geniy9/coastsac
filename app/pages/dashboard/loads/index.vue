@@ -27,7 +27,6 @@ const { data: response, status, refresh } = await useAsyncData('loads', () => {
       'broker', 
       'doc_rate_confirmation', 
       'doc_pod_bol', 
-      'factoring', 
       'shipper_address', 
       'receiver_address'
     ]
