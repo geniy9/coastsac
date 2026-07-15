@@ -30,12 +30,13 @@ const newAdjAmount = ref(0)
 const newAdjType = ref('deduction')
 const isOpenAdjust = ref(false)
 const loadingAdjust = ref(false)
+const loadingDeleteIdx = ref(null) // Индекс удаляемой корректировки
 
 const handleAddAdjustment = async () => {
   if (!newAdjReason.value || newAdjAmount.value <= 0) return
   loadingAdjust.value = true
 
-  const adjs = settlement.value.custom_adjustments || []
+  const adjs = [...(settlement.value.custom_adjustments || [])]
   adjs.push({
     reason: newAdjReason.value,
     amount: newAdjAmount.value,
@@ -44,8 +45,8 @@ const handleAddAdjustment = async () => {
 
   // Перерасчет Net Payout
   const diff = newAdjAmount.value * (newAdjType.value === 'deduction' ? -1 : 1)
-  const newNet = Number(settlement.value.net_payout) + diff
-  const newDeductions = Number(settlement.value.total_deductions) + (newAdjType.value === 'deduction' ? newAdjAmount.value : 0)
+  const newNet = Number(settlement.value.net_payout || 0) + diff
+  const newDeductions = Number(settlement.value.total_deductions || 0) + (newAdjType.value === 'deduction' ? newAdjAmount.value : 0)
 
   try {
     await client(`/settlements/${id}`, {
@@ -67,6 +68,42 @@ const handleAddAdjustment = async () => {
   } finally {
     loadingAdjust.value = false
     isOpenAdjust.value = false
+  }
+}
+
+const handleDeleteAdjustment = async (index) => {
+  if (!settlement.value?.custom_adjustments) return
+  const targetAdj = settlement.value.custom_adjustments[index]
+  if (!targetAdj) return
+
+  loadingDeleteIdx.value = index
+
+  const adjs = [...settlement.value.custom_adjustments]
+  adjs.splice(index, 1)
+
+  // Перерасчет Net Payout и Total Deductions при удалении
+  const isDeduction = targetAdj.type === 'deduction'
+  const diff = Number(targetAdj.amount) * (isDeduction ? 1 : -1)
+  const newNet = Number(settlement.value.net_payout || 0) + diff
+  const newDeductions = Number(settlement.value.total_deductions || 0) - (isDeduction ? Number(targetAdj.amount) : 0)
+
+  try {
+    await client(`/settlements/${id}`, {
+      method: 'PUT',
+      body: {
+        data: {
+          custom_adjustments: adjs,
+          net_payout: newNet,
+          total_deductions: newDeductions
+        }
+      }
+    })
+    toast.add({ title: 'Adjustment Removed', color: 'success' })
+    refresh()
+  } catch (e) {
+    toast.add({ title: 'Failed to remove adjustment', description: e.message, color: 'error' })
+  } finally {
+    loadingDeleteIdx.value = null
   }
 }
 
@@ -261,9 +298,19 @@ const handlePrint = () => {
               <div class="grid gap-2 bg-elevated/20 p-3 text-sm font-mono text-highlighted">
                 <div v-for="(adj, idx) in settlement.custom_adjustments" :key="idx" class="flex items-center justify-between">
                   <span>{{ adj.reason }}</span>
-                  <span :class="adj.type === 'deduction' ? 'text-red-500' : 'text-green-500'">
-                    $ {{ adj.type === 'deduction' ? '-' : '+' }}{{ adj.amount }}
-                  </span>
+                  <div class="flex items-center gap-3">
+                    <span :class="adj.type === 'deduction' ? 'text-red-500' : 'text-green-500'">
+                      $ {{ adj.type === 'deduction' ? '-' : '+' }}{{ adj.amount }}
+                    </span>
+                    <UButton 
+                      icon="hugeicons:delete-02" 
+                      size="sm" 
+                      color="error" 
+                      variant="link" 
+                      class="no-print"
+                      :loading="loadingDeleteIdx === idx"
+                      @click="handleDeleteAdjustment(idx)" />
+                  </div>
                 </div>
               </div>
             </div>
