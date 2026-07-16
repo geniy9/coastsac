@@ -340,8 +340,8 @@ const confirmTonuDirectly = async () => {
             <!-- HEAD -->
             <UCard variant="soft" class="print-card">
               <template #header>
-                <div class="flex flex-wrap items-center justify-between gap-4">
-                  <div class="flex items-center flex-wrap gap-4">
+                <div class="flex flex-wrap items-center md:justify-between gap-4">
+                  <div class="flex items-center flex-wrap gap-3">
                     <h1 class="text-2xl font-bold text-highlighted">
                       {{ load.load_number }}
                     </h1>
@@ -365,7 +365,21 @@ const confirmTonuDirectly = async () => {
                         class="no-print"
                         @click="isOpenActions = true" />
                     </UFieldGroup>
-                    
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <p class="text-xs text-gray-500">Factoring:</p>
+                    <div class="flex items-center gap-1.5">
+                      <UFieldGroup>
+                        <UBadge 
+                          :color="load.status_factoring === 'sent' ? 'success' : 'neutral'" 
+                          class="uppercase text-[11px] font-bold">
+                          {{ load.status_factoring === 'sent' ? 'Sent' : 'Not Submitted' }}
+                        </UBadge>
+                        <UBadge v-if="load.status_factoring === 'sent' && load.factoring_sent_at" class="font-mono" color="neutral" variant="soft">
+                          {{ new Date(load.factoring_sent_at).toLocaleDateString() }}
+                        </UBadge>
+                      </UFieldGroup>
+                    </div>
                   </div>
                 </div>
               </template>

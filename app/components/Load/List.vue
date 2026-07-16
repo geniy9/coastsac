@@ -24,7 +24,9 @@ const props = defineProps({
 const table = useTemplateRef("table")
 const columnFilters = ref([{ id: "load_number", value: "" }])
 const columnVisibility = ref()
-const rowSelection = ref({})
+// const rowSelection = ref({})
+// Заменяем локальный ref на defineModel, чтобы родитель мог отслеживать выборки
+const rowSelection = defineModel('rowSelection', { type: Object, default: () => ({}) })
 
 const columns = [{
   id: "select",
@@ -49,17 +51,26 @@ const columns = [{
   meta: { class: { td: 'cursor-pointer' }},
   cell: ({ row }) => {
     const status = row.original.status_load || 'not_started'
+    const statusFactoring = row.original.status_factoring || 'Not Submitted'
     return h("div", { class: "flex flex-col items-start" }, [
       h("div", { class: "flex flex-col" }, [
         h("span", { class: "text-gray-500 text-xs" }, 'No.:'),
         h("span", { class: "font-semibold text-highlighted" }, `${row.original.load_number}`)
       ]),
-      h("div", { class: "flex flex-col" }, [
-        h("div", { class: "text-gray-500 text-xs mb-1" }, 'Status:'),
+      h("div", { class: "flex flex-col gap-1 mt-1" }, [
+        h("div", { class: "text-gray-500 text-[10px]" }, 'Status:'),
         h(UBadge, { 
           color: getStatusColor(status), 
-          class: 'uppercase'
+          class: 'uppercase text-[9px]'
         }, () => status.replace('_', ' '))
+      ]),
+      h("div", { class: "flex flex-col gap-1 mt-1" }, [
+        h("div", { class: "text-gray-500 text-[10px]" }, 'Factoring:'),
+        h(UBadge, {
+          color: statusFactoring === 'sent' ? 'success' : 'neutral',
+          variant: statusFactoring === 'sent' ? 'solid' : 'soft',
+          class: 'uppercase text-[9px]'
+        }, () => statusFactoring === 'sent' ? 'Sent' : 'Not Submitted')
       ])
     ])
   }
@@ -115,13 +126,13 @@ const columns = [{
       h("div", undefined, [
         h("p", { class: "text-gray-500" }, "Pickup:"),
         h("p", { class: "text-highlighted" }, pDate),
-        h(UBadge, { label: pickupDisplayTime, size: 'sm', class: 'font-bold', color: 'neutral' })
+        h(UBadge, { label: pickupDisplayTime, size: 'sm', color: 'neutral', variant: 'soft' })
       ]),
       h("div", undefined, [
         h("p", { class: "text-gray-500" }, "Delivery:"),
         (dDate && dTime) ? h("div", undefined, [
           h("p", { class: "text-highlighted" }, dDate),
-          h(UBadge, { label: deliveryDisplayTime, size: 'sm', class: 'font-bold', color: 'neutral' })
+          h(UBadge, { label: deliveryDisplayTime, size: 'sm', color: 'neutral', variant: 'soft' })
         ]) : h("span", { class: "text-red-500 text-xs" }, "not yet")
       ])
     ])

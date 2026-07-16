@@ -27,6 +27,20 @@ export default defineAppConfig({
       }
     },
 
+    inputTags: {
+      slots: { 
+        base: 'px-1.5 py-1.5', 
+        item: 'px-1 py-0.5 gap-1'
+      },
+      variants: {
+        size: {
+          md: {
+            base: 'px-1.5 py-1.5'
+          }
+        }
+      }
+    },
+
     selectMenu: {
       variants: {
         fieldGroup: {
