@@ -22,6 +22,7 @@ const tabs = [
 
 // Объект выбранных чекбоксами строк
 const rowSelection = ref({})
+const limit = ref(25)
 
 const { data: response, status, refresh } = await useAsyncData('loads', () => {
   const query = {
@@ -34,8 +35,7 @@ const { data: response, status, refresh } = await useAsyncData('loads', () => {
       'shipper_address', 
       'receiver_address'
     ],
-    // Увеличим лимит для гарантированного вывода всех завершенных грузов
-    pagination: { limit: 100 }
+    pagination: { limit: limit.value }
   }
 
   if (permissions.value.isDriver) {
@@ -45,6 +45,7 @@ const { data: response, status, refresh } = await useAsyncData('loads', () => {
   return client('/loads', { query })
 }, {
   lazy: true,
+  watch: [limit],
   default: () => ({ data: [] })
 })
 
@@ -81,7 +82,6 @@ watch(activeTab, () => {
   rowSelection.value = {}
 })
 </script>
-
 <template>
   <div class="dashboard_main">
     <UDashboardPanel id="loads">
@@ -119,6 +119,7 @@ watch(activeTab, () => {
           <div class="flex-1 flex flex-col min-h-0">
             <LoadList 
               v-model:row-selection="rowSelection"
+              v-model:limit="limit"
               :loads="filteredLoads" 
               :loading="status === 'pending'"
               :current-category="activeTab"

@@ -31,7 +31,16 @@ const driverItems = computed(() => drivers.value.map(d => ({
 })))
 
 const { data: settlementsResponse, refresh } = await useAsyncData('settlements-list', () =>
-  client('/settlements', { query: { populate: ['driver'] } })
+  client('/settlements', { 
+    query: { 
+      populate: ['driver'],
+      pagination: { limit: limit.value }
+    }
+  }), {
+    lazy: true,
+    watch: [limit],
+    default: () => ({ data: [] })
+  }
 )
 const settlements = computed(() => settlementsResponse.value?.data || [])
 
@@ -110,7 +119,11 @@ const isCalculateDisabled = computed(() => {
 
 const table = useTemplateRef("table")
 const rowSelection = ref({})
-const pagination = ref({ pageIndex: 0, pageSize: 24 })
+const pagination = ref({ pageIndex: 0, pageSize: limit.value })
+watch(limit, (newVal) => {
+  pagination.value.pageSize = newVal
+  pagination.value.pageIndex = 0
+})
 
 const selectedIds = computed(() => {
   return Object.keys(rowSelection.value)
@@ -370,11 +383,14 @@ onBeforeUnmount(() => {
               }" />
 
             <div class="flex items-center justify-between gap-3 mt-auto">
-              <div class="text-sm text-muted">
-                Selected: {{ selectedIds.length }} of {{ table?.tableApi?.getFilteredRowModel().rows.length || 0 }}
+              <div class="flex items-center gap-4 text-sm text-muted">
+                <USelectMenu v-model="limit" :items="[25, 50, 100]" class="w-16" size="sm" />
+                <span>
+                  Selected: {{ selectedIds.length  }} of {{ table?.tableApi?.getFilteredRowModel().rows.length || 0 }}
+                </span>
               </div>
               <div class="flex items-center gap-1.5">
-                <UPagination
+                <UPagination size="sm"
                   :default-page="(table?.tableApi?.getState().pagination.pageIndex || 0) + 1"
                   :items-per-page="table?.tableApi?.getState().pagination.pageSize"
                   :total="table?.tableApi?.getFilteredRowModel().rows.length"

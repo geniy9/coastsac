@@ -10,6 +10,7 @@ const client = useStrapiClient()
 const isAddOpen = ref(false)
 const isEditOpen = ref(false)
 const selectedDriver = ref(null)
+const limit = ref(25)
 
 const { data: response, status, refresh } = await useAsyncData('drivers', () => 
   client('/drivers', {
@@ -19,10 +20,12 @@ const { data: response, status, refresh } = await useAsyncData('drivers', () =>
         'deductions', 
         'user_account.avatar',
         'extra_info.docs'
-      ]
+      ],
+      pagination: { limit: limit.value }
     }
   }), {
     lazy: true,
+    watch: [limit],
     default: () => ({ data: [] })
   }
 )
@@ -59,6 +62,7 @@ const handleRefresh = async () => {
         <div class="flex-1 flex flex-col min-h-0" v-if="permissions.canViewDrivers">
           <DriverList 
             :drivers="drivers" 
+            v-model:limit="limit"
             :loading="status === 'pending'"
             @edit="handleEdit"
             @refresh="handleRefresh" />

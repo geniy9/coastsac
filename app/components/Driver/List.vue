@@ -24,6 +24,12 @@ const columnVisibility = ref()
 const rowSelection = ref({})
 const roles = ref([])
 const togglingAccessId = ref(null)
+const limit = defineModel('limit', { type: Number, default: 25 })
+const pagination = ref({ pageIndex: 0, pageSize: limit.value })
+watch(limit, (newVal) => {
+  pagination.value.pageSize = newVal
+  pagination.value.pageIndex = 0
+})
 
 onMounted(async () => {
   try {
@@ -332,8 +338,6 @@ const emailSearch = computed({
     table.value?.tableApi?.getColumn("email")?.setFilterValue(value || undefined);
   }
 })
-
-const pagination = ref({ pageIndex: 0, pageSize: 24 })
 </script>
 <template>
   <div class="flex-1 flex flex-col min-h-0 space-y-4">
@@ -369,11 +373,14 @@ const pagination = ref({ pageIndex: 0, pageSize: 24 })
       }" />
 
     <div class="flex items-center justify-between gap-3 mt-auto">
-      <div class="text-sm text-muted">
-        Selected: {{ Object.keys(rowSelection).length }} of {{ table?.tableApi?.getFilteredRowModel().rows.length || 0 }}
+      <div class="flex items-center gap-4 text-sm text-muted">
+        <USelectMenu v-model="limit" :items="[25, 50, 100]" class="w-16" size="sm" />
+        <span>
+          Selected: {{ Object.keys(rowSelection).length }} of {{ table?.tableApi?.getFilteredRowModel().rows.length || 0 }}
+        </span>
       </div>
       <div class="flex items-center gap-1.5">
-        <UPagination
+        <UPagination size="sm"
           :default-page="(table?.tableApi?.getState().pagination.pageIndex || 0) + 1"
           :items-per-page="table?.tableApi?.getState().pagination.pageSize"
           :total="table?.tableApi?.getFilteredRowModel().rows.length"
