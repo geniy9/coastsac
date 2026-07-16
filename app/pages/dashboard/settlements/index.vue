@@ -20,6 +20,8 @@ const bulkInterval = ref(10)
 const isDeleting = ref(false)
 const router = useRouter()
 
+const limit = ref(25)
+
 // Списки
 const { data: driversResponse } = await useAsyncData('drivers-simple-list', () => 
   client('/drivers', { query: { fields: ['first_name', 'last_name', 'email'] } })
