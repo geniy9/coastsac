@@ -1,8 +1,10 @@
 <!-- components/LoadList.vue -->
 <script setup>
+import { UButton, UDropdownMenu, UCheckbox, UBadge, UTooltip, UIcon } from '#components'
 import { getPaginationRowModel } from "@tanstack/table-core";
 const { imageUrl, getMime, truncate, getStatusColor } = useConfig()
 const { permissions } = useRolePermissions()
+const emit = defineEmits(['edit', 'refresh'])
 
 const props = defineProps({
   loads: {
@@ -18,15 +20,6 @@ const props = defineProps({
     default: 'active'
   }
 })
-
-const emit = defineEmits(['edit', 'refresh'])
-
-const UButton = resolveComponent("UButton");
-const UDropdownMenu = resolveComponent("UDropdownMenu");
-const UCheckbox = resolveComponent("UCheckbox");
-const UBadge = resolveComponent("UBadge");
-const UTooltip = resolveComponent("UTooltip");
-const UIcon = resolveComponent("UIcon");
 
 const table = useTemplateRef("table")
 const columnFilters = ref([{ id: "load_number", value: "" }])
@@ -84,16 +77,16 @@ const columns = [{
         'From: ',
         h("span", { class: "text-highlighted" }, `${shipper?.city || '-'}, ${shipper?.state || '-'}`)
       ]),
-      h(UTooltip, { text: shipper?.full_address }, [
+      h(UTooltip, { text: shipper?.full_address }, () =>
         h('span', { class: "cursor-pointer" }, truncate(shipper?.full_address, 20) || '')
-      ]),
+      ),
       h("span", { class: "mt-2" }, [
         'To: ',
         h("span", { class: "text-highlighted" }, `${receiver?.city || '-'}, ${receiver?.state || '-'}`)
       ]),
-      h(UTooltip, { text: receiver?.full_address }, [
+      h(UTooltip, { text: receiver?.full_address }, () =>
         h('span', { class: "cursor-pointer" }, truncate(receiver?.full_address, 20) || '')
-      ]),
+      ),
       h("span", { class: "mt-2" }, [
         h("span", { class: "text-highlighted font-semibold" }, miles || '0'), 
         ' Miles'
@@ -287,38 +280,40 @@ const pagination = ref({ pageIndex: 0, pageSize: 24 })
       </div>
     </div>
 
-    <UTable
-      ref="table"
-      v-model:column-filters="columnFilters"
-      v-model:column-visibility="columnVisibility"
-      v-model:row-selection="rowSelection"
-      v-model:pagination="pagination"
-      :pagination-options="{ getPaginationRowModel: getPaginationRowModel() }"
-      class="shrink-0 flex-1 overflow-auto"
-      :data="loads"
-      :columns="columns"
-      :loading="loading"
-      @select="handleRowClick"
-      :ui="{
-        base: 'table-fixed border-separate border-spacing-0',
-        thead: '[&>tr]:bg-elevated/50 [&>tr]:after:content-none',
-        tbody: '[&>tr]:last:[&>td]:border-b-0',
-        th: 'py-2 first:rounded-l-lg last:rounded-r-lg border-y border-default first:border-l last:border-r',
-        td: 'border-b border-default',
-        separator: 'h-0'
-      }" />
+    <ClientOnly>
+      <UTable
+        ref="table"
+        v-model:column-filters="columnFilters"
+        v-model:column-visibility="columnVisibility"
+        v-model:row-selection="rowSelection"
+        v-model:pagination="pagination"
+        :pagination-options="{ getPaginationRowModel: getPaginationRowModel() }"
+        class="shrink-0 flex-1 overflow-auto"
+        :data="loads"
+        :columns="columns"
+        :loading="loading"
+        @select="handleRowClick"
+        :ui="{
+          base: 'table-fixed border-separate border-spacing-0',
+          thead: '[&>tr]:bg-elevated/50 [&>tr]:after:content-none',
+          tbody: '[&>tr]:last:[&>td]:border-b-0',
+          th: 'py-2 first:rounded-l-lg last:rounded-r-lg border-y border-default first:border-l last:border-r',
+          td: 'border-b border-default',
+          separator: 'h-0'
+        }" />
 
-    <div class="flex items-center justify-between gap-3 mt-auto">
-      <div class="text-sm text-muted">
-        Selected: {{ Object.keys(rowSelection).length }} of {{ table?.tableApi?.getFilteredRowModel().rows.length || 0 }}
+      <div class="flex items-center justify-between gap-3 mt-auto">
+        <div class="text-sm text-muted">
+          Selected: {{ Object.keys(rowSelection).length }} of {{ table?.tableApi?.getFilteredRowModel().rows.length || 0 }}
+        </div>
+        <div class="flex items-center gap-1.5">
+          <UPagination
+            :default-page="(table?.tableApi?.getState().pagination.pageIndex || 0) + 1"
+            :items-per-page="table?.tableApi?.getState().pagination.pageSize"
+            :total="table?.tableApi?.getFilteredRowModel().rows.length"
+            @update:page="(p) => table?.tableApi?.setPageIndex(p - 1)" />
+        </div>
       </div>
-      <div class="flex items-center gap-1.5">
-        <UPagination
-          :default-page="(table?.tableApi?.getState().pagination.pageIndex || 0) + 1"
-          :items-per-page="table?.tableApi?.getState().pagination.pageSize"
-          :total="table?.tableApi?.getFilteredRowModel().rows.length"
-          @update:page="(p) => table?.tableApi?.setPageIndex(p - 1)" />
-      </div>
-    </div>
+    </ClientOnly>
   </div>
 </template>

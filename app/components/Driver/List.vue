@@ -1,8 +1,11 @@
 <!-- components/DriverList.vue -->
 <script setup>
+import { UAvatar, UButton, UDropdownMenu, UCheckbox, UBadge, USwitch } from '#components'
 import { getPaginationRowModel } from "@tanstack/table-core";
 const client = useStrapiClient()
 const { thumbImg, getExpiryColor } = useConfig()
+const emit = defineEmits(['edit', 'refresh'])
+const toast = useToast()
 
 const props = defineProps({
   drivers: {
@@ -15,18 +18,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['edit', 'refresh'])
-
-const UAvatar = resolveComponent("UAvatar");
-const UButton = resolveComponent("UButton");
-const UDropdownMenu = resolveComponent("UDropdownMenu");
-const UCheckbox = resolveComponent("UCheckbox");
-const UBadge = resolveComponent("UBadge");
-const USwitch = resolveComponent("USwitch");
-
-const toast = useToast()
 const table = useTemplateRef("table")
-
 const columnFilters = ref([{ id: "email", value: "" }])
 const columnVisibility = ref()
 const rowSelection = ref({})

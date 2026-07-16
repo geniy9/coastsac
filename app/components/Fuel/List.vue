@@ -1,6 +1,10 @@
 <!-- components/FuelList.vue -->
 <script setup>
+import { UButton, UBadge } from '#components'
 import { getPaginationRowModel } from "@tanstack/table-core"
+
+const emit = defineEmits(['view-card'])
+const { copyBoofer } = useConfig()
 
 const props = defineProps({
   cards: {
@@ -25,12 +29,6 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['view-card'])
-const { copyBoofer } = useConfig()
-
-const UBadge = resolveComponent("UBadge")
-const UButton = resolveComponent("UButton")
-
 const table = useTemplateRef("table")
 
 // Связываем карты с транзакциями и водителями
@@ -39,7 +37,7 @@ const calculatedCards = computed(() => {
     // Получаем атрибуты карты (на случай, если список карт тоже обернут в JSON:API)
     const cardAttrs = card.attributes || card
 
-    // 1. Поиск водителя в Strapi
+    // 1. Поиск водителя
     const matchedDriver = props.drivers.find(
       d => d.fuel_card_number && d.fuel_card_number.trim() === cardAttrs.card_number?.trim()
     )
