@@ -15,13 +15,13 @@ export function useRolePermissions() {
       canViewDrivers: ['admin', 'dispatcher', 'accounting'].includes(role),
       canCreateDrivers: ['admin', 'dispatcher', 'accounting'].includes(role),
       canEditDrivers: ['admin', 'dispatcher', 'accounting'].includes(role),
-      canDeleteDrivers: ['admin'].includes(role), // Только администратор
+      canDeleteDrivers: ['admin'].includes(role),
 
       // Access to loads management
       canViewLoads: ['admin', 'dispatcher', 'accounting', 'driver'].includes(role),
-      canCreateLoads: ['admin', 'dispatcher'].includes(role), // Бухгалтер не создает грузы
-      canEditLoads: ['admin', 'dispatcher', 'accounting'].includes(role), // Бухгалтер правит факторинг
-      canDeleteLoads: ['admin', 'dispatcher'].includes(role),
+      canCreateLoads: ['admin', 'dispatcher'].includes(role),
+      canEditLoads: ['admin', 'dispatcher', 'accounting'].includes(role),
+      canDeleteLoads: ['admin'].includes(role),
 
       // Access to fuels management
       canViewFuels: ['admin', 'accounting'].includes(role),
