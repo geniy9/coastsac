@@ -13,6 +13,7 @@ const client = useStrapiClient()
 const toast = useToast()
 const { permissions } = useRolePermissions()
 const { trailerOptions, driverTypeOptions } = useConfig()
+const { dispatcherItems } = useDispatchers()
 
 const { getCards } = useFuel()
 const manualCardEntry = ref(false)
@@ -34,6 +35,7 @@ const state = reactive({
   trailer: 'van',
   trailer_number: '',
   fuel_card_number: '',
+  assigned_dispatcher: null,
   deductions: {
     eld: 0,
     insurance: 0,
@@ -91,6 +93,7 @@ watch([cards, () => state.fuel_card_number], ([newCards, currentCard]) => {
 
 watch(() => props.driver, (newVal) => {
   if (newVal) {
+    const dispatcher = newVal.assigned_dispatcher
     Object.assign(state, {
       first_name: newVal.first_name || '',
       last_name: newVal.last_name || '',
@@ -108,6 +111,9 @@ watch(() => props.driver, (newVal) => {
       trailer: newVal.trailer || 'van',
       trailer_number: newVal.trailer_number || '',
       fuel_card_number: newVal.fuel_card_number || '',
+      assigned_dispatcher: dispatcher 
+        ? { id: dispatcher.id, label: dispatcher.name || dispatcher.username } 
+        : null,
       deductions: {
         eld: newVal.deductions?.eld || 0,
         insurance: newVal.deductions?.insurance || 0,
@@ -132,11 +138,6 @@ watch(() => props.driver, (newVal) => {
     }
   }
 }, { immediate: true })
-
-const assignedDispatcherName = computed(() => {
-  const dispatcher = props.driver?.assigned_dispatcher
-  return dispatcher ? (dispatcher.name || dispatcher.username) : 'Not assigned'
-})
 
 const onSubmit = async () => {
   if (!props.driver?.documentId) return
@@ -168,6 +169,7 @@ const onSubmit = async () => {
     const payload = {
       data: {
         ...state,
+        assigned_dispatcher: state.assigned_dispatcher?.id || null,
         extra_info: {
           ...state.extra_info,
           docs: finalDocIds
@@ -260,13 +262,21 @@ const onDelete = async () => {
           <UFormField label="Driver number" name="driver_number">
             <UInput v-model="state.driver_number" class="w-full" />
           </UFormField>
-          <UFormField label="Assigned dispatcher">
+          <UFormField label="Assigned dispatcher" name="assigned_dispatcher">
+            <USelectMenu 
+              v-model="state.assigned_dispatcher" 
+              :items="dispatcherItems" 
+              by="id"
+              placeholder="Select dispatcher"
+              class="w-full" />
+          </UFormField>
+          <!-- <UFormField label="Assigned dispatcher">
             <UInput 
               :model-value="assignedDispatcherName" 
               disabled 
               icon="i-lucide-user-cog"
               class="w-full" />
-          </UFormField>
+          </UFormField> -->
           <UFormField label="Fuel Card Number" name="fuel_card_number" class="col-span-2">
             <div class="flex gap-1.5 w-full">
               <USelect 

@@ -7,6 +7,7 @@ const client = useStrapiClient()
 const user = useStrapiUser()
 const toast = useToast()
 const { trailerOptions, driverTypeOptions } = useConfig()
+const { dispatcherItems } = useDispatchers()
 
 const { getCards } = useFuel()
 const manualCardEntry = ref(false)
@@ -28,6 +29,9 @@ const state = reactive({
   trailer: 'van',
   trailer_number: '',
   fuel_card_number: '',
+  assigned_dispatcher: user.value 
+    ? { id: user.value.id, label: user.value.name || user.value.username } 
+    : null,
   deductions: {
     eld: 0,
     insurance: 0,
@@ -89,11 +93,11 @@ const onSubmit = async () => {
     const payload = {
       data: {
         ...state,
+        assigned_dispatcher: state.assigned_dispatcher?.id || null,
         extra_info: {
           ...state.extra_info,
           docs: uploadedDocIds
-        },
-        assigned_dispatcher: user.value?.id
+        }
       }
     }
 
@@ -128,6 +132,9 @@ const onSubmit = async () => {
       trailer: 'van',
       trailer_number: '',
       fuel_card_number: '',
+      assigned_dispatcher: user.value 
+        ? { id: user.value.id, label: user.value.name || user.value.username } 
+        : null,
       deductions: { eld: 0, insurance: 0, plates: 0, ifta: 0, other_reason: '', other_cost: 0 },
       extra_info: {
         emergency_phone: '',
@@ -183,11 +190,13 @@ const onSubmit = async () => {
           <UFormField label="Driver number (driver license)" name="driver_number">
             <UInput v-model="state.driver_number" placeholder="D-123" class="w-full" />
           </UFormField>
-          <UFormField label="Assigned dispatcher">
-            <UInput 
-              :model-value="user?.name || user?.username || 'Loading...'" 
-              disabled 
-              icon="i-lucide-user-cog"
+          <UFormField label="Assigned dispatcher" name="assigned_dispatcher">
+            <USelectMenu 
+              v-model="state.assigned_dispatcher" 
+              :items="dispatcherItems" 
+              by="id"
+              label-key="label"
+              placeholder="Select dispatcher"
               class="w-full" />
           </UFormField>
           <UFormField label="Fuel Card Number" name="fuel_card_number" class="col-span-2">
