@@ -52,6 +52,14 @@ const links = computed(() => {
       onSelect: () => { open.value = false }
     })
   }
+  if (['admin', 'accounting', 'dispatcher'].includes(userRole)) {
+    items.push({
+      label: "Tasks",
+      icon: "hugeicons:task-01",
+      to: "/dashboard/tasks",
+      onSelect: () => { open.value = false }
+    })
+  }
   
   items.push({
     label: "Settings",

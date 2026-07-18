@@ -5,7 +5,11 @@ import { format } from 'date-fns'
 const props = defineProps({
   loadId: {
     type: String,
-    required: true
+    required: false
+  },
+  taskId: {
+    type: String,
+    required: false
   },
   notes: {
     type: Array,
@@ -112,10 +116,11 @@ const onSend = async () => {
     const payload = {
       data: {
         message: trimmed,
-        load: props.loadId, // Привязка к текущему грузу
         user: user.value?.id // Привязка к автору
       }
     }
+    if (props.loadId) payload.data.load = props.loadId
+    if (props.taskId) payload.data.task = props.taskId
 
     await client('/notes', {
       method: 'POST',

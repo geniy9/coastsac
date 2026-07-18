@@ -719,13 +719,13 @@ const confirmTonuDirectly = async () => {
               </div>
               <div class="mt-3 flex justify-end w-full gap-2">
                 <UButton 
-                  icon="i-lucide-external-link" 
+                  icon="hugeicons:link-square-02" 
                   label="Open in new tab" 
                   color="neutral" 
                   variant="outline"
                   @click="downloadFile(previewFile?.fullUrl)" />
                 <UButton 
-                  icon="i-lucide-download" 
+                  icon="hugeicons:cloud-download" 
                   label="Download" 
                   color="primary" 
                   @click="downloadFile(previewFile?.fullUrl)" />

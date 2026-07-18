@@ -27,7 +27,7 @@ export function useNotifications() {
       query: {
         sort: 'createdAt:desc',
         pagination: { limit: 24 },
-        populate: ['user.avatar', 'load']
+        populate: ['user.avatar', 'load', 'task']
       }
     })
   }, {

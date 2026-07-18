@@ -314,7 +314,7 @@ onBeforeUnmount(() => {
           <template #default>
             <div class="flex flex-col lg:flex-row items-center justify-between gap-4 py-2 w-full">
               <div class="flex flex-col sm:flex-row items-center gap-2">
-                <HomeDateRangePicker v-model="range" />
+                <DateRangePicker v-model="range" />
                 <div class="flex items-center gap-2">
                   <USelect 
                     v-model="selectedDriver" 

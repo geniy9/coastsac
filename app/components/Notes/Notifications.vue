@@ -56,8 +56,16 @@ watch(isNotificationsOpen, async (isOpen) => {
             </p>
 
             <!-- Ссылка-тег на связанный груз -->
-            <div class="mt-2 flex items-center gap-1 text-[11px] font-mono text-(--ui-primary)">
+            <!-- <div class="mt-2 flex items-center gap-1 text-[11px] font-mono text-(--ui-primary)">
               <span>Load #{{ note.load?.load_number || 'N/A' }}</span>
+            </div> -->
+            <div class="mt-2 flex items-center gap-1.5 text-[11px] font-mono">
+              <span v-if="note.load" class="text-(--ui-primary)">
+                Load #{{ note.load?.load_number || 'N/A' }}
+              </span>
+              <span v-else-if="note.task" class="text-amber-500">
+                Task: {{ note.task?.subject || 'N/A' }}
+              </span>
             </div>
           </div>
         </NuxtLink>

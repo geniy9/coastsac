@@ -1,5 +1,6 @@
 <!-- components/UserList.vue -->
 <script setup>
+import { UButton, UDropdownMenu, UCheckbox, UBadge, UAvatar, USelect, USwitch, UIcon } from '#components'
 import { getPaginationRowModel } from "@tanstack/table-core";
 const { getAvatar } = useConfig()
 
@@ -15,15 +16,6 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['refresh'])
-
-const UAvatar = resolveComponent("UAvatar");
-const UButton = resolveComponent("UButton");
-const UCheckbox = resolveComponent("UCheckbox");
-const UBadge = resolveComponent("UBadge");
-const USelect = resolveComponent("USelect");
-const USwitch = resolveComponent("USwitch");
-const UDropdownMenu = resolveComponent("UDropdownMenu");
-
 const toast = useToast()
 const client = useStrapiClient()
 const currentUser = useStrapiUser()
