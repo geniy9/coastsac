@@ -100,6 +100,16 @@ export default defineNuxtConfig({
         '@vue/devtools-kit',
         'zod',
       ]
+    },
+    build: {
+      rollupOptions: {
+        maxParallelFileOps: 2,
+      }
     }
+  },
+  
+  sourcemap: {
+    server: false,
+    client: false,
   }
 })
