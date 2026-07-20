@@ -42,7 +42,7 @@ const handleRefresh = async () => {
 const getTaskStatusColor = (status) => {
   switch (status) {
     case 'draft': return 'neutral'
-    case 'created': return 'info'
+    case 'created': return 'warning'
     case 'done': return 'success'
     default: return 'neutral'
   }
@@ -89,7 +89,8 @@ const getTaskStatusColor = (status) => {
                 v-for="task in filteredTasks" 
                 :key="task.id" 
                 class="cursor-pointer flex flex-col justify-between"
-                @click="navigateTo(`/dashboard/tasks/${task.documentId}`)">
+                @click="navigateTo(`/dashboard/tasks/${task.documentId}`)"
+                variant="soft">
                 
                 <template #header>
                   <div class="flex justify-between items-start gap-2">
@@ -120,37 +121,38 @@ const getTaskStatusColor = (status) => {
                 </div>
 
                 <template #footer>
-                  <div class="flex items-center justify-between text-[11px] text-gray-500 font-mono">
-                    <div class="flex flex-col items-center gap-1">
-                      <span class="text-xs text-gray-500">
-                        Creator:
-                      </span>
-                      <UTooltip v-if="task.creator" :text="task.creator?.name || task.creator?.username">
-                        <UAvatar 
-                          :src="task.creator.avatar ? thumbImg(task.creator.avatar) : ''"
-                          :alt="task.creator.name || task.creator.username" 
-                          size="sm" />
-                      </UTooltip>
-                      <span v-else class="text-[10px] text-gray-500 italic">
-                        Unassigned
-                      </span>
+                  <div class="flex flex-col items-center gap-1 w-full">
+                    <div class="w-full flex items-center justify-between text-[11px] text-gray-500 font-mono">  
+                      <span>Creator</span>
+                      <span>Assigned To</span>
                     </div>
-                    <div class="flex flex-col items-center gap-1">
-                      <span class="text-xs text-gray-500">
-                        Assigned To:
-                      </span>
-                      <UAvatarGroup v-if="task.executors?.length" :max="2">
-                        <UTooltip v-for="u in task.executors" :key="u.id" :text="u.name || u.username">
+
+                    <div class="w-full flex items-center justify-between gap-2 text-gray-500 font-mono text-[10px]">
+                      <div class="flex flex-col items-center gap-1">
+                        <UTooltip v-if="task.creator" :text="task.creator?.name || task.creator?.username">
                           <UAvatar 
-                            :src="u.avatar ? thumbImg(u.avatar) : ''"
-                            :alt="u.name || u.username" 
-                            size="sm" loading="lazy" />
+                            :src="task.creator.avatar ? thumbImg(task.creator.avatar) : ''"
+                            :alt="task.creator.name || task.creator.username" 
+                            size="sm" />
                         </UTooltip>
-                      </UAvatarGroup>
-                      <span v-else class="text-[10px] text-gray-500 italic">
-                        Unassigned
-                      </span>
+                        <span v-else class="italic">Unassigned</span>
+                      </div>
+
+                      <span class="dark:bg-gray-600 bg-gray-400 h-0.5 w-full"></span>
+
+                      <div class="flex flex-col items-center gap-1">
+                        <UAvatarGroup v-if="task.executors?.length" :max="2" size="sm">
+                          <UTooltip v-for="u in task.executors" :key="u.id" :text="u.name || u.username">
+                            <UAvatar 
+                              :src="u.avatar ? thumbImg(u.avatar) : ''"
+                              :alt="u.name || u.username" 
+                              loading="lazy" />
+                          </UTooltip>
+                        </UAvatarGroup>
+                        <span v-else class="italic">Unassigned</span>
+                      </div>
                     </div>
+
                   </div>
                 </template>
               </UCard>
