@@ -139,13 +139,21 @@ watch(() => props.driver, (newVal) => {
   }
 }, { immediate: true })
 
+const clearOtherDeduction = () => {
+  state.deductions.other_reason = ''
+  state.deductions.other_cost = 0
+}
+
 const onSubmit = async () => {
   if (!props.driver?.documentId) return
 
-  // Проверка взаимозависимости полей "Other deduction"
-  const otherReason = state.deductions.other_reason?.trim()
-  const otherCost = Number(state.deductions.other_cost) || 0
+  // Приведение пустых полей к 0 или корректному значению перед валидацией
+  const otherReason = state.deductions.other_reason?.trim() || ''
+  const otherCost = state.deductions.other_cost === '' || state.deductions.other_cost === null 
+    ? 0 
+    : Number(state.deductions.other_cost)
 
+  // Проверка взаимозависимости полей "Other deduction"
   if ((otherReason && otherCost <= 0) || (!otherReason && otherCost > 0)) {
     toast.add({
       title: 'Validation Error',
@@ -166,9 +174,20 @@ const onSubmit = async () => {
       ...newUploadedDocIds
     ]
 
+    // Санитизация всех числовых полей deductions перед отправкой в Strapi
+    const sanitizedDeductions = {
+      eld: state.deductions.eld === '' || state.deductions.eld === null ? 0 : Number(state.deductions.eld),
+      insurance: state.deductions.insurance === '' || state.deductions.insurance === null ? 0 : Number(state.deductions.insurance),
+      plates: state.deductions.plates === '' || state.deductions.plates === null ? 0 : Number(state.deductions.plates),
+      ifta: state.deductions.ifta === '' || state.deductions.ifta === null ? 0 : Number(state.deductions.ifta),
+      other_reason: otherReason,
+      other_cost: otherCost
+    }
+
     const payload = {
       data: {
         ...state,
+        deductions: sanitizedDeductions, // Перезаписываем очищенными значениями
         assigned_dispatcher: state.assigned_dispatcher?.id || null,
         extra_info: {
           ...state.extra_info,
@@ -419,7 +438,7 @@ const onDelete = async () => {
           <!-- Дополнительный вычет -->
           <UCollapsible class="col-span-2 flex flex-col gap-2">
             <UButton
-              label="Other deduction"
+              :label="`Other deduction ${state.deductions.other_reason ? ' ['+ state.deductions.other_reason +']' : ''}`"
               color="neutral"
               variant="subtle"
               trailing-icon="i-lucide-chevron-down"
@@ -435,6 +454,16 @@ const onDelete = async () => {
                     <template #trailing><div class="input_trailing">$</div></template>
                   </UInput>
                 </UFormField>
+                <div v-if="state.deductions.other_reason || state.deductions.other_cost" class="col-span-2 flex justify-end">
+                  <UButton 
+                    label="Clear Other Deduction" 
+                    color="error" 
+                    variant="ghost" 
+                    size="xs" 
+                    icon="hugeicons:delete-02"
+                    type="button" 
+                    @click="clearOtherDeduction" />
+                </div>
               </div>
             </template>
           </UCollapsible>
