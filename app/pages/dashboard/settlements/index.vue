@@ -163,8 +163,6 @@ const handleDeleteSettlement = async (documentId) => {
   try {
     await client(`/settlements/${documentId}`, { method: 'DELETE' })
     toast.add({ title: 'Settlement deleted successfully', color: 'success' })
-    
-    // Сбрасываем выборку, чтобы избежать несоответствия индексов
     rowSelection.value = {}
     refresh()
   } catch (error) {
@@ -251,7 +249,8 @@ const columns = [{
   id: "fuel",
   header: () => h("div", { class: "text-right" }, "Fuel Expense"),
   cell: ({ row }) => {
-    return h("div", { class: "text-right font-mono text-red-500" }, `$${row.original.total_fuel || 0}`)
+    const fuel = row.original.total_fuel || 0
+    return h("div", { class: "text-right font-mono text-red-500" }, `$ ${fuel > 0 ? '-' : ''}${fuel}`)
   }
 },{
   id: "net_payout",

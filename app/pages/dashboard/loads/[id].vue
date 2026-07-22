@@ -619,7 +619,7 @@ const confirmTonuDirectly = async () => {
                 <!-- Driver -->
                 <UCard variant="soft" title="Driver & Transport" class="print-card">
                   <div v-if="load.driver" class="flex flex-col gap-4">
-                    <div class="flex items-center gap-3">
+                    <ULink :to="`/dashboard/drivers/${load.driver.documentId}`" class="flex items-center gap-3">
                       <UAvatar 
                         v-if="thumbImg(load.driver?.user_account?.avatar)"
                         :src="thumbImg(load.driver?.user_account?.avatar)" 
@@ -634,7 +634,7 @@ const confirmTonuDirectly = async () => {
                           {{ load.driver.email || 'No email' }}
                         </p>
                       </div>
-                    </div>
+                    </ULink>
                     <div class="space-y-2 text-xs font-mono">
                       <div class="flex justify-between items-center">
                         <span class="text-gray-500">Truck Number</span>

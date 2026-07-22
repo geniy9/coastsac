@@ -115,11 +115,11 @@ const formatTime = (dateString) => {
                         {{ task.subject }}
                       </span>
                     </UTooltip>
-                    <UFieldGroup>
-                      <UBadge :color="getTaskStatusColor(task.status_task)" size="sm">
+                    <UFieldGroup size="sm">
+                      <UBadge :color="getTaskStatusColor(task.status_task)">
                         {{ formatDate(task.createdAt) }}
                       </UBadge>
-                      <UBadge :color="getTaskStatusColor(task.status_task)" variant="soft" size="sm">
+                      <UBadge :color="getTaskStatusColor(task.status_task)" variant="soft">
                         {{ formatTime(task.createdAt) }}
                       </UBadge>
                     </UFieldGroup>

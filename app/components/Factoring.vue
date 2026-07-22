@@ -15,7 +15,7 @@ const user = useStrapiUser()
 
 const state = reactive({
   emails: ['sfd@audit.triumphpay.com'],
-  ccEmails: ['nurjemal@lightdispatch.com'],
+  ccEmails: ['nurjemal@lightdispatch.com', 'sacramento.c2c@gmail.com'],
   subject: 'Coast to Coast Inc. / ACH',
   message: ''
 })

@@ -5,13 +5,18 @@ import { formatTimeAgo } from '@vueuse/core'
 const { isNotificationsOpen, notes, loading, markAllAsRead, refresh } = useNotifications()
 const { getAvatar } = useConfig()
 
-// При открытии слайдовера актуализируем данные и сбрасываем статус "непрочитано"
 watch(isNotificationsOpen, async (isOpen) => {
   if (isOpen) {
     await refresh()
     markAllAsRead()
   }
 })
+
+const linkToEntity = (uri) => {
+  if (uri?.load) return `/dashboard/loads/${uri.load?.documentId}`
+  if (uri?.task) return `/dashboard/tasks/${uri.task?.documentId}`
+  return
+}
 </script>
 <template>
   <USlideover v-model:open="isNotificationsOpen" title="Recent Comments & Notes">
@@ -32,7 +37,7 @@ watch(isNotificationsOpen, async (isOpen) => {
         <NuxtLink
           v-for="note in notes"
           :key="note.documentId || note.id"
-          :to="`/dashboard/loads/${note.load?.documentId}`"
+          :to="linkToEntity(note)"
           class="px-3 py-3 rounded-md hover:bg-elevated/50 flex items-start gap-3 transition -mx-3 first:-mt-3 last:-mb-3 border-b border-default/30 last:border-0">
           <UAvatar
             v-bind="getAvatar(note.user?.avatar, note.user?.name || note.user?.username)"
@@ -55,15 +60,11 @@ watch(isNotificationsOpen, async (isOpen) => {
               {{ note.message }}
             </p>
 
-            <!-- Ссылка-тег на связанный груз -->
-            <!-- <div class="mt-2 flex items-center gap-1 text-[11px] font-mono text-(--ui-primary)">
-              <span>Load #{{ note.load?.load_number || 'N/A' }}</span>
-            </div> -->
-            <div class="mt-2 flex items-center gap-1.5 text-[11px] font-mono">
-              <span v-if="note.load" class="text-(--ui-primary)">
+            <div class="mt-2 flex items-center gap-1.5 text-[11px] font-mono text-(--ui-primary)">
+              <span v-if="note.load">
                 Load #{{ note.load?.load_number || 'N/A' }}
               </span>
-              <span v-else-if="note.task" class="text-amber-500">
+              <span v-else-if="note.task">
                 Task: {{ note.task?.subject || 'N/A' }}
               </span>
             </div>

@@ -307,12 +307,12 @@ const handleFileClick = (file) => {
                       <h2 class="text-md font-semibold text-highlighted">
                         Recent Completed Loads
                       </h2>
-                      <UButton 
+                      <!-- <UButton 
                         :to="`/dashboard/loads?driver=${driver.documentId}`" 
                         size="sm" 
                         variant="soft" 
                         trailing-icon="hugeicons:link-square-02"
-                        label="Open full ledger" />
+                        label="Open full ledger" /> -->
                     </div>
                   </template>
                   <DriverLoads 
