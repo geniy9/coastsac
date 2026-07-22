@@ -1,6 +1,6 @@
 <!-- components/FuelList.vue -->
 <script setup>
-import { UButton, UBadge } from '#components'
+import { UButton, UBadge, UFieldGroup } from '#components'
 import { getPaginationRowModel } from "@tanstack/table-core"
 
 const emit = defineEmits(['view-card'])
@@ -22,10 +22,6 @@ const props = defineProps({
   loading: {
     type: Boolean,
     default: false
-  },
-  dateRange: {
-    type: String,
-    default: 'this_week'
   }
 })
 
@@ -34,7 +30,7 @@ const table = useTemplateRef("table")
 // Связываем карты с транзакциями и водителями
 const calculatedCards = computed(() => {
   return props.cards.map(card => {
-    // Получаем атрибуты карты (на случай, если список карт тоже обернут в JSON:API)
+    // Получаем атрибуты карты
     const cardAttrs = card.attributes || card
 
     // 1. Поиск водителя
@@ -77,20 +73,16 @@ const columns = [{
     const status = row.original.status || 'Inactive'
     const isSuccess = status === 'Active'
     return h("div", { class: "flex flex-col items-start gap-0.5" }, [
-
-      h(UButton, {
-        icon: "hugeicons:credit-card",
-        color: "neutral",
-        variant: "outline",
-        size: "sm",
-        onClick: () => copyBoofer(cardNum)
-      }, () => cardNum),
-
-      h("div", undefined, [
-        h(UBadge, { 
+      h(UFieldGroup, { size: 'sm' }, [
+        h(UButton, {
+          icon: "hugeicons:credit-card",
+          color: "neutral",
+          variant: "outline",
+          onClick: () => copyBoofer(cardNum)
+        }, () => cardNum),
+        h(UButton, { 
           color: isSuccess ? 'success' : 'neutral', 
-          variant: 'soft', 
-          size: 'sm' 
+          variant: isSuccess ? 'solid' : 'soft',  
         }, () => status)
       ])
     ])
@@ -159,12 +151,11 @@ const cardSearchFilter = computed({
     table.value?.tableApi?.getColumn("card_number")?.setFilterValue(value || undefined)
   }
 })
-
 const columnFilters = ref([{ id: "card_number", value: "" }])
 const pagination = ref({ pageIndex: 0, pageSize: 15 })
 </script>
 <template>
-  <div class="flex flex-col space-y-4">
+  <div class="flex flex-col gap-4">
     <div class="flex items-center justify-between">
       <UInput
         v-model="cardSearchFilter"
@@ -195,7 +186,7 @@ const pagination = ref({ pageIndex: 0, pageSize: 15 })
       <div class="text-sm text-muted">
         Total cards: {{ calculatedCards.length }}
       </div>
-      <UPagination
+      <UPagination size="sm"
         :default-page="(table?.tableApi?.getState().pagination.pageIndex || 0) + 1"
         :items-per-page="table?.tableApi?.getState().pagination.pageSize"
         :total="table?.tableApi?.getFilteredRowModel().rows.length"

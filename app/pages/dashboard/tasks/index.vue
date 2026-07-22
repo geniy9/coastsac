@@ -100,7 +100,7 @@ const formatTime = (dateString) => {
 
           <!-- TASKS -->
           <div v-else class="flex-1">
-            <UPageGrid>
+            <UPageGrid :ui="{ base: 'gap-6 mb-6' }" >
               <UCard 
                 v-for="task in filteredTasks" 
                 :key="task.id" 

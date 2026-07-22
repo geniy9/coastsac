@@ -1,3 +1,4 @@
+<!-- components/DateRangePicker.vue -->
 <script setup>
 import {
   DateFormatter,
@@ -6,12 +7,38 @@ import {
   today,
 } from "@internationalized/date";
 
+const props = defineProps({
+  maxDaysLimit: {
+    type: Number,
+    default: null,
+  },
+});
+
+const isOpen = ref(false);
+
+// Вычисляем минимальную доступную дату
+const minCalendarDate = computed(() => {
+  if (!props.maxDaysLimit) return undefined;
+  return today(getLocalTimeZone()).subtract({ days: props.maxDaysLimit });
+});
+// Ограничиваем выбор будущих дат сегодняшним днем
+const maxCalendarDate = computed(() => today(getLocalTimeZone()));
+const filteredRanges = computed(() => {
+  if (!props.maxDaysLimit) return ranges;
+  return ranges.filter((range) => {
+    let rangeDays = 0;
+    if (range.days) rangeDays = range.days;
+    else if (range.months) rangeDays = range.months * 30;
+    else if (range.years) rangeDays = range.years * 365;
+    return rangeDays <= props.maxDaysLimit;
+  });
+});
+
 const df = new DateFormatter("en-US", {
   dateStyle: "medium",
 });
 
 const selected = defineModel({ required: true });
-
 const ranges = [
   { label: "Last 7 days", days: 7 },
   { label: "Last 14 days", days: 14 },
@@ -29,23 +56,6 @@ const toCalendarDate = (date) => {
   );
 };
 
-// const calendarRange = computed({
-//   get: () => ({
-//     start: selected.value.start
-//       ? toCalendarDate(selected.value.start)
-//       : undefined,
-//     end: selected.value.end ? toCalendarDate(selected.value.end) : undefined,
-//   }),
-//   set: (newValue) => {
-//     selected.value = {
-//       start: newValue.start
-//         ? newValue.start.toDate(getLocalTimeZone())
-//         : new Date(),
-//       end: newValue.end ? newValue.end.toDate(getLocalTimeZone()) : new Date(),
-//     };
-//   },
-// });
-
 const calendarRange = computed({
   get: () => ({
     start: selected.value?.start
@@ -56,7 +66,6 @@ const calendarRange = computed({
       : undefined,
   }),
   set: (newValue) => {
-    // Сохраняем undefined, если дата еще не выбрана (вместо принудительного "new Date()")
     selected.value = {
       start: newValue?.start 
         ? newValue.start.toDate(getLocalTimeZone()) 
@@ -65,6 +74,9 @@ const calendarRange = computed({
         ? newValue.end.toDate(getLocalTimeZone()) 
         : undefined,
     };
+    if (newValue?.start && newValue?.end) {
+      isOpen.value = false;
+    }
   },
 });
 
@@ -102,16 +114,15 @@ const selectRange = (range) => {
   } else if (range.years) {
     startDate = startDate.subtract({ years: range.years });
   }
-
   selected.value = {
     start: startDate.toDate(getLocalTimeZone()),
     end: endDate.toDate(getLocalTimeZone()),
   };
+  isOpen.value = false;
 };
 </script>
-
 <template>
-  <UPopover :content="{ align: 'start' }" :modal="true">
+  <UPopover v-model:open="isOpen" :content="{ align: 'start' }" :modal="true">
     <UButton
       color="neutral"
       variant="ghost"
@@ -133,8 +144,7 @@ const selectRange = (range) => {
       <template #trailing>
         <UIcon
           name="i-lucide-chevron-down"
-          class="shrink-0 text-dimmed size-5 group-data-[state=open]:rotate-180 transition-transform duration-200"
-        />
+          class="shrink-0 text-dimmed size-5 group-data-[state=open]:rotate-180 transition-transform duration-200" />
       </template>
     </UButton>
 
@@ -142,7 +152,7 @@ const selectRange = (range) => {
       <div class="flex items-stretch sm:divide-x divide-default">
         <div class="hidden sm:flex flex-col justify-center">
           <UButton
-            v-for="(range, index) in ranges"
+            v-for="(range, index) in filteredRanges"
             :key="index"
             :label="range.label"
             color="neutral"
@@ -152,16 +162,16 @@ const selectRange = (range) => {
               isRangeSelected(range) ? 'bg-elevated' : 'hover:bg-elevated/50',
             ]"
             truncate
-            @click="selectRange(range)"
-          />
+            @click="selectRange(range)" />
         </div>
 
         <UCalendar
           v-model="calendarRange"
           class="p-2"
           :number-of-months="2"
-          range
-        />
+          :min-value="minCalendarDate"
+          :max-value="maxCalendarDate"
+          range />
       </div>
     </template>
   </UPopover>

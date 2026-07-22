@@ -10,54 +10,41 @@ const { getCards, getProcessedTransactions } = useFuel()
 
 const isDetailsOpen = ref(false)
 const selectedCard = ref(null)
-const dateRange = ref('this_week')
 
-const dateRangeOptions = [
-  { value: 'this_week', label: 'This Week' },
-  { value: 'last_week', label: 'Last Week' },
-  { value: 'last_30', label: 'Last 30 Days' },
-  { value: 'all', label: 'All Time (Max 90 days)' }
-]
+const getThisMonday = () => {
+  const now = new Date();
+  const day = now.getDay();
+  const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+  const monday = new Date(now.setDate(diff));
+  monday.setHours(0, 0, 0, 0);
+  return monday;
+};
+const dateRange = ref({
+  start: getThisMonday(),
+  end: new Date(),
+});
 
-// Функция генерации точных параметров даты для API
+const df = new Intl.DateTimeFormat("en-US", { dateStyle: "medium" });
+const dateRangeLabel = computed(() => {
+  if (!dateRange.value?.start) return "";
+  if (!dateRange.value?.end) return df.format(dateRange.value.start);
+  return `${df.format(dateRange.value.start)} - ${df.format(dateRange.value.end)}`;
+});
+
 const getApiDateParams = (range) => {
-  const now = new Date()
-  
-  let startDate
-  let endDate = new Date() // Сегодня
-  
-  if (range === 'this_week') {
-    const day = now.getDay()
-    const diff = now.getDate() - day + (day === 0 ? -6 : 1) // Понедельник текущей недели
-    startDate = new Date(now.setDate(diff))
-  } else if (range === 'last_week') {
-    const day = now.getDay()
-    const diffToThisMonday = now.getDate() - day + (day === 0 ? -6 : 1)
-    startDate = new Date()
-    startDate.setDate(diffToThisMonday - 7) // Понедельник прошлой недели
-    
-    endDate = new Date(startDate)
-    endDate.setDate(endDate.getDate() + 6) // Воскресенье прошлой недели
-  } else if (range === 'last_30') {
-    startDate = new Date()
-    startDate.setDate(now.getDate() - 30)
-  } else {
-    // Для "All Time" ставим ограничение в 90 дней согласно документации API
-    startDate = new Date()
-    startDate.setDate(now.getDate() - 90)
-  }
-  
-  // Устанавливаем начало дня для стартовой даты и конец дня для конечной
-  startDate.setUTCHours(0, 0, 0, 0)
-  endDate.setUTCHours(23, 59, 59, 999)
-  
+  if (!range?.start || !range?.end) return {};
+
+  const startDate = new Date(range.start);
+  const endDate = new Date(range.end);
+  startDate.setUTCHours(0, 0, 0, 0);
+  endDate.setUTCHours(23, 59, 59, 999);
+
   return {
     start_timestamp: startDate.toISOString(),
-    end_timestamp: endDate.toISOString()
-  }
-}
+    end_timestamp: endDate.toISOString(),
+  };
+};
 
-// Загружаем список водителей из Strapi
 const { data: driversResponse } = await useAsyncData('drivers-simple', () => 
   client('/drivers', {
     query: {
@@ -79,16 +66,15 @@ const { data: cardsResponse, status: cardsStatus } = await useAsyncData('fuel-ca
 })
 const cards = computed(() => cardsResponse.value || [])
 
-// Загружаем транзакции динамически на основе вычисленных меток времени
+// Загружаем транзакции динамически на основе меток времени
 const { data: transactionsResponse, status: txsStatus, refresh: refreshTxs } = await useAsyncData(
   'fuel-transactions',
   () => {
     const params = getApiDateParams(dateRange.value)
     return getProcessedTransactions(params)
-  },
-  {
-    watch: [dateRange], // Срабатывает автоматически при изменении выбранного диапазона
-    default: () => ({ data: [] }) // Корректная обработка структуры { data: [...] }
+  },{
+    watch: [dateRange],
+    default: () => ({ data: [] })
   }
 )
 
@@ -115,9 +101,7 @@ const handleViewCard = (card) => {
   isDetailsOpen.value = true
 }
 
-const handleRefresh = async () => {
-  await refreshTxs()
-}
+const handleRefresh = async () => { await refreshTxs() }
 </script>
 <template>
   <div class="dashboard_main">
@@ -128,17 +112,20 @@ const handleRefresh = async () => {
             <UDashboardSidebarCollapse />
           </template>
           <template #right>
-            <div v-if="permissions.canViewFuels" class="flex items-center gap-2">
-              <USelect v-model="dateRange" :items="dateRangeOptions" class="w-48" />
-              <UButton 
-                icon="hugeicons:reload" 
-                variant="ghost" 
-                color="neutral" 
-                :loading="txsStatus === 'pending' || cardsStatus === 'pending'"
-                @click="handleRefresh" />
-            </div>
+            <UButton v-if="permissions.canViewFuels"
+              icon="hugeicons:reload" 
+              variant="soft" 
+              color="neutral" 
+              :loading="txsStatus === 'pending' || cardsStatus === 'pending'"
+              @click="handleRefresh" />
           </template>
         </UDashboardNavbar>
+
+        <UDashboardToolbar v-if="permissions.canViewStats">
+          <template #left>
+            <DateRangePicker v-model="dateRange" :max-days-limit="90" />
+          </template>
+        </UDashboardToolbar>
       </template>
 
       <template #body>
@@ -149,7 +136,7 @@ const handleRefresh = async () => {
             :active-cards-count="cards.filter(c => c.attributes?.status === 'Active' || c.status === 'Active').length"
             :total-cards-count="cards.length"
             :linked-drivers-count="drivers.filter(d => d.fuel_card_number).length"
-            :date-range-label="dateRangeOptions.find(o => o.value === dateRange)?.label" />
+            :date-range-label="dateRangeLabel" />
 
           <!-- CARDS -->
           <FuelList 
