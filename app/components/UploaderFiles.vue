@@ -12,7 +12,7 @@ const props = defineProps({
   },
   description: {
     type: String,
-    default: 'PDF, JPG, PNG format (max. 5MB)'
+    default: 'PDF, JPG, PNG format (max. 20MB)'
   },
   required: {
     type: Boolean,
@@ -20,13 +20,13 @@ const props = defineProps({
   },
   maxFiles: {
     type: Number,
-    default: 10
+    default: 20
   }
 })
 
 const emit = defineEmits(['change'])
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
+const MAX_FILE_SIZE = 20 * 1024 * 1024 // 20MB
 const ACCEPTED_MIMES = ['image/jpeg', 'image/png', 'application/pdf']
 const ACCEPTED_EXT = /\.(jpe?g|png|pdf)$/i
 
@@ -37,7 +37,7 @@ const schema = computed(() => {
         if (file.size > MAX_FILE_SIZE) {
           ctx.addIssue({
             code: 'custom',
-            message: `File "${file.name}" is too large (max. 5MB)`
+            message: `File "${file.name}" is too large (max. 20MB)`
           })
         }
         const isValidMime = ACCEPTED_MIMES.includes(file.type)
