@@ -239,7 +239,11 @@ export default defineAppConfig({
           }
         }
       },
-    }
+    },
+
+    pageGrid: {
+      base: 'gap-6 mb-6'
+    },
 
   }
 })

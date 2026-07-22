@@ -47,6 +47,22 @@ const getTaskStatusColor = (status) => {
     default: return 'neutral'
   }
 }
+const formatDate = (dateString) => {
+  if (!dateString) return '';
+  return new Date(dateString).toLocaleDateString(undefined, {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
+}
+const formatTime = (dateString) => {
+  if (!dateString) return '';
+  return new Date(dateString).toLocaleTimeString(undefined, {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  });
+}
 </script>
 <template>
   <div class="dashboard_main">
@@ -94,13 +110,19 @@ const getTaskStatusColor = (status) => {
                 
                 <template #header>
                   <div class="flex justify-between items-start gap-2">
-                    <span class="font-bold text-highlighted text-sm line-clamp-1">
-                      {{ task.subject }}
-                    </span>
-                    <UBadge :color="getTaskStatusColor(task.status_task)" size="sm">
-                      <!-- {{ task.status_task }} -->
-                      {{ new Date(task.createdAt).toLocaleDateString() }}
-                    </UBadge>
+                    <UTooltip :text="task.subject">
+                      <span class="font-bold text-highlighted text-sm line-clamp-1">
+                        {{ task.subject }}
+                      </span>
+                    </UTooltip>
+                    <UFieldGroup>
+                      <UBadge :color="getTaskStatusColor(task.status_task)" size="sm">
+                        {{ formatDate(task.createdAt) }}
+                      </UBadge>
+                      <UBadge :color="getTaskStatusColor(task.status_task)" variant="soft" size="sm">
+                        {{ formatTime(task.createdAt) }}
+                      </UBadge>
+                    </UFieldGroup>
                   </div>
                 </template>
 
