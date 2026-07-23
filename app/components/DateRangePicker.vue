@@ -127,8 +127,7 @@ const selectRange = (range) => {
       color="neutral"
       variant="ghost"
       icon="hugeicons:calendar-03"
-      class="data-[state=open]:bg-elevated group"
-    >
+      class="data-[state=open]:bg-elevated group">
       <span class="truncate">
         <template v-if="selected.start">
           <template v-if="selected.end">
@@ -138,7 +137,7 @@ const selectRange = (range) => {
             {{ df.format(selected.start) }}
           </template>
         </template>
-        <template v-else> Pick a date </template>
+        <template v-else>Pick a date</template>
       </span>
 
       <template #trailing>
@@ -158,11 +157,9 @@ const selectRange = (range) => {
             color="neutral"
             variant="ghost"
             class="rounded-none px-4"
-            :class="[
-              isRangeSelected(range) ? 'bg-elevated' : 'hover:bg-elevated/50',
-            ]"
-            truncate
-            @click="selectRange(range)" />
+            :class="[isRangeSelected(range) ? 'bg-elevated' : 'hover:bg-elevated/50']"
+            @click="selectRange(range)" 
+            truncate />
         </div>
 
         <UCalendar

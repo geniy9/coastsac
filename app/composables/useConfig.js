@@ -19,6 +19,22 @@ export default () => {
   const getMime = (file) => {
     return (file.ext ? file.ext.replace(/^\./, '') : 'file').toUpperCase()
   }
+  const formatDate = (dateString) => {
+    if (!dateString) return ''
+    return new Date(dateString).toLocaleDateString(undefined, {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    })
+  }
+  const formatTime = (dateString) => {
+    if (!dateString) return ''
+    return new Date(dateString).toLocaleTimeString(undefined, {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    })
+  }
   const getStatusColor = (status) => {
     switch (status) {
       case 'not_started': return 'neutral'
@@ -27,6 +43,9 @@ export default () => {
       case 'unloaded': return 'success'
       case 'cancelled': return 'error'
       case 'tonu': return 'error'
+      case 'draft': return 'neutral'
+      case 'created': return 'warning'
+      case 'done': return 'success'
       default: return 'neutral'
     }
   }
@@ -83,6 +102,8 @@ export default () => {
     getPayableAmount,
     getAvatar,
     getMime,
+    formatDate,
+    formatTime,
     getStatusColor,
     getExpiryColor,
     isImageFile,

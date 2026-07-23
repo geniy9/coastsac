@@ -21,7 +21,8 @@ const { data: response, status, refresh } = await useAsyncData('drivers', () =>
         'user_account.avatar',
         'extra_info.docs'
       ],
-      pagination: { limit: limit.value }
+      pagination: { limit: limit.value },
+      sort: ['createdAt:desc']
     }
   }), {
     lazy: true,

@@ -1,5 +1,6 @@
 <!-- pages/dashboard/settlements/index.vue -->
 <script setup>
+import { UButton, UDropdownMenu, UCheckbox, UBadge } from '#components'
 import { getPaginationRowModel } from "@tanstack/table-core"
 import { sub, format, differenceInCalendarDays } from "date-fns"
 
@@ -8,19 +9,21 @@ definePageMeta({ layout: 'dashboard' })
 const { permissions } = useRolePermissions()
 const client = useStrapiClient()
 const toast = useToast()
+const router = useRouter()
 
 const selectedDriver = ref(null)
 const range = shallowRef({
   start: sub(new Date(), { days: 7 }),
   end: new Date(),
 })
-
 const isCreating = ref(false)
 const bulkInterval = ref(10)
 const isDeleting = ref(false)
-const router = useRouter()
-
+const table = useTemplateRef("table")
+const rowSelection = ref({})
 const limit = ref(25)
+const pagination = ref({ pageIndex: 0, pageSize: 25 })
+const activeJob = ref(null)
 
 // Списки
 const { data: driversResponse } = await useAsyncData('drivers-simple-list', () => 
@@ -45,9 +48,6 @@ const { data: settlementsResponse, refresh } = await useAsyncData('settlements-l
   }
 )
 const settlements = computed(() => settlementsResponse.value?.data || [])
-
-// Логика фоновой джобы
-const activeJob = ref(null)
 const jobProgress = computed(() => {
   if (!activeJob.value) return 0
   return Math.round((activeJob.value.processed_items / activeJob.value.total_items) * 100)
@@ -86,7 +86,6 @@ const handleCreateSettlement = async () => {
     const calc = await client('/settlements/calculate', {
       query: { driverId: selectedDriver.value, startDate: formattedStart, endDate: formattedEnd }
     })
-
     const payload = {
       data: {
         start_date: formattedStart,
@@ -101,7 +100,6 @@ const handleCreateSettlement = async () => {
         status_settlement: 'draft'
       }
     }
-
     await client('/settlements', { method: 'POST', body: payload })
     toast.add({ title: 'Draft Settlement Saved', color: 'success' })
     refresh()
@@ -117,14 +115,6 @@ const isCalculateDisabled = computed(() => {
   if (!range.value?.start || !range.value?.end) return true
   const daysDifference = differenceInCalendarDays(range.value.end, range.value.start)
   return daysDifference <= 0
-})
-
-const table = useTemplateRef("table")
-const rowSelection = ref({})
-const pagination = ref({ pageIndex: 0, pageSize: limit.value })
-watch(limit, (newVal) => {
-  pagination.value.pageSize = newVal
-  pagination.value.pageIndex = 0
 })
 
 const selectedIds = computed(() => {
@@ -178,11 +168,6 @@ const handleRowClick = (event, row) => {
     router.push(`/dashboard/settlements/${documentId}`)
   }
 }
-
-const UButton = resolveComponent("UButton")
-const UDropdownMenu = resolveComponent("UDropdownMenu")
-const UCheckbox = resolveComponent("UCheckbox")
-const UBadge = resolveComponent("UBadge")
 
 const columns = [{
   id: "select",
@@ -331,8 +316,7 @@ onBeforeUnmount(() => {
               <UFieldGroup v-show="selectedIds.length > 0">
                 <UBadge label="Interval" variant="soft" />
                 <UInput v-model="bulkInterval" type="number" class="w-20" placeholder="delay" :ui="{
-                    base: 'pr-8',
-                    trailing: 'pointer-events-none'
+                    base: 'pr-8', trailing: 'pointer-events-none'
                   }">
                   <template #trailing><p class="text-sm text-muted">sec</p></template>
                 </UInput>
@@ -363,7 +347,7 @@ onBeforeUnmount(() => {
             <UProgress v-model="jobProgress" color="primary" />
           </div>
 
-          <!-- LIST OF SETTLEMENTS -->
+          <!-- SETTLEMENTS -->
           <div class="flex-1 flex flex-col min-h-0 space-y-4">
             <UTable
               ref="table"
@@ -382,23 +366,11 @@ onBeforeUnmount(() => {
                 td: 'border-b border-default',
                 separator: 'h-0'
               }" />
-
-            <div class="flex items-center justify-between gap-3 mt-auto">
-              <div class="flex items-center gap-4 text-sm text-muted">
-                <USelectMenu v-model="limit" :items="[25, 50, 100]" class="w-16" size="sm" />
-                <span>
-                  Selected: {{ selectedIds.length  }} of {{ table?.tableApi?.getFilteredRowModel().rows.length || 0 }}
-                </span>
-              </div>
-              <div class="flex items-center gap-1.5">
-                <UPagination size="sm"
-                  :default-page="(table?.tableApi?.getState().pagination.pageIndex || 0) + 1"
-                  :items-per-page="table?.tableApi?.getState().pagination.pageSize"
-                  :total="table?.tableApi?.getFilteredRowModel().rows.length"
-                  @update:page="(p) => table?.tableApi?.setPageIndex(p - 1)" />
-              </div>
-            </div>
-
+            <TablePagination 
+              v-if="table?.tableApi"
+              v-model:limit="limit"
+              :table-api="table.tableApi"
+              :selected-count="selectedIds.length" />
           </div>
 
         </div>

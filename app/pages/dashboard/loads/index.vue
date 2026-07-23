@@ -35,7 +35,8 @@ const { data: response, status, refresh } = await useAsyncData('loads', () => {
       'shipper_address', 
       'receiver_address'
     ],
-    pagination: { limit: limit.value }
+    pagination: { limit: limit.value },
+    sort: ['pickup_date:desc']
   }
 
   if (permissions.value.isDriver) {
@@ -66,21 +67,13 @@ const handleEdit = (load) => {
   selectedLoad.value = load
   isEditOpen.value = true
 }
-
-const handleRefresh = async () => {
-  await refresh()
-}
-
-// При успехе сбрасываем выделение чекбоксов и обновляем данные
 const handleFactoringSuccess = async () => {
   rowSelection.value = {}
   await handleRefresh()
 }
 
-// Сбрасываем выбранные строки при переключении табов
-watch(activeTab, () => {
-  rowSelection.value = {}
-})
+watch(activeTab, () => { rowSelection.value = {} })
+const handleRefresh = async () => { await refresh() }
 </script>
 <template>
   <div class="dashboard_main">

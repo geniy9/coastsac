@@ -7,22 +7,22 @@ definePageMeta({
 const { permissions } = useRolePermissions()
 const client = useStrapiClient()
 
+const isOpen = ref(false)
+const limit = ref(25)
+
 const { data: users, status, refresh } = await useAsyncData('users', () => 
   client('/users', {
     query: {
-      populate: ['role', 'driver', 'avatar']
+      populate: ['role', 'driver', 'avatar'],
+      limit: limit.value
     }
   }), {
     lazy: true,
+    watch: [limit],
     default: () => []
   }
 )
 
-const handleRefresh = async () => {
-  await refresh()
-}
-
-const isOpen = ref(false)
 const rolesInfo = [{ 
   title: 'Admin', 
   description: 'Administrator full access',
@@ -48,6 +48,7 @@ const rolesInfo = [{
   description: 'Default role given to unauthenticated user.',
   icon: 'hugeicons:knight-shield'
 }]
+const handleRefresh = async () => { await refresh() }
 </script>
 <template>
   <div class="dashboard_main">
@@ -59,10 +60,10 @@ const rolesInfo = [{
           </template>
           <template #right>
             <UButton 
-              icon="humbleicons:info-circle" 
+              icon="hugeicons:information-circle" 
               label="Roles info"
               color="primary" 
-              variant="ghost"
+              variant="soft"
               @click="isOpen = true" />
           </template>
         </UDashboardNavbar>
@@ -72,6 +73,7 @@ const rolesInfo = [{
         <div class="flex-1 flex flex-col min-h-0" v-if="permissions.isAdmin">
           <UserList 
             :users="users" 
+            v-model:limit="limit"
             :loading="status === 'pending'"
             @refresh="handleRefresh" />
         </div>

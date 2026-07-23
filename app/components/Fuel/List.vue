@@ -30,20 +30,17 @@ const table = useTemplateRef("table")
 // Связываем карты с транзакциями и водителями
 const calculatedCards = computed(() => {
   return props.cards.map(card => {
-    // Получаем атрибуты карты
     const cardAttrs = card.attributes || card
 
     // 1. Поиск водителя
     const matchedDriver = props.drivers.find(
       d => d.fuel_card_number && d.fuel_card_number.trim() === cardAttrs.card_number?.trim()
     )
-
     // 2. Поиск транзакций конкретной карты по её ID/номеру (смотрим внутрь attributes транзакции)
     const cardTxs = props.transactions.filter(tx => {
       const attrs = tx.attributes || {}
       return String(attrs.card_id) === String(card.id) || attrs.card_number === cardAttrs.card_number
     })
-
     // 3. Суммируем расходы (используем net_amount, либо gross_amount)
     const totalSpent = cardTxs.reduce((sum, tx) => {
       const attrs = tx.attributes || {}
@@ -181,16 +178,10 @@ const pagination = ref({ pageIndex: 0, pageSize: 15 })
         td: 'border-b border-default',
         separator: 'h-0'
       }" />
-
-    <div class="flex items-center justify-between gap-3 mb-6">
-      <div class="text-sm text-muted">
-        Total cards: {{ calculatedCards.length }}
-      </div>
-      <UPagination size="sm"
-        :default-page="(table?.tableApi?.getState().pagination.pageIndex || 0) + 1"
-        :items-per-page="table?.tableApi?.getState().pagination.pageSize"
-        :total="table?.tableApi?.getFilteredRowModel().rows.length"
-        @update:page="(p) => table?.tableApi?.setPageIndex(p - 1)" />
-    </div>
+    <TablePagination 
+      v-if="table?.tableApi"
+      :table-api="table.tableApi"
+      :show-limit="false"
+      total-label="Total cards" />
   </div>
 </template>

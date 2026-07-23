@@ -155,7 +155,7 @@ const onSubmit = async () => {
 
         <USeparator label="Documents" />
 
-        <UploaderFiles ref="uploaderRef" label="Attachments (max 5MB)" />
+        <UploaderFiles ref="uploaderRef" label="Attachments (max 20MB)" />
 
         <div class="flex justify-end gap-3 pt-4">
           <UButton color="neutral" variant="ghost" label="Cancel" @click="open = false" />

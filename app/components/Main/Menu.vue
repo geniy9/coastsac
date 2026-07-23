@@ -7,8 +7,7 @@ defineProps({
 })
 
 const teams = ref([{
-  label: 'C2C Dashboard',
-  src: ''
+  label: 'Dashboard',
 },{
   label: 'Light Freight',
   src: '/32.png',
@@ -24,9 +23,7 @@ const items = computed(() => {
   return [
     teams.value.map(team => ({
       ...team,
-      onSelect() {
-        selectedTeam.value = team
-      }
+      onSelect() { selectedTeam.value = team }
     })), 
     [{
       label: 'Manage team',

@@ -60,7 +60,6 @@ const links = computed(() => {
       onSelect: () => { open.value = false }
     })
   }
-  
   items.push({
     label: "Settings",
     to: "/dashboard/settings",
@@ -92,16 +91,15 @@ const groups = computed(() => [{
         class="bg-elevated/25"
         :ui="{ footer: 'lg:border-t lg:border-default' }">
         <template #header="{ collapsed }">
-          <GeneralMenu :collapsed="collapsed" />
+          <MainMenu :collapsed="collapsed" />
         </template>
 
         <template #default="{ collapsed }">
-          <UDashboardSearchButton
-            :collapsed="collapsed"
-            class="bg-transparent ring-default" />
+          <UDashboardSearchButton :collapsed="collapsed" class="bg-transparent ring-default" />
           <UNavigationMenu
             :collapsed="collapsed"
-            :items="links[0]"
+            :items="links[0]" 
+            color="neutral"
             orientation="vertical"
             tooltip
             popover />

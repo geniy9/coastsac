@@ -25,6 +25,9 @@ const updatingUserId = ref(null)
 const togglingBlockId = ref(null)
 const table = useTemplateRef("table")
 
+const limit = defineModel('limit', { type: Number, default: 25 })
+const pagination = ref({ pageIndex: 0, pageSize: 25 })
+
 const columnFilters = ref([{ id: "email", value: "" }])
 const columnVisibility = ref()
 const rowSelection = ref({})
@@ -151,32 +154,33 @@ const columns = [{
 },{
   accessorKey: "email",
   header: "Email",
-  cell: ({ row }) => h("span", { class: "text-sm text-gray-400" }, row.original.email || '-')
-},{
-  id: "status",
-  header: "Account Status",
   cell: ({ row }) => {
     const isConfirmed = row.original.confirmed
-    const isBlocked = row.original.blocked
-    const isSelf = row.original.id === currentUser.value?.id
-
-    return h("div", { class: "flex flex-col gap-2 text-xs" }, [
+    return h("div", { class: "flex flex-col gap-1 text-xs" }, [
+      h("span", { class: "text-sm text-gray-400" }, row.original.email || '-'),
       h("div", undefined, 
         h(UBadge, { 
           color: isConfirmed ? 'success' : 'warning', 
           variant: 'soft', 
           size: 'sm' 
-        }, () => isConfirmed ? 'Email Confirmed' : 'Email Unconfirmed')
+        }, () => isConfirmed ? 'Confirmed' : 'Unconfirmed')
       ),
-      h("div", { class: "flex items-center gap-2" }, [
-        h("span", { class: "text-gray-500 text-xs" }, "Blocked:"),
-        h(USwitch, {
-          modelValue: isBlocked,
-          loading: togglingBlockId.value === row.original.id,
-          disabled: isSelf, 
-          'onUpdate:modelValue': (value) => toggleBlockStatus(row.original, value)
-        })
-      ])
+    ])
+  }
+},{
+  id: "status",
+  header: "Account Status",
+  cell: ({ row }) => {
+    const isBlocked = row.original.blocked
+    const isSelf = row.original.id === currentUser.value?.id
+    return h("div", { class: "flex items-center gap-2" }, [
+      h("span", { class: "text-gray-500 text-xs" }, "Blocked:"),
+      h(USwitch, {
+        modelValue: isBlocked,
+        loading: togglingBlockId.value === row.original.id,
+        disabled: isSelf, 
+        'onUpdate:modelValue': (value) => toggleBlockStatus(row.original, value)
+      })
     ])
   }
 },{
@@ -224,7 +228,6 @@ function getRowItems(row) {
   }]]
 }
 
-// Запрос на удаление пользователя
 const confirmDelete = async () => {
   if (!userToDelete.value) return
   isDeleting.value = true
@@ -258,8 +261,6 @@ const emailSearch = computed({
     table.value?.tableApi?.getColumn("email")?.setFilterValue(value || undefined);
   }
 })
-
-const pagination = ref({ pageIndex: 0, pageSize: 24 })
 </script>
 <template>
   <div class="flex-1 flex flex-col min-h-0 space-y-4">
@@ -293,20 +294,13 @@ const pagination = ref({ pageIndex: 0, pageSize: 24 })
         separator: 'h-0'
       }" />
 
-    <div class="flex items-center justify-between gap-3 border-t border-default pt-4 mt-auto">
-      <div class="text-sm text-muted">
-        Selected: {{ Object.keys(rowSelection).length }} of {{ table?.tableApi?.getFilteredRowModel().rows.length || 0 }}
-      </div>
-      <div class="flex items-center gap-1.5">
-        <UPagination
-          :default-page="(table?.tableApi?.getState().pagination.pageIndex || 0) + 1"
-          :items-per-page="table?.tableApi?.getState().pagination.pageSize"
-          :total="table?.tableApi?.getFilteredRowModel().rows.length"
-          @update:page="(p) => table?.tableApi?.setPageIndex(p - 1)" />
-      </div>
-    </div>
+    <TablePagination 
+      v-if="table?.tableApi"
+      v-model:limit="limit"
+      :table-api="table.tableApi"
+      :selected-count="Object.keys(rowSelection).length" />
 
-    <!-- Модальное окно подтверждения удаления -->
+    <!-- CONFIRM DELETE -->
     <UModal v-model:open="isConfirmDeleteOpen" :ui="{ width: 'sm:max-w-sm' }">
       <template #content>
         <div class="p-6 flex flex-col gap-4">

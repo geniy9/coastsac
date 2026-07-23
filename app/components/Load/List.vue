@@ -26,11 +26,7 @@ const columnFilters = ref([{ id: "load_number", value: "" }])
 const columnVisibility = ref()
 const rowSelection = defineModel('rowSelection', { type: Object, default: () => ({}) })
 const limit = defineModel('limit', { type: Number, default: 25 })
-const pagination = ref({ pageIndex: 0, pageSize: limit.value })
-watch(limit, (newVal) => {
-  pagination.value.pageSize = newVal
-  pagination.value.pageIndex = 0
-})
+const pagination = ref({ pageIndex: 0, pageSize: 25 })
 
 const columns = [{
   id: "select",
@@ -314,22 +310,12 @@ const searchFilter = computed({
           td: 'border-b border-default',
           separator: 'h-0'
         }" />
+      <TablePagination 
+        v-if="table?.tableApi"
+        v-model:limit="limit"
+        :table-api="table.tableApi"
+        :selected-count="Object.keys(rowSelection).length" />
 
-      <div class="flex items-center justify-between gap-3 mt-auto">
-        <div class="flex items-center gap-4 text-sm text-muted">
-          <USelectMenu v-model="limit" :items="[25, 50, 100]" class="w-16" size="sm" />
-          <span>
-            Selected: {{ Object.keys(rowSelection).length }} of {{ table?.tableApi?.getFilteredRowModel().rows.length || 0 }}
-          </span>
-        </div>
-        <div class="flex items-center gap-1.5">
-          <UPagination size="sm"
-            :default-page="(table?.tableApi?.getState().pagination.pageIndex || 0) + 1"
-            :items-per-page="table?.tableApi?.getState().pagination.pageSize"
-            :total="table?.tableApi?.getFilteredRowModel().rows.length"
-            @update:page="(p) => table?.tableApi?.setPageIndex(p - 1)" />
-        </div>
-      </div>
     </ClientOnly>
   </div>
 </template>
