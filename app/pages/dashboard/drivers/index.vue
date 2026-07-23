@@ -36,9 +36,10 @@ const handleEdit = (driver) => {
   selectedDriver.value = driver
   isEditOpen.value = true
 }
-const handleRefresh = async () => {
-  await refresh()
-}
+const handleRefresh = async () => {await refresh() }
+useHead({
+  title: () => `Drivers`,
+})
 </script>
 <template>
   <div class="dashboard_main">

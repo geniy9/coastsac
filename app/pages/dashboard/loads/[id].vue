@@ -1,12 +1,10 @@
 <!-- pages/dashboard/loads/[id].vue -->
 <script setup>
-definePageMeta({ 
-  layout: 'dashboard'
-})
+definePageMeta({ layout: 'dashboard' })
 
 const route = useRoute()
 const loadId = route.params.id
-const { permissions, userRole } = useRolePermissions()
+const { permissions } = useRolePermissions()
 const client = useStrapiClient()
 const { 
   trailerOptions, 
@@ -41,7 +39,6 @@ watch(isOpenActions, (newVal) => {
   }
 })
 
-// Запрос детальной информации о грузе
 const { data: response, status, refresh } = await useAsyncData(`load-${loadId}`, () => 
   client(`/loads/${loadId}`, {
     query: {
@@ -62,7 +59,6 @@ const { data: response, status, refresh } = await useAsyncData(`load-${loadId}`,
   }
 )
 const load = computed(() => response.value?.data || response.value || null)
-
 const isDelivered = computed(() => !!load.value?.delivery_date)
 
 const timelineItems = computed(() => {
@@ -91,8 +87,8 @@ const timelineItems = computed(() => {
     ui: {
       indicator: 'text-white bg-primary dark:bg-primary dark:text-black border-2 border-primary print:text-gray-500',
       separator: active 
-        ? 'bg-primary flex-1 rounded-full' 
-        : 'bg-gray-300 dark:bg-gray-600 flex-1 rounded-full'
+        ? 'bg-primary print:bg-gray-500 flex-1 rounded-full' 
+        : 'bg-gray-300 dark:bg-gray-500 flex-1 rounded-full'
     }
   },{
     title: 'Receiver',
@@ -193,7 +189,6 @@ const handleUploadPagePod = async () => {
     const newIds = await podUploaderPageRef.value.uploadFiles()
     const existingIds = load.value?.doc_pod_bol?.map(f => f.id) || []
     
-    // Формируем объект для обновления
     const updateData = {
       doc_pod_bol: [...existingIds, ...newIds],
       status_load: 'unloaded',
@@ -254,7 +249,7 @@ const changeStatusDirectly = async (newStatus) => {
     statusUpdating.value = false
   }
 }
-// функция изменения статуса на TONU с обязательной суммой компенсации
+// Изменение статуса на TONU с суммой компенсации
 const confirmTonuDirectly = async () => {
   if (tonuAmount.value <= 0) {
     toast.add({ title: 'Validation Error', description: 'TONU amount must be greater than 0', color: 'error' })
@@ -290,12 +285,15 @@ const confirmTonuDirectly = async () => {
     statusUpdating.value = false
   }
 }
+useHead({
+  title: () => `Load ${load.value ? load.value.load_number : ''}`,
+})
 </script>
 <template>
   <div class="dashboard_main">
     <UDashboardPanel :id="loadId || 'load-id'">
       <template #header>
-        <UDashboardNavbar :title="load ? `Load #${load.load_number}` : 'Loading...'" class="no-print">
+        <UDashboardNavbar :title="load ? `Load ${load.load_number}` : 'Loading...'" class="no-print">
           <template #leading>
             <UDashboardSidebarCollapse />
             <UButton 
@@ -345,15 +343,11 @@ const confirmTonuDirectly = async () => {
                     <h1 class="text-2xl font-bold text-highlighted">
                       {{ load.load_number }}
                     </h1>
-                    <UBadge color="primary" size="lg" class="capitalize print-badge">
+                    <UBadge color="primary" size="lg" class="capitalize no-print">
                       {{ load.category }}
                     </UBadge>
-                    <UFieldGroup>
-                      <UButton 
-                        :color="getStatusColor(load.status_load)" 
-                        variant="solid" 
-                        size="sm" 
-                        class="uppercase print-button">
+                    <UFieldGroup class="no-print" size="sm">
+                      <UButton :color="getStatusColor(load.status_load)" variant="solid" class="uppercase">
                         {{ (load.status_load || 'not_started').replace('_', ' ') }}
                       </UButton>
                       <UButton 
@@ -361,12 +355,10 @@ const confirmTonuDirectly = async () => {
                         icon="hugeicons:pencil-edit-02" 
                         color="neutral"
                         variant="outline"
-                        size="sm"
-                        class="no-print"
                         @click="isOpenActions = true" />
                     </UFieldGroup>
                   </div>
-                  <div class="flex items-center gap-2">
+                  <div class="flex items-center gap-2 no-print">
                     <p class="text-xs text-gray-500">Factoring:</p>
                     <div class="flex items-center gap-1.5">
                       <UFieldGroup>
@@ -384,40 +376,48 @@ const confirmTonuDirectly = async () => {
                 </div>
               </template>
 
-              <div class="grid sm:grid-cols-3 gap-4 text-base font-mono">
-                <div>
-                  <p class="text-xs text-gray-500">Broker</p>
-                  <p class="text-highlighted font-bold text-md mt-1">
-                    {{ load.broker?.name || 'N/A' }}
-                  </p>
-                </div>
-                <div>
-                  <p class="text-xs text-gray-500">Dispatcher</p>
-                  <p class="text-highlighted mt-1">
-                    {{ load.dispatcher?.name || load.dispatcher?.username || 'None' }}
-                  </p>
-                </div>
-                <div class="flex flex-col gap-2 sm:items-end sm:text-right">
-                  <div v-if="load.status_load === 'tonu'">
-                    <p class="text-xs text-red-500 font-semibold uppercase">TONU Amount</p>
-                    <p class="text-red-500 font-bold text-md mt-1">
-                      $ {{ load.tonu_amount || 0 }}
+              <div class="flex items-start justify-between gap-6">
+                <div class="grid gap-3 text-base font-mono">
+                  <div>
+                    <p class="text-xs text-gray-500">Broker</p>
+                    <p class="text-highlighted font-bold">
+                      {{ load.broker?.name || 'N/A' }}
                     </p>
                   </div>
-                  <template v-else>
-                    <div v-if="permissions.canViewDriversRate">
-                      <p class="text-xs text-gray-500">Driver's Rate</p>
-                      <p class="text-highlighted mt-1">
-                        $ {{ load.drivers_rate }}
+                  <div>
+                    <p class="text-xs text-gray-500">Dispatcher</p>
+                    <p class="text-highlighted font-bold">
+                      {{ load.dispatcher?.name || load.dispatcher?.username || 'None' }}
+                    </p>
+                  </div>
+                  <div class="flex flex-col gap-2">
+                    <div v-if="load.status_load === 'tonu'">
+                      <p class="text-xs font-semibold">TONU Amount</p>
+                      <p class="text-highlighted font-bold">
+                        $ {{ load.tonu_amount || 0 }}
                       </p>
                     </div>
-                    <div v-if="permissions.canViewOriginalRate">
-                      <p class="text-xs text-gray-500">Original Rate</p>
-                      <p class="text-highlighted mt-1">
-                        $ {{ load.original_rate }}
-                      </p>
-                    </div>
-                  </template>
+                    <template v-else>
+                      <div v-if="permissions.canViewDriversRate">
+                        <p class="text-xs text-gray-500">
+                          <span class="no-print">Driver's</span> Rate
+                        </p>
+                        <p class="text-highlighted font-bold">
+                          $ {{ load.drivers_rate }}
+                        </p>
+                      </div>
+                      <div v-if="permissions.canViewOriginalRate" class="no-print">
+                        <p class="text-xs text-gray-500">Original Rate</p>
+                        <p class="text-highlighted font-bold">
+                          $ {{ load.original_rate }}
+                        </p>
+                      </div>
+                    </template>
+                  </div>
+                </div>
+
+                <div class="text-right">
+                  <img src="/coast_to_coast_480x200.png" class="w-50" alt="COAST TO COAST INC." />
                 </div>
               </div>
             </UCard>
@@ -435,36 +435,29 @@ const confirmTonuDirectly = async () => {
                       <h3 class="font-semibold text-highlighted">
                         Route
                       </h3>
-                      <div class="flex items-center gap-2">
-                        <UIcon name="hugeicons:road-location-01" class="w-6 h-6" />
-                        <UBadge :label="`${load.miles || 0} Miles`" />
-                      </div>
+                      <UBadge :label="`${load.miles || 0} Miles`" />
                     </div>
                   </template>
                   <UTimeline :items="timelineItems" orientation="horizontal" class="w-full">
                     <!-- Shipper -->
                     <template #shipper-title="{ item }">
-                      <div class="flex flex-col gap-0.5">
-                        <span class="text-xs text-gray-500 uppercase tracking-wider font-semibold">
-                          {{ item.title }}
-                        </span>
-                        <p class="text-md font-bold text-highlighted">
-                          {{ item.cityState }}
-                        </p>
-                      </div>
-                    </template>
-                    <template #shipper-description="{ item }">
-                      <div class="grid gap-1">
-                        <p class="text-xs text-gray-400 italic">
-                          {{ item.fullAddress }}
-                        </p>
-                        <div class="flex items-center gap-3 mt-1.5 font-mono text-xs">
+                      <div class="grid min-h-32 gap-2">
+                        <div class="flex flex-col gap-0.5 text-gray-500">
+                          <span class="text-xs uppercase tracking-wider font-semibold">
+                            {{ item.title }}
+                          </span>
+                          <p class="font-bold text-highlighted">
+                            {{ item.cityState }}
+                          </p>
+                          <p class="italic">{{ item.fullAddress }}</p>
+                        </div>
+                        <div class="grid gap-1 text-xs font-mono text-highlighted">
                           <span class="flex items-center gap-1">
-                            <UIcon name="hugeicons:calendar-03" class="w-4 h-4 text-gray-400" />
+                            <UIcon name="hugeicons:calendar-03" class="w-4 h-4" />
                             {{ item.pickupDate }}
                           </span>
                           <span v-if="item.time" class="flex items-center gap-1">
-                            <UIcon name="hugeicons:clock-01" class="w-4 h-4 text-gray-400" />
+                            <UIcon name="hugeicons:clock-01" class="w-4 h-4" />
                             {{ item.time }}
                           </span>
                         </div>
@@ -473,27 +466,23 @@ const confirmTonuDirectly = async () => {
 
                     <!-- Receiver -->
                     <template #receiver-title="{ item }">
-                      <div class="flex flex-col gap-0.5">
-                        <span class="text-xs text-gray-500 uppercase tracking-wider font-semibold">
-                          {{ item.title }}
-                        </span>
-                        <p class="text-md font-bold text-highlighted">
-                          {{ item.cityState }}
-                        </p>
-                      </div>
-                    </template>
-                    <template #receiver-description="{ item }">
-                      <div class="grid gap-1">
-                        <p class="text-xs text-gray-400 italic">
-                          {{ item.fullAddress }}
-                        </p>
-                        <div class="flex items-center gap-3 mt-1.5 font-mono text-xs">
+                      <div class="grid min-h-32 gap-2">
+                        <div class="flex flex-col gap-0.5 text-gray-500">
+                          <span class="text-xs uppercase tracking-wider font-semibold">
+                            {{ item.title }}
+                          </span>
+                          <p class="font-bold text-highlighted">
+                            {{ item.cityState }}
+                          </p>
+                          <p class="italic">{{ item.fullAddress }}</p>
+                        </div>
+                        <div class="grid gap-1 text-xs font-mono text-highlighted">
                           <span class="flex items-center gap-1">
-                            <UIcon name="hugeicons:calendar-03" class="w-4 h-4 text-gray-400 print-icon" />
+                            <UIcon name="hugeicons:calendar-03" class="w-4 h-4 print-icon" />
                             {{ item.deliveryDate || 'Not yet' }}
                           </span>
                           <span v-if="item.deliveryDate != 'Not yet' && item.time" class="flex items-center gap-1">
-                            <UIcon name="hugeicons:clock-01" class="w-4 h-4 text-gray-400 print-icon" />
+                            <UIcon name="hugeicons:clock-01" class="w-4 h-4 print-icon" />
                             {{ item.time }}
                           </span>
                         </div>
@@ -503,9 +492,9 @@ const confirmTonuDirectly = async () => {
                 </UCard>
 
                 <!-- DOCS -->
-                <UCard variant="soft" class="print-card">
+                <UCard variant="soft" class="no-print">
                   <template #header>
-                    <h2 class="text-md font-semibold text-highlighted">
+                    <h2 class="font-semibold text-highlighted">
                       Attachments
                     </h2>
                   </template>
@@ -617,7 +606,7 @@ const confirmTonuDirectly = async () => {
               <div class="space-y-4">
                 
                 <!-- Driver -->
-                <UCard variant="soft" title="Driver & Transport" class="print-card">
+                <UCard variant="soft" title="Driver" class="print-card">
                   <div v-if="load.driver" class="flex flex-col gap-4">
                     <ULink :to="`/dashboard/drivers/${load.driver.documentId}`" class="flex items-center gap-3">
                       <UAvatar 
@@ -649,13 +638,6 @@ const confirmTonuDirectly = async () => {
                         </UFieldGroup>
                         <span v-else class="italic text-gray-500">N/A</span>
                       </div>
-                      <div class="flex justify-between items-center py-1">
-                        <span class="text-gray-500">Trailer Type</span>
-                        <div class="flex items-center gap-1 text-sm font-semibold text-highlighted capitalize">
-                          <UIcon :name="getTrailerIcon(load.driver.trailer)" class="w-5 h-5 text-primary print-icon" />
-                          {{ getTrailerLabel(load.driver.trailer) }}
-                        </div>
-                      </div>
                       <div class="flex justify-between items-center">
                         <span class="text-gray-500">Trailer Number</span>
                         <UFieldGroup v-if="load.driver.trailer_number">
@@ -669,8 +651,15 @@ const confirmTonuDirectly = async () => {
                         </UFieldGroup>
                         <span v-else class="italic text-gray-500">N/A</span>
                       </div>
+                      <div class="flex justify-between items-center py-1">
+                        <span class="text-gray-500">Trailer Type</span>
+                        <div class="flex items-center gap-1 text-sm font-semibold text-highlighted capitalize">
+                          <UIcon :name="getTrailerIcon(load.driver.trailer)" class="w-5 h-5 text-primary print-icon" />
+                          {{ getTrailerLabel(load.driver.trailer) }}
+                        </div>
+                      </div>
                       <div class="flex justify-between items-center">
-                        <span class="text-gray-500">Driver Phone</span>
+                        <span class="text-gray-500">Phone</span>
                         <span class="text-highlighted text-sm">{{ load.driver.phone || '-' }}</span>
                       </div>
                     </div>
@@ -680,18 +669,15 @@ const confirmTonuDirectly = async () => {
                     <p class="text-xs text-gray-500 mt-1">This load has no dispatcher/driver link.</p>
                   </div>
                 </UCard>
-
               </div>
-
             </div>
 
-            <!-- Notes -->
+            <!-- NOTES -->
             <Notes 
               v-if="permissions.canViewNotes"  
               :load-id="load?.documentId" 
               :notes="load?.notes || []" 
-              @refresh="handleRefresh" 
-              class="no-print" />
+              @refresh="handleRefresh" />
           </div>
         </div>
 

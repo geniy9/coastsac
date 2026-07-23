@@ -20,6 +20,7 @@ const formatDate = (date) => {
 }
 
 const { data: dashboardData, status } = await useAsyncData("dashboard-data", async () => {
+  if (!permissions.value.canViewStats) return
   const startDateStr = formatDate(range.value?.start)
   const endDateStr = formatDate(range.value?.end)
 
@@ -43,7 +44,7 @@ const { data: dashboardData, status } = await useAsyncData("dashboard-data", asy
           </template>
 
           <template #right>
-            <UTooltip text="Notifications">
+            <UTooltip text="Notifications" v-if="permissions.canViewNotes">
               <UButton
                 color="neutral"
                 variant="ghost"

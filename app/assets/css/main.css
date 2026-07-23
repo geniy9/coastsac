@@ -114,6 +114,11 @@
     box-shadow: none !important;
     margin-bottom: 1rem !important;
   }
+  .divide-default, .border-default {
+    border-color: #cbd5e1 !important;
+    border: #cbd5e1 !important;
+    background: #f8fafc !important; 
+  }
   .border-b {
     border-bottom: 1px solid #cbd5e1 !important;
   }

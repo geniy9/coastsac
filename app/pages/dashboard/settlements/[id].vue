@@ -124,9 +124,11 @@ const handleSendEmail = async () => {
 const toggleAdjustment = () => {
   isOpenAdjust.value = isOpenAdjust.value ? false : true
 }
-const handlePrint = () => {
-  window.print()
-}
+const handlePrint = () => { window.print() }
+
+useHead({
+  title: () => `Settlement ${settlement.value?.start_date}-${settlement.value?.end_date}`,
+})
 </script>
 <template>
   <div class="dashboard_main">

@@ -226,7 +226,7 @@ export default defineAppConfig({
 
     chatMessage: {
       slots: {
-        content: '!px-3 !py-1 !min-h-8',
+        content: '!px-3 !py-1 !min-h-8 print:bg-elevated/5',
         leading: '!mt-0',
       },
       variants: {
@@ -240,6 +240,16 @@ export default defineAppConfig({
         }
       },
     },
+
+    card: {
+      variants: {
+        variant: {
+          soft: {
+            root: 'print:divide-none'
+          },
+        }
+      }
+    }
 
   }
 })

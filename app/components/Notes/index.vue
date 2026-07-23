@@ -28,7 +28,6 @@ const { permissions } = useRolePermissions()
 const messageText = ref('')
 const sending = ref(false)
 
-// Преобразование заметок в структуру для UChatMessages
 const mappedMessages = computed(() => {
   const sortedNotes = [...props.notes].sort((a, b) => {
     return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
@@ -56,7 +55,6 @@ const mappedMessages = computed(() => {
   })
 })
 
-// контекстное меню
 const getContextMenuItems = (message) => {
   const isMe = message.role === 'user'
   const canDelete = permissions.value.isAdmin || isMe
@@ -153,7 +151,7 @@ const formatDate = (dateStr) => {
         <h3 class="font-semibold text-highlighted">
           Notes
         </h3>
-        <UBadge icon="hugeicons:message-01" color="neutral" variant="soft">
+        <UBadge icon="hugeicons:message-01" color="neutral" variant="soft" class="no-print">
           {{ notes.length }}
         </UBadge>
       </div>
@@ -162,8 +160,8 @@ const formatDate = (dateStr) => {
     <div class="flex-1 min-h-40 max-h-[60vh] flex flex-col justify-between">
       <!-- Scrollable Message List -->
       <div class="flex-1 min-h-0 overflow-y-auto pr-1">
-        <div v-if="!notes || notes.length === 0" class="h-full flex flex-col items-center justify-center p-6 text-center text-gray-500 text-sm gap-2">
-          <UIcon name="hugeicons:bubble-chat-blocked" class="w-8 h-8 text-gray-400" />
+        <div v-if="!notes || notes.length === 0" class="h-full flex flex-col items-center justify-center p-6 text-center text-gray-500 text-sm gap-2 no-print">
+          <UIcon name="hugeicons:bubble-chat-blocked" class="w-8 h-8" />
           <p>No comments yet.</p>
         </div>
 
@@ -174,13 +172,16 @@ const formatDate = (dateStr) => {
           should-scroll-to-bottom>
           <template #header="{ message }">
             <div class="flex items-center gap-2 text-xs" :class="message.side === 'right' ? 'justify-end' : 'justify-start'">
-              <span class="font-semibold text-highlighted/80">
+              <span class="font-semibold text-highlighted">
                 {{ message.metadata.userName }}
               </span>
               <span class="text-[10px] text-gray-500">
                 {{ formatDate(message.metadata.createdAt) }}
               </span>
             </div>
+          </template>
+          <template #leading="{ avatar }">
+            <UAvatar :src="avatar.src" class="no-print" />
           </template>
           <template #content="{ message }">
             <UContextMenu :items="getContextMenuItems(message)" :ui="{ content: 'w-32' }">
@@ -193,7 +194,7 @@ const formatDate = (dateStr) => {
       </div>
 
       <!-- Message Input -->
-      <div class="mt-2 pt-2">
+      <div class="mt-2 pt-2 no-print">
         <div class="flex gap-2">
           <UChatPrompt
             v-model="messageText"

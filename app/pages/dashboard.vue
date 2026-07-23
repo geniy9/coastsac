@@ -1,77 +1,70 @@
 // pages/dashboard.vue
 <script setup>
-definePageMeta({ 
-  layout: 'dashboard'
-})
+definePageMeta({ layout: 'dashboard' })
+
 const { isNotificationsOpen, hasUnread } = useNotifications()
-const user = useStrapiUser()
+const { permissions } = useRolePermissions()
 const open = ref(false)
 
 const links = computed(() => {
-  const items = []
-  
-  items.push({
+  const rawLinks = [{
     label: "Dashboard",
     icon: "hugeicons:dashboard-square-02",
     to: "/dashboard",
     exact: true, 
-    onSelect: () => { open.value = false }
-  })
-  
-  const userRole = user.value?.role?.type
-
-  if (['admin', 'dispatcher', 'accounting'].includes(userRole)) {
-    items.push({
-      label: "Drivers",
-      icon: "hugeicons:user-group-02",
-      to: "/dashboard/drivers",
-      onSelect: () => { open.value = false }
-    })
-  }
-  if (['admin', 'dispatcher', 'accounting', 'driver'].includes(userRole)) {
-    items.push({
-      label: "Loads",
-      icon: "hugeicons:lift-truck",
-      to: "/dashboard/loads",
-      onSelect: () => { open.value = false }
-    })
-  }
-  if (['admin', 'accounting'].includes(userRole)) {
-    items.push({
-      label: "Settlements",
-      icon: "hugeicons:briefcase-dollar",
-      to: "/dashboard/settlements",
-      onSelect: () => { open.value = false }
-    })
-  }
-  if (['admin', 'accounting'].includes(userRole)) {
-    items.push({
-      label: "Fuels",
-      icon: "hugeicons:fuel-station",
-      to: "/dashboard/fuels",
-      onSelect: () => { open.value = false }
-    })
-  }
-  if (['admin', 'accounting', 'dispatcher'].includes(userRole)) {
-    items.push({
-      label: "Tasks",
-      icon: "hugeicons:task-01",
-      to: "/dashboard/tasks",
-      onSelect: () => { open.value = false }
-    })
-  }
-  items.push({
+    visible: true
+  },{
+    label: "Drivers",
+    icon: "hugeicons:user-group-02",
+    to: "/dashboard/drivers",
+    visible: permissions.value.canViewDrivers
+  },{
+    label: "Loads",
+    icon: "hugeicons:lift-truck",
+    to: "/dashboard/loads",
+    visible: permissions.value.canViewLoads
+  },{
+    label: "Settlements",
+    icon: "hugeicons:briefcase-dollar",
+    to: "/dashboard/settlements",
+    visible: permissions.value.canViewSettlements
+  },{
+    label: "Fuels",
+    icon: "hugeicons:fuel-station",
+    to: "/dashboard/fuels",
+    visible: permissions.value.canViewFuels
+  },{
+    label: "Tasks",
+    icon: "hugeicons:task-01",
+    to: "/dashboard/tasks",
+    visible: permissions.value.canViewTasks
+  },{
     label: "Settings",
     to: "/dashboard/settings",
     icon: "hugeicons:account-setting-01",
     defaultOpen: true,
     type: "trigger",
+    visible: true,
     children: [
-      { label: "General", to: "/dashboard/settings", exact: true, onSelect: () => { open.value = false } },
-      { label: "Security", to: "/dashboard/settings/security", onSelect: () => { open.value = false } }
+      { label: "General", to: "/dashboard/settings", exact: true },
+      { label: "Security", to: "/dashboard/settings/security" }
     ]
+  }]
+  const items = rawLinks.filter(link => link.visible).map(({ visible, ...link }) => {
+    if (link.children) {
+      return {
+        ...link,
+        children: link.children.map(child => ({
+          ...child,
+          onSelect: () => { open.value = false }
+        }))
+      }
+    }
+    return {
+      ...link,
+      onSelect: () => { open.value = false }
+    }
   })
-
   return [items]
 })
 const groups = computed(() => [{
@@ -104,6 +97,7 @@ const groups = computed(() => [{
             tooltip
             popover />
           <UButton 
+            v-if="permissions.canViewNotes"
             label="Notifications"
             color="neutral"
             variant="ghost" 
@@ -115,9 +109,7 @@ const groups = computed(() => [{
               <UChip color="error" :show="hasUnread" inset>
                 <UIcon name="hugeicons:notification-01" class="size-5 shrink-0" />
               </UChip>
-              <span v-if="!collapsed" class="">
-                Notifications
-              </span>
+              <span v-if="!collapsed">Notifications</span>
             </div>
           </UButton>
         </template>

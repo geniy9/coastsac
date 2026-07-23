@@ -1,4 +1,5 @@
 <script setup>
+const { permissions } = useRolePermissions()
 defineProps({
   collapsed: {
     type: Boolean,
@@ -8,6 +9,7 @@ defineProps({
 
 const teams = ref([{
   label: 'Dashboard',
+  onSelect() { selectedTeam.value = team }
 },{
   label: 'Light Freight',
   src: '/32.png',
@@ -16,26 +18,32 @@ const teams = ref([{
   label: 'Bookkeeping',
   src: '/c2c.svg',
   to: '/bookkeeping'
+}],
+permissions.value.isAdmin && [{
+  label: 'Manage team',
+  icon: 'i-lucide-cog',
+  to: '/dashboard/team',
+  onSelect() { selectedTeam.value = team }
 }])
 const selectedTeam = ref(teams.value[0])
 
-const items = computed(() => {
-  return [
-    teams.value.map(team => ({
-      ...team,
-      onSelect() { selectedTeam.value = team }
-    })), 
-    [{
-      label: 'Manage team',
-      icon: 'i-lucide-cog',
-      to: '/dashboard/team'
-    }]
-  ]
-})
+// const items = computed(() => {
+//   return [
+//     teams.value.map(team => ({
+//       ...team,
+//       onSelect() { selectedTeam.value = team }
+//     })), 
+//     permissions.value.isAdmin && [{
+//       label: 'Manage team',
+//       icon: 'i-lucide-cog',
+//       to: '/dashboard/team'
+//     }]
+//   ]
+// })
 </script>
 <template>
   <UDropdownMenu
-    :items="items"
+    :items="teams"
     :content="{ align: 'center', collisionPadding: 12 }"
     :ui="{ content: collapsed ? 'w-40' : 'w-(--reka-dropdown-menu-trigger-width)' }">
     <UButton

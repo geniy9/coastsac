@@ -10,9 +10,8 @@ const user = useStrapiUser()
 
 const isAddOpen = ref(false)
 const isEditOpen = ref(false)
-const isFactoringOpen = ref(false) // Управление модалкой факторинга
+const isFactoringOpen = ref(false)
 const selectedLoad = ref(null)
-
 const activeTab = ref('active')
 const tabs = [
   { label: 'Active', value: 'active', icon: 'hugeicons:truck-delivery' },
@@ -20,7 +19,6 @@ const tabs = [
   { label: 'Completed', value: 'completed', icon: 'hugeicons:checkmark-circle-03' }
 ]
 
-// Объект выбранных чекбоксами строк
 const rowSelection = ref({})
 const limit = ref(25)
 
@@ -56,11 +54,10 @@ const filteredLoads = computed(() => {
   return loads.value.filter(load => load.category === activeTab.value)
 })
 
-// Вычисляемый массив реально выбранных объектов грузов
 const selectedLoads = computed(() => {
   return Object.keys(rowSelection.value)
     .map(index => filteredLoads.value[Number(index)])
-    .filter(load => load && load.status_load === 'unloaded') // Только грузы Completed & Unloaded
+    .filter(load => load && load.status_load === 'unloaded')
 })
 
 const handleEdit = (load) => {
@@ -74,6 +71,9 @@ const handleFactoringSuccess = async () => {
 
 watch(activeTab, () => { rowSelection.value = {} })
 const handleRefresh = async () => { await refresh() }
+useHead({
+  title: () => `Loads`,
+})
 </script>
 <template>
   <div class="dashboard_main">
@@ -85,7 +85,6 @@ const handleRefresh = async () => { await refresh() }
           </template>
           <template #right>
             <div class="flex gap-2">
-              <!-- Кнопка отправки факторинга: видна только во вкладке Completed для Admin/Accounting -->
               <UButton 
                 v-if="activeTab === 'completed' && (permissions.isAdmin || permissions.isAccounting)"
                 icon="hugeicons:at" 
@@ -93,7 +92,6 @@ const handleRefresh = async () => { await refresh() }
                 color="info" 
                 :disabled="selectedLoads.length === 0"
                 @click="isFactoringOpen = true" />
-
               <UButton 
                 v-if="permissions.canCreateLoads"
                 icon="i-lucide-plus" 
@@ -123,8 +121,6 @@ const handleRefresh = async () => { await refresh() }
 
           <LoadAdd v-model:open="isAddOpen" @success="handleRefresh" />
           <LoadEdit v-model:open="isEditOpen" :load="selectedLoad" @success="handleRefresh" />
-          
-          <!-- Модалка отправки факторинга -->
           <Factoring 
             v-model:open="isFactoringOpen" 
             :selected-loads="selectedLoads" 

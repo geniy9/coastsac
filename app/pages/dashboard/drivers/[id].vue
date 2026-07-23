@@ -91,6 +91,9 @@ const handleFileClick = (file) => {
     downloadFile(fullUrl)
   }
 }
+useHead({
+  title: () => `Driver ${displayName.value}`,
+})
 </script>
 <template>
   <div class="dashboard_main">
