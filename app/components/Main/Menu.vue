@@ -9,41 +9,32 @@ defineProps({
 
 const teams = ref([{
   label: 'Dashboard',
-  onSelect() { selectedTeam.value = team }
+  onSelect() { selectedTeam.value = team },
+  visible: true
 },{
   label: 'Light Freight',
   src: '/32.png',
-  to: '/'
+  to: '/',
+  visible: true
 },{
   label: 'Bookkeeping',
   src: '/c2c.svg',
-  to: '/bookkeeping'
-}],
-permissions.value.isAdmin && [{
+  to: '/bookkeeping',
+  visible: true
+},{
   label: 'Manage team',
   icon: 'i-lucide-cog',
   to: '/dashboard/team',
-  onSelect() { selectedTeam.value = team }
+  onSelect() { selectedTeam.value = team },
+  visible: permissions.value.isAdmin
 }])
-const selectedTeam = ref(teams.value[0])
 
-// const items = computed(() => {
-//   return [
-//     teams.value.map(team => ({
-//       ...team,
-//       onSelect() { selectedTeam.value = team }
-//     })), 
-//     permissions.value.isAdmin && [{
-//       label: 'Manage team',
-//       icon: 'i-lucide-cog',
-//       to: '/dashboard/team'
-//     }]
-//   ]
-// })
+const selectedTeam = ref(teams.value[0])
+const items = computed(() => teams.value?.filter(item => item.visible))
 </script>
 <template>
   <UDropdownMenu
-    :items="teams"
+    :items="items"
     :content="{ align: 'center', collisionPadding: 12 }"
     :ui="{ content: collapsed ? 'w-40' : 'w-(--reka-dropdown-menu-trigger-width)' }">
     <UButton
