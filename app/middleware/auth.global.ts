@@ -11,7 +11,8 @@ export default defineNuxtRouteMiddleware((to) => {
     '/bookkeeping', 
     '/auth/login', 
     '/auth/register', 
-    '/auth/forgot-password', 
+    '/auth/forgot-password',
+    '/auth/reset-password'
   ]
 
   // 1. Нормализуем путь (убираем завершающий слэш)
