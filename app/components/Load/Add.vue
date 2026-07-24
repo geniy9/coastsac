@@ -12,6 +12,7 @@ const { statesList } = useConfig()
 
 const state = reactive({
   load_number: '',
+  pickup_number: '',
   drivers_rate: 0,
   original_rate: 0,
   pickup_date: new Date().toISOString().split('T')[0],
@@ -174,13 +175,11 @@ const onSubmit = async () => {
 
   loading.value = true
   try {
-    // Проверяем дубликат номера
     const isDuplicate = await isLoadNumberDuplicate(state.load_number)
     if (isDuplicate) {
       throw new Error(`Load with number "${state.load_number}" already exists.`)
     }
-
-    // Логика назначения категорий
+    // NEW LOAD: active and in_transit
     let category = 'active'
     let status_load = 'in_transit'
 
@@ -220,6 +219,7 @@ const onSubmit = async () => {
     const payload = {
       data: {
         load_number: state.load_number,
+        pickup_number: state.pickup_number,
         drivers_rate: state.drivers_rate,
         original_rate: state.original_rate,
         pickup_date: state.pickup_date,
@@ -257,6 +257,7 @@ const onSubmit = async () => {
 
     Object.assign(state, {
       load_number: '',
+      pickup_number: '',
       drivers_rate: 0,
       original_rate: 0,
       pickup_date: new Date().toISOString().split('T')[0],
@@ -336,6 +337,9 @@ const onSubmit = async () => {
             <UInput v-model.number="state.original_rate" type="number" required class="w-full">
               <template #trailing><div class="input_trailing">$</div></template>
             </UInput>
+          </UFormField>
+          <UFormField label="Pickup Number" name="pickup_number">
+            <UInput v-model="state.pickup_number" placeholder="SO-XXXXXX" class="col-span-1 w-full" />
           </UFormField>
         </div>
 

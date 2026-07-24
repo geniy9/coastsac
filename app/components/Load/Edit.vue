@@ -27,6 +27,7 @@ const parseTime = (timeStr) => {
 
 const state = reactive({
   load_number: '',
+  pickup_number: '',
   drivers_rate: 0,
   original_rate: 0,
   tonu_amount: 0,
@@ -129,6 +130,7 @@ watch(() => props.load, (newVal) => {
   if (newVal) {
     Object.assign(state, {
       load_number: newVal.load_number || '',
+      pickup_number: newVal.pickup_number || '',
       drivers_rate: newVal.drivers_rate || 0,
       original_rate: newVal.original_rate || 0,
       tonu_amount: newVal.tonu_amount || 0,
@@ -461,6 +463,9 @@ const onDelete = async () => {
             <UInput v-model.number="state.original_rate" type="number" required :disabled="state.status_load === 'tonu'" class="w-full">
               <template #trailing><div class="input_trailing">$</div></template>
             </UInput>
+          </UFormField>
+          <UFormField label="Pickup Number" name="pickup_number">
+            <UInput v-model="state.pickup_number" placeholder="SO-XXXXXX" class="col-span-1 w-full" />
           </UFormField>
         </div>
 
