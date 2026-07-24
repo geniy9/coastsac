@@ -47,18 +47,15 @@ const handleResetPassword = async () => {
 <template>
   <div class="flex flex-col gap-4 w-xs mx-auto">
     <h2 class="text-2xl font-bold text-center">
-      Setting a new password
+      Set a new password
     </h2>
-
     <UForm :state="state" :schema="schema" @submit.prevent="handleResetPassword">
       <UFormField label="New Password" name="password" class="mb-4">
-        <UInput v-model="state.password" type="password" placeholder="••••••••" />
+        <UInput v-model="state.password" type="password" placeholder="••••••••" class="w-full" />
       </UFormField>
-
       <UFormField label="Confirm your new password" name="passwordConfirmation" class="mb-6">
-        <UInput v-model="state.passwordConfirmation" type="password" placeholder="••••••••" />
+        <UInput v-model="state.passwordConfirmation" type="password" placeholder="••••••••" class="w-full" />
       </UFormField>
-
       <UButton type="submit" block :loading="loading" color="primary">
         Update password
       </UButton>
@@ -69,8 +66,7 @@ const handleResetPassword = async () => {
         color="error"
         variant="soft"
         class="mt-4"
-        :title="error"
-      />
+        :title="error" />
     </UForm>
   </div>
 </template>

@@ -1,10 +1,6 @@
 <!-- pages/auth/login.vue -->
 <script setup>
-definePageMeta({
-  layout: 'auth',
-  pageTransition: false,
-  layoutTransition: false
-})
+definePageMeta({ layout: 'auth' })
 const route = useRoute()
 const isEmailConfirmed = computed(() => route.query.confirmed === 'true')
 </script>

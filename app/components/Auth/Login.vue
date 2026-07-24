@@ -121,7 +121,7 @@ const handleLogin = async () => {
       <UFormField label="Email" name="identifier">
         <UInput v-model="state.identifier" type="email" placeholder="you@example.com" class="w-full" />
       </UFormField>
-      <UFormField label="Password" name="password" class="w-full">
+      <UFormField label="Password" name="password">
         <UInput v-model="state.password" type="password" placeholder="••••••••" class="w-full" />
       </UFormField>
       <UButton type="submit" block :loading="loading" color="primary" class="mt-2">
