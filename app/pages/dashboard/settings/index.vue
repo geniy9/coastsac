@@ -226,6 +226,7 @@ async function onSubmit() {
     loading.value = false
   }
 }
+useHead({ title: 'Settings' })
 </script>
 <template>
   <div v-if="user" class="dashboard_main">

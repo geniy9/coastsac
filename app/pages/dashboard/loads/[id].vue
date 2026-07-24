@@ -267,6 +267,7 @@ const confirmTonuDirectly = async () => {
           drivers_rate: 0,
           original_rate: 0,
           miles: 0,
+          weight: 0,
           delivery_date: new Date().toISOString().split('T')[0]
         }
       }
@@ -285,9 +286,7 @@ const confirmTonuDirectly = async () => {
     statusUpdating.value = false
   }
 }
-useHead({
-  title: () => `Load ${load.value ? load.value.load_number : ''}`,
-})
+useHead({ title: () => `Load ${load.value ? load.value.load_number : ''}` })
 </script>
 <template>
   <div class="dashboard_main">
@@ -435,7 +434,10 @@ useHead({
                       <h3 class="font-semibold text-highlighted">
                         Route
                       </h3>
-                      <UBadge :label="`${load.miles || 0} Miles`" />
+                      <div class="flex items-center gap-2">
+                        <UBadge v-if="load.miles" :label="`${load.miles} Miles`" />
+                        <UBadge  v-if="load.weight" :label="`${load.weight} Lbs`" />
+                      </div>
                     </div>
                   </template>
                   <UTimeline :items="timelineItems" orientation="horizontal" class="w-full">
@@ -451,7 +453,7 @@ useHead({
                           </p>
                           <p class="italic">{{ item.fullAddress }}</p>
                         </div>
-                        <div class="grid gap-1 text-xs font-mono text-highlighted">
+                        <div class="grid gap-1 text-xs font-mono text-highlighted mt-auto">
                           <span class="flex items-center gap-1">
                             <UIcon name="hugeicons:calendar-03" class="w-4 h-4" />
                             {{ item.pickupDate }}
@@ -476,7 +478,7 @@ useHead({
                           </p>
                           <p class="italic">{{ item.fullAddress }}</p>
                         </div>
-                        <div class="grid gap-1 text-xs font-mono text-highlighted">
+                        <div class="grid gap-1 text-xs font-mono text-highlighted mt-auto">
                           <span class="flex items-center gap-1">
                             <UIcon name="hugeicons:calendar-03" class="w-4 h-4 print-icon" />
                             {{ item.deliveryDate || 'Not yet' }}

@@ -166,10 +166,8 @@ const onSubmit = async () => {
       <UForm :state="state" @submit="onSubmit" class="grid gap-6 p-6 overflow-y-auto">
         
         <div class="flex items-center justify-between">
-          <h3 class="text-lg font-semibold text-highlighted">
-            Add a new driver
-          </h3>
-          <UButton icon="i-lucide-x" color="neutral" variant="ghost" @click="open = false" />
+          <h3 class="text-lg font-semibold text-highlighted">Add a new driver</h3>
+          <UButton icon="hugeicons:cancel-01" color="neutral" variant="ghost" @click="open = false" />
         </div>
 
         <USeparator label="Contacts" />

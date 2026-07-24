@@ -71,9 +71,7 @@ const handleFactoringSuccess = async () => {
 
 watch(activeTab, () => { rowSelection.value = {} })
 const handleRefresh = async () => { await refresh() }
-useHead({
-  title: () => `Loads`,
-})
+useHead({ title: 'Loads' })
 </script>
 <template>
   <div class="dashboard_main">

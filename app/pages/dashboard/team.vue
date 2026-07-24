@@ -1,9 +1,6 @@
 <!-- pages/dashboard/team.vue -->
 <script setup>
-definePageMeta({ 
-  layout: 'dashboard'
-})
-
+definePageMeta({ layout: 'dashboard' })
 const { permissions } = useRolePermissions()
 const client = useStrapiClient()
 
@@ -49,6 +46,7 @@ const rolesInfo = [{
   icon: 'hugeicons:knight-shield'
 }]
 const handleRefresh = async () => { await refresh() }
+useHead({ title: 'Team Management' })
 </script>
 <template>
   <div class="dashboard_main">

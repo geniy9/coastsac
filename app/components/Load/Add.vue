@@ -23,6 +23,7 @@ const state = reactive({
   shipper_address: { city: '', state: 'AL', full_address: '' },
   receiver_address: { city: '', state: 'AL', full_address: '' },
   miles: 0,
+  weight: 0,
 })
 const rateUploaderRef = ref(null)
 const loading = ref(false)
@@ -116,9 +117,7 @@ const checkDriverHasActiveLoad = async (driverDocId) => {
   return res.data && res.data.length > 0
 }
 
-
 const onSubmit = async () => {
-  // 1. Валидация полей перед отправкой
   const errors = []
   
   if (!state.load_number?.trim()) {
@@ -232,6 +231,7 @@ const onSubmit = async () => {
         shipper_address: state.shipper_address,
         receiver_address: state.receiver_address,
         miles: state.miles,
+        weight: state.weight,
         driver: state.driver || null,
         broker: state.broker || null,
         dispatcher: user.value?.id || null,
@@ -267,7 +267,8 @@ const onSubmit = async () => {
       broker: '',
       shipper_address: { city: '', state: 'AL', full_address: '' },
       receiver_address: { city: '', state: 'AL', full_address: '' },
-      miles: 0
+      miles: 0,
+      weight: 0
     })
     rateUploaderRef.value?.clear()
     selectedBrokerModel.value = null
@@ -291,10 +292,8 @@ const onSubmit = async () => {
       <UForm :state="state" @submit="onSubmit" class="grid gap-6 p-6 overflow-y-auto">
         
         <div class="flex items-center justify-between">
-          <h3 class="text-lg font-semibold text-highlighted">
-            Add a new load
-          </h3>
-          <UButton icon="i-lucide-x" color="neutral" variant="ghost" @click="open = false" />
+          <h3 class="text-lg font-semibold text-highlighted">Add a new Load</h3>
+          <UButton icon="hugeicons:cancel-01" color="neutral" variant="ghost" @click="open = false" />
         </div>
 
         <USeparator label="General Info" />
@@ -400,13 +399,25 @@ const onSubmit = async () => {
               <UInputTime v-else v-model="state.delivery_time" :hour-cycle="24" />
             </UFormField>
           </div>
-          
+        </div>
+
+        <USeparator label="Distance / Weight" />
+
+        <div class="grid grid-cols-2 gap-4">
           <UFormField label="Total Miles" name="miles" required>
             <UInput v-model.number="state.miles" type="number" required :ui="{
                 base: 'pl-12 pr-2',
                 leading: 'pointer-events-none'
               }">
               <template #leading><p class="text-sm text-muted">Miles</p></template>
+            </UInput>
+          </UFormField>
+          <UFormField label="Weight" name="weight">
+            <UInput v-model.number="state.weight" type="number" :ui="{
+                base: 'pl-10 pr-2',
+                leading: 'pointer-events-none'
+              }">
+              <template #leading><p class="text-sm text-muted">Lbs</p></template>
             </UInput>
           </UFormField>
         </div>

@@ -1,7 +1,5 @@
 <script setup>
-definePageMeta({ 
-  layout: 'dashboard'
-})
+definePageMeta({ layout: 'dashboard' })
 const links = [
   [{
     label: "General",

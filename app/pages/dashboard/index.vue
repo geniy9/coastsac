@@ -1,8 +1,6 @@
 <!-- pages/dashboard/index.vue -->
 <script setup>
-definePageMeta({ 
-  layout: 'dashboard',
-})
+definePageMeta({ layout: 'dashboard' })
 import { sub } from "date-fns";
 const { permissions } = useRolePermissions()
 const { isNotificationsOpen, hasUnread } = useNotifications()

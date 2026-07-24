@@ -1,8 +1,6 @@
 <!-- pages/dashboard/fuels.vue -->
 <script setup>
-definePageMeta({
-  layout: 'dashboard'
-})
+definePageMeta({ layout: 'dashboard' })
 
 const { permissions } = useRolePermissions()
 const client = useStrapiClient()
@@ -102,6 +100,7 @@ const handleViewCard = (card) => {
 }
 
 const handleRefresh = async () => { await refreshTxs() }
+useHead({ title: 'Fuels' })
 </script>
 <template>
   <div class="dashboard_main">

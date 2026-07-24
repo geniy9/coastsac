@@ -260,7 +260,7 @@ const onDelete = async () => {
           <h3 class="text-lg font-semibold text-highlighted">
             Edit driver
           </h3>
-          <UButton icon="i-lucide-x" color="neutral" variant="ghost" @click="open = false" />
+          <UButton icon="hugeicons:cancel-01" color="neutral" variant="ghost" @click="open = false" />
         </div>
 
         <USeparator label="Contacts" />

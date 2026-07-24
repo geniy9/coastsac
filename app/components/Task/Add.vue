@@ -114,7 +114,7 @@ const onSubmit = async () => {
       <UForm :state="state" @submit="onSubmit" class="p-6 space-y-4 overflow-y-auto">
         <div class="flex items-center justify-between">
           <h3 class="text-lg font-semibold text-highlighted">Add Task</h3>
-          <UButton icon="i-lucide-x" color="neutral" variant="ghost" @click="open = false" />
+          <UButton icon="hugeicons:cancel-01" color="neutral" variant="ghost" @click="open = false" />
         </div>
 
         <UFormField label="Task Subject (Theme)" name="subject" required>

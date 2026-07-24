@@ -92,7 +92,7 @@ const handleFileClick = (file) => {
   }
 }
 useHead({
-  title: () => `Driver ${displayName.value}`,
+  title: () => `Driver ${displayName.value ? displayName.value : ''}`,
 })
 </script>
 <template>

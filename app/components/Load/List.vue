@@ -25,6 +25,10 @@ const table = useTemplateRef("table")
 const columnFilters = ref([{ id: "load_number", value: "" }])
 const columnVisibility = ref()
 const rowSelection = defineModel('rowSelection', { type: Object, default: () => ({}) })
+
+const expandedRateCon = ref({})
+const expandedPodBol = ref({})
+
 const limit = defineModel('limit', { type: Number, default: 25 })
 const pagination = ref({ pageIndex: 0, pageSize: 25 })
 
@@ -83,6 +87,7 @@ const columns = [{
     const receiver = row.original.receiver_address
     const status = row.original.status_load
     const miles = status === 'tonu' ? 0 : row.original.miles
+    const weight = row.original.weight
     return h("div", { class: "flex flex-col items-start text-xs text-gray-500" }, [
       h("span", undefined, [
         'From: ',
@@ -102,6 +107,10 @@ const columns = [{
         h("span", { class: "text-highlighted font-semibold" }, miles || '0'), 
         ' Miles'
       ]),
+      h("span", { class: "mt-2" }, [
+        h("span", { class: "text-highlighted font-semibold" }, weight || '0'), 
+        ' lbs'
+      ]),
     ])
   }
 },
@@ -118,7 +127,6 @@ const columns = [{
     const dTime = row.original.delivery_time ? row.original.delivery_time.slice(0, 5) : ''
     const dTimeEnd = row.original.delivery_time_end ? row.original.delivery_time_end.slice(0, 5) : ''
 
-    // Если есть конечное время, склеиваем в диапазон (FCFS), иначе показываем одно время (Strict)
     const pickupDisplayTime = pTimeEnd ? `${pTime} - ${pTimeEnd}` : pTime
     const deliveryDisplayTime = dTimeEnd ? `${dTime} - ${dTimeEnd}` : dTime
 
@@ -200,12 +208,21 @@ const columns = [{
     const rcFiles = row.original.doc_rate_confirmation || []
     const pbFiles = row.original.doc_pod_bol || []
 
+    const loadId = row.original.documentId || row.id
+
+    const isRcExpanded = !!expandedRateCon.value[loadId]
+    const isPbExpanded = !!expandedPodBol.value[loadId]
+
+    const displayedRc = isRcExpanded ? rcFiles : rcFiles.slice(0, 1)
+    const displayedPb = isPbExpanded ? pbFiles : pbFiles.slice(0, 1)
+
     return h("div", { 
       class: "flex flex-col gap-3 text-xs font-mono",
       onClick: (e) => e.stopPropagation()
     }, [
-      rcFiles.length ? h("div", { class: "flex flex-col gap-1" }, rcFiles.map(file => {
-        return h("a", { 
+      rcFiles.length ? h("div", { class: "flex flex-col gap-1" }, [
+        h("div", { class: "flex flex-col gap-1" }, displayedRc.map(file => {
+          return h("a", { 
           href: `${imageUrl}${file.url}`, 
           target: "_blank",
           class: "flex gap-1"
@@ -216,21 +233,52 @@ const columns = [{
             h("p", { class: "text-primary text-[10px]" }, getMime(file)),
           ])
         ])
-      })) : h("span", { class: "text-gray-500" }, "Rate Con.: still no"),
-
-      pbFiles.length ? h("div", { class: "flex flex-wrap gap-1" }, pbFiles.map(file => {
-        return h("a", { 
-          href: `${imageUrl}${file.url}`, 
-          target: "_blank",
-          class: "flex items-center gap-1 "
-        }, [
-          h(UIcon, { class: "w-7 h-7 text-highlighted", name: "hugeicons:document-attachment" }),
-          h("div", { class: "flex flex-col" }, [
-            h("p", { class: "text-highlighted" }, "POD/BOL"),
-            h("p", { class: "text-primary text-[10px]" }, getMime(file)),
-          ])
+      })),
+      rcFiles.length > 1 && h("div", undefined, [
+          h(UButton, {
+            size: "xs",
+            color: "neutral",
+            variant: "soft",
+            label: isRcExpanded ? "Less" : `+${rcFiles.length - 1}`,
+            icon: isRcExpanded ? "i-lucide-chevron-up" : "i-lucide-chevron-down",
+            class: "py-0.5 px-1.5",
+            onClick: (e) => {
+              e.stopPropagation()
+              expandedRateCon.value[loadId] = !isRcExpanded
+            }
+          })
         ])
-      })) : h("span", { class: "text-gray-500" }, "POD/BOL: still no")
+      ]) : h("span", { class: "text-gray-500" }, "Rate Con.: still no"),
+
+      pbFiles.length ? h("div", { class: "flex flex-col gap-1" }, [
+        h("div", { class: "flex flex-col gap-1" }, displayedPb.map(file => {
+          return h("a", { 
+            href: `${imageUrl}${file.url}`, 
+            target: "_blank",
+            class: "flex items-center gap-1 "
+          }, [
+            h(UIcon, { class: "w-7 h-7 text-highlighted", name: "hugeicons:document-attachment" }),
+            h("div", { class: "flex flex-col" }, [
+              h("p", { class: "text-highlighted" }, "POD/BOL"),
+              h("p", { class: "text-primary text-[10px]" }, getMime(file)),
+            ])
+          ])
+        })),
+        pbFiles.length > 1 && h("div", undefined, [
+          h(UButton, {
+            size: "xs",
+            color: "neutral",
+            variant: "soft",
+            label: isPbExpanded ? "Less" : `+${pbFiles.length - 1}`,
+            icon: isPbExpanded ? "i-lucide-chevron-up" : "i-lucide-chevron-down",
+            class: "py-0.5 px-1.5",
+            onClick: (e) => {
+              e.stopPropagation()
+              expandedPodBol.value[loadId] = !isPbExpanded
+            }
+          })
+        ])
+      ]) : h("span", { class: "text-gray-500" }, "POD/BOL: still no")
     ])
   }
 },{

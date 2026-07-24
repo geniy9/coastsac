@@ -72,6 +72,7 @@ const handleFileClick = (file) => {
     downloadFile(fullUrl)
   }
 }
+useHead({ title: () => `${task.value?.subject ? task.value?.subject : ''}` })
 </script>
 <template>
   <div class="dashboard_main">
@@ -206,14 +207,12 @@ const handleFileClick = (file) => {
               :task-id="task.documentId" 
               :notes="task.notes || []" 
               @refresh="handleRefresh" />
-
           </div>
         </div>
 
         <div v-else class="flex-1 flex items-center justify-center p-4">
           <p class="text-muted">You do not have access rights to this section.</p>
         </div>
-
 
         <!-- FILE/PHOTO PREVIEW -->
         <UModal v-model:open="isPreviewOpen" :ui="{ width: 'sm:max-w-3xl' }">

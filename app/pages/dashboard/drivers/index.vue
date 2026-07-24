@@ -37,9 +37,7 @@ const handleEdit = (driver) => {
   isEditOpen.value = true
 }
 const handleRefresh = async () => {await refresh() }
-useHead({
-  title: () => `Drivers`,
-})
+useHead({ title: 'Drivers' })
 </script>
 <template>
   <div class="dashboard_main">

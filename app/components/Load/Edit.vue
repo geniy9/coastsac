@@ -40,7 +40,8 @@ const state = reactive({
   broker: '',
   shipper_address: { city: '', state: 'AL', full_address: '' },
   receiver_address: { city: '', state: 'AL', full_address: '' },
-  miles: 0
+  miles: 0,
+  weight: 0
 })
 
 const pickupType = ref('Strict Appointment')
@@ -148,10 +149,10 @@ watch(() => props.load, (newVal) => {
         state: newVal.receiver_address?.state || 'AL',
         full_address: newVal.receiver_address?.full_address || ''
       },
-      miles: newVal.miles || 0
+      miles: newVal.miles || 0,
+      weight: newVal.weight || 0
     })
 
-    // Инициализация типов времени на основе наличия *_time_end
     if (newVal.pickup_time_end) {
       pickupType.value = 'FCFS'
       pickupTimeRange.value = {
@@ -305,6 +306,7 @@ const onSubmit = async () => {
       state.drivers_rate = 0
       state.original_rate = 0
       state.miles = 0
+      state.weight = 0
       state.category = 'completed'
       if (!state.delivery_date) {
         state.delivery_date = new Date().toISOString().split('T')[0]
@@ -407,13 +409,13 @@ const onDelete = async () => {
 <template>
   <UModal v-model:open="open">
     <template #content>
-      <UForm :state="state" @submit="onSubmit" class="grid gap-6 p-6 overflow-y-auto max-h-[90vh]">
+      <UForm :state="state" @submit="onSubmit" class="grid gap-6 p-6 overflow-y-auto">
         
         <div class="flex items-center justify-between">
           <h3 class="text-lg font-semibold text-highlighted">
-            Edit load #{{ load?.load_number }}
+            Edit load {{ load?.load_number }}
           </h3>
-          <UButton icon="i-lucide-x" color="neutral" variant="ghost" @click="open = false" />
+          <UButton icon="hugeicons:cancel-01" color="neutral" variant="ghost" @click="open = false" />
         </div>
 
         <USeparator label="General Info" />
@@ -512,29 +514,18 @@ const onDelete = async () => {
               <UInputTime v-else v-model="state.delivery_time" :hour-cycle="24" />
             </UFormField>
           </div>
-
-          <UFormField label="Total Miles" name="miles" required>
-            <UInput v-model.number="state.miles" type="number" required :ui="{
-                base: 'pl-12 pr-2',
-                leading: 'pointer-events-none'
-              }">
-              <template #leading><p class="text-sm text-muted">Miles</p></template>
-            </UInput>
-          </UFormField>
         </div>
 
         <USeparator label="Rate Confirmation" />
 
         <div class="grid gap-4">
-          <div v-if="existingRateDocs.length" class="flex flex-col gap-1">
-            <p class="text-gray-500 text-xs">
-              Current Rate Conf Files:
-            </p>
+          <div v-if="existingRateDocs.length" class="grid gap-1 text-gray-500 text-xs">
+            <p>Current Rate Conf Files:</p>
             <div v-for="(file, idx) in existingRateDocs" :key="file.id" class="flex items-center justify-between bg-muted/50 p-2 rounded-lg">
-              <ULink :to="`${imageUrl}${file.url}`" target="_blank" class="flex items-center gap-2">
-                <UIcon name="hugeicons:document-attachment" class="w-9 h-9 text-highlighted" />
-                <UBadge :label="getMime(file)" color="neutral" size="sm" />
-                <p class="text-xs font-semibold text-highlighted truncate group-hover:text-primary transition">
+              <ULink :to="`${imageUrl}${file.url}`" target="_blank" class="flex items-center gap-1">
+                <UIcon class="w-7 h-7 text-highlighted" name="hugeicons:document-attachment" />
+                <UBadge :label="getMime(file)" variant="outline" color="neutral" size="sm" />
+                <p class="font-semibold text-highlighted truncate">
                   {{ file.name || file.url.split('/').pop() }}
                 </p>
               </ULink>
@@ -551,15 +542,13 @@ const onDelete = async () => {
         <USeparator label="POD / BOL" />
 
         <div class="grid gap-4">
-          <div v-if="existingPodDocs.length">
-            <p class="text-gray-500 text-xs mb-1">
-              Current POD/BOL Files:
-            </p>
+          <div v-if="existingPodDocs.length" class="grid gap-1 text-gray-500 text-xs">
+            <p>Current POD/BOL Files:</p>
             <div v-for="(file, idx) in existingPodDocs" :key="file.id" class="flex items-center justify-between bg-muted/50 p-2 rounded-lg">
-              <ULink :to="`${imageUrl}${file.url}`" target="_blank" class="flex items-center gap-2">
-                <UIcon name="hugeicons:document-attachment" class="w-9 h-9 text-highlighted" />
-                <UBadge :label="getMime(file)" color="neutral" size="sm" />
-                <p class="text-xs font-semibold text-highlighted truncate group-hover:text-primary transition">
+              <ULink :to="`${imageUrl}${file.url}`" target="_blank" class="flex items-center gap-1">
+                <UIcon class="w-7 h-7 text-highlighted" name="hugeicons:document-attachment" />
+                <UBadge :label="getMime(file)" variant="outline" color="neutral" size="sm" />
+                <p class="font-semibold text-highlighted truncate">
                   {{ file.name || file.url.split('/').pop() }}
                 </p>
               </ULink>
@@ -571,6 +560,27 @@ const onDelete = async () => {
             label="Upload POD / BOL" 
             description="Forces load status to 'Unloaded'"
             @change="handlePodFilesChange" />
+        </div>
+
+        <USeparator label="Distance / Weight" />
+
+        <div class="grid grid-cols-2 gap-4">
+          <UFormField label="Total Miles" name="miles" required>
+            <UInput v-model.number="state.miles" type="number" required :disabled="state.status_load === 'tonu'" :ui="{
+                base: 'pl-12 pr-2',
+                leading: 'pointer-events-none'
+              }">
+              <template #leading><p class="text-sm text-muted">Miles</p></template>
+            </UInput>
+          </UFormField>
+          <UFormField label="Weight" name="weight">
+            <UInput v-model.number="state.weight" type="number" :disabled="state.status_load === 'tonu'" :ui="{
+                base: 'pl-10 pr-2',
+                leading: 'pointer-events-none'
+              }">
+              <template #leading><p class="text-sm text-muted">Lbs</p></template>
+            </UInput>
+          </UFormField>
         </div>
 
         <div class="flex justify-between items-center pt-4">

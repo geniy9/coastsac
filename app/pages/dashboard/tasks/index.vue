@@ -35,6 +35,7 @@ const filteredTasks = computed(() => {
   })
 })
 const handleRefresh = async () => { await refresh() }
+useHead({ title: 'Tasks' })
 </script>
 <template>
   <div class="dashboard_main">

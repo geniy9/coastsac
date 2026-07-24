@@ -284,9 +284,7 @@ function getRowItems(row) {
 onBeforeUnmount(() => {
   if (pollingInterval) clearInterval(pollingInterval)
 })
-useHead({
-  title: () => `Settlements`,
-})
+useHead({ title: 'Settlements' })
 </script>
 <template>
   <div class="dashboard_main">
