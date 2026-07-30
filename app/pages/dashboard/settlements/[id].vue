@@ -4,12 +4,15 @@ definePageMeta({ layout: 'dashboard' })
 
 const route = useRoute()
 const client = useStrapiClient()
+const user = useStrapiUser()
 const { permissions } = useRolePermissions()
 const { getPayableAmount } = useConfig()
 const toast = useToast()
 
 const id = route.params.id
 const isSending = ref(false)
+const isOpenSendModal = ref(false)
+const ccEmail = ref('')
 
 const { data: response, refresh } = await useAsyncData(`settlement-detail-${id}`, () =>
   client(`/settlements/${id}`, {
@@ -111,7 +114,10 @@ const handleDeleteAdjustment = async (index) => {
 const handleSendEmail = async () => {
   isSending.value = true
   try {
-    await client(`/settlements/${id}/generate-send`, { method: 'POST' })
+    await client(`/settlements/${id}/generate-send`, { 
+      method: 'POST',
+      body: { ccEmail: ccEmail.value }
+    })
     toast.add({ title: 'Email successfully sent to driver', color: 'success' })
     refresh()
   } catch (e) {
@@ -121,9 +127,12 @@ const handleSendEmail = async () => {
   }
 }
 
-const toggleAdjustment = () => {
-  isOpenAdjust.value = isOpenAdjust.value ? false : true
+const handleOpenSendModal = () => {
+  ccEmail.value = user.value?.email || ''
+  isOpenSendModal.value = true
 }
+
+const toggleAdjustment = () => {isOpenAdjust.value = isOpenAdjust.value ? false : true }
 const handlePrint = () => { window.print() }
 
 useHead({
@@ -141,8 +150,8 @@ useHead({
           </template>
           <template #right>
             <div class="flex items-center gap-2">
-              <UButton icon="hugeicons:printer" color="neutral" variant="outline" @click="handlePrint" />
-              <UButton icon="hugeicons:mail-send-02" label="Send" color="info" :loading="isSending" @click="handleSendEmail" />
+              <UButton @click="handlePrint" icon="hugeicons:printer" color="neutral" variant="outline" />
+              <UButton @click="handleOpenSendModal" icon="hugeicons:mail-send-02" label="Send" color="info" :loading="isSending" />
             </div>
           </template>
         </UDashboardNavbar>
@@ -328,6 +337,44 @@ useHead({
               </span>
             </div>
           </div>
+
+
+          <UModal v-model:open="isOpenSendModal" title="Confirm Send Settlement"  close-icon="hugeicons:cancel-01" :ui="{ content: 'sm:max-w-xs' }">
+            <template #body>
+              <div class="space-y-3">
+                <p class="text-sm text-gray-500">
+                  Review the email addresses before dispatching the weekly settlement.
+                </p>
+                <UFormField label="Driver's Email">
+                  <UInput 
+                    :model-value="settlement.driver?.email" 
+                    disabled 
+                    icon="hugeicons:mail-01" 
+                    class="w-full" />
+                </UFormField>
+                <UFormField label="Send CC to (your email)">
+                  <UInput 
+                    v-model="ccEmail" 
+                    type="email" 
+                    icon="hugeicons:mail-send-01" 
+                    class="w-full" />
+                </UFormField>
+              </div>
+
+              <div class="flex justify-between gap-2 pt-6">
+                <UButton 
+                  label="Cancel" 
+                  color="neutral" 
+                  variant="soft" 
+                  @click="isOpenSendModal = false" />
+                <UButton 
+                  label="Confirm & Send" 
+                  color="primary" 
+                  :loading="isSending" 
+                  @click="handleSendEmail" />
+              </div>
+            </template>
+          </UModal>
 
         </div>
       </template>
