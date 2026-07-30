@@ -52,7 +52,7 @@ const columns = [{
   header: "Assigned To",
   cell: ({ row }) => {
     const executors = row.original.executors || []
-    if (!executors.length) return h("span", { class: "text-gray-500 italic text-xs" }, "Unassigned")
+    if (!executors.length) return h("span", { class: "text-gray-500 italic text-xs" }, "ALL")
     return h(UAvatarGroup, { max: 3, size: "sm" }, () => 
       executors.map(u => h(UAvatar, { src: u.avatar ? thumbImg(u.avatar) : "", alt: u.name || u.username }))
     )

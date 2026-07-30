@@ -151,7 +151,9 @@ useHead({ title: () => `${task.value?.subject ? task.value?.subject : ''}` })
                       <span v-for="u in task.executors" :key="u.id" class="text-highlighted font-semibold">
                         • {{ u.name || u.username }}
                       </span>
-                      <span v-if="!task.executors?.length" class="text-gray-500 italic">No assignees</span>
+                      <span v-if="!task.executors?.length" class="text-primary font-semibold">
+                        ALL
+                      </span>
                     </div>
                   </div>
                   <div class="space-y-2">

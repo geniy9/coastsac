@@ -26,7 +26,7 @@ const driversList = ref([])
 
 const fetchUsers = async () => {
   try {
-    const res = await client('/users', { query: { pagination: { limit: 100 } } })
+    const res = await client('/users', { query: { populate: ['role'], pagination: { limit: 100 } } })
     usersList.value = res || []
   } catch (e) {
     console.error(e)
@@ -55,7 +55,17 @@ onMounted(() => {
   fetchDrivers()
 })
 
-const userOptions = computed(() => usersList.value.map(u => ({ value: u.id, label: u.name || u.username })))
+// const userOptions = computed(() => usersList.value.map(u => ({ value: u.id, label: u.name || u.username })))
+const userOptions = computed(() => {
+  const employeeRoles = ['admin', 'dispatcher', 'accounting']
+  return usersList.value
+    .filter(u => {
+      const roleType = u.role?.type?.toLowerCase()
+      const roleName = u.role?.name?.toLowerCase()
+      return employeeRoles.includes(roleType) || employeeRoles.includes(roleName)
+    })
+    .map(u => ({ value: u.id, label: u.name || u.username }))
+})
 const loadOptions = computed(() => loadsList.value.map(l => ({ value: l.documentId, label: `Load #${l.load_number}` })))
 const driverOptions = computed(() => driversList.value.map(d => ({ value: d.documentId, label: `${d.first_name} ${d.last_name}` })))
 
@@ -137,7 +147,7 @@ const onSubmit = async () => {
               multiple 
               value-key="value" 
               class="w-full" 
-              placeholder="Select users..." />
+              :placeholder="state.executors?.length ? 'Select users...' : 'ALL'" />
           </UFormField>
         </div>
 

@@ -71,7 +71,7 @@ const props = defineProps({
                   loading="lazy" />
               </UTooltip>
             </UAvatarGroup>
-            <span v-else class="italic">Unassigned</span>
+            <span v-else class="text-primary font-semibold text-[11px]">ALL</span>
           </div>
         </div>
       </div>
