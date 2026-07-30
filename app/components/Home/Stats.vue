@@ -1,15 +1,5 @@
 // components/HomeStats.vue
 <script setup>
-// const props = defineProps({
-//   period: { 
-//     type: null, 
-//     required: true
-//   },
-//   range: { 
-//     type: null, 
-//     required: true
-//   },
-// });
 const props = defineProps({
   data: {
     type: Object,
@@ -31,44 +21,39 @@ function formatCurrency(value) {
 
 const stats = computed(() => {
   if (!props.data) return []
-  return [
-    {
-      title: "Gross",
-      icon: "hugeicons:briefcase-dollar",
-      value: formatCurrency(props.data.totalGross || 0),
-      isClickable: false,
-      color: 'primary'
-    },
-    {
-      title: "Active trucks",
-      icon: "hugeicons:tanker-truck",
-      value: props.data.activeCount || 0,
-      isClickable: true,
-      to: "/dashboard/loads",
-      color: 'primary'
-    },
-    {
-      title: "Loads completed",
-      icon: "hugeicons:checkmark-circle-03",
-      value: props.data.completedCount || 0,
-      isClickable: true,
-      to: "/dashboard/loads",
-      color: 'primary'
-    },
-    {
-      title: "Open Paperwork Issues",
-      icon: "hugeicons:alert-02",
-      value: props.data.activeTasksCount || 0,
-      isClickable: true,
-      to: "/dashboard/tasks",
-      color: 'error'
-    }
-  ]
+  return [{
+    title: "Gross",
+    icon: "hugeicons:briefcase-dollar",
+    value: formatCurrency(props.data.totalGross || 0),
+    isClickable: false,
+    color: 'primary'
+  },{
+    title: "Active trucks",
+    icon: "hugeicons:tanker-truck",
+    value: props.data.activeCount || 0,
+    isClickable: true,
+    to: "/dashboard/loads",
+    color: 'primary'
+  },{
+    title: "Loads completed",
+    icon: "hugeicons:checkmark-circle-03",
+    value: props.data.completedCount || 0,
+    isClickable: true,
+    to: "/dashboard/loads",
+    color: 'primary'
+  },{
+    title: "Tasks",
+    icon: "hugeicons:alert-02",
+    value: props.data.activeTasksCount || 0,
+    isClickable: true,
+    to: "/dashboard/tasks",
+    color: 'error'
+  }]
 })
 </script>
 <template>
   <div v-if="loading && stats.length === 0" class="flex items-center justify-center py-8">
-    <p class="text-xs text-gray-500">Updating dashboard statistics...</p>
+    <p class="text-xs text-gray-500">Updating statistics...</p>
   </div>
   
   <UPageGrid v-else class="lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-px">

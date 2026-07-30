@@ -13,6 +13,7 @@ const { statesList } = useConfig()
 const state = reactive({
   load_number: '',
   pickup_number: '',
+  delivery_number: '',
   drivers_rate: 0,
   original_rate: 0,
   pickup_date: new Date().toISOString().split('T')[0],
@@ -220,6 +221,7 @@ const onSubmit = async () => {
       data: {
         load_number: state.load_number,
         pickup_number: state.pickup_number,
+        delivery_number: state.delivery_number,
         drivers_rate: state.drivers_rate,
         original_rate: state.original_rate,
         pickup_date: state.pickup_date,
@@ -258,6 +260,7 @@ const onSubmit = async () => {
     Object.assign(state, {
       load_number: '',
       pickup_number: '',
+      delivery_number: '',
       drivers_rate: 0,
       original_rate: 0,
       pickup_date: new Date().toISOString().split('T')[0],
@@ -339,7 +342,10 @@ const onSubmit = async () => {
             </UInput>
           </UFormField>
           <UFormField label="Pickup Number" name="pickup_number">
-            <UInput v-model="state.pickup_number" placeholder="SO-XXXXXX" class="col-span-1 w-full" />
+            <UInput v-model="state.pickup_number" placeholder="SO-XXXXXX" class="w-full" />
+          </UFormField>
+          <UFormField label="Delivery Number" name="delivery_number">
+            <UInput v-model="state.delivery_number" placeholder="XXXXXXXXX" class="w-full" />
           </UFormField>
         </div>
 

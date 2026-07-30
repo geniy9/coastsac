@@ -1,13 +1,13 @@
 <!-- pages/dashboard/index.vue -->
 <script setup>
 definePageMeta({ layout: 'dashboard' })
-import { sub } from "date-fns";
+import { startOfWeek } from "date-fns";
 const { permissions } = useRolePermissions()
 const { isNotificationsOpen, hasUnread } = useNotifications()
 const client = useStrapiClient()
 
 const range = shallowRef({
-  start: sub(new Date(), { days: 14 }),
+  start: startOfWeek(new Date(), { weekStartsOn: 1 }),
   end: new Date(),
 });
 const period = ref("daily");

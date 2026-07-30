@@ -28,6 +28,7 @@ const parseTime = (timeStr) => {
 const state = reactive({
   load_number: '',
   pickup_number: '',
+  delivery_number: '',
   drivers_rate: 0,
   original_rate: 0,
   tonu_amount: 0,
@@ -131,6 +132,7 @@ watch(() => props.load, (newVal) => {
     Object.assign(state, {
       load_number: newVal.load_number || '',
       pickup_number: newVal.pickup_number || '',
+      delivery_number: newVal.delivery_number || '',
       drivers_rate: newVal.drivers_rate || 0,
       original_rate: newVal.original_rate || 0,
       tonu_amount: newVal.tonu_amount || 0,
@@ -465,7 +467,10 @@ const onDelete = async () => {
             </UInput>
           </UFormField>
           <UFormField label="Pickup Number" name="pickup_number">
-            <UInput v-model="state.pickup_number" placeholder="SO-XXXXXX" class="col-span-1 w-full" />
+            <UInput v-model="state.pickup_number" placeholder="SO-XXXXXX" class="w-full" />
+          </UFormField>
+          <UFormField label="Delivery Number" name="delivery_number">
+            <UInput v-model="state.delivery_number" placeholder="XXXXXXXXX" class="w-full" />
           </UFormField>
         </div>
 

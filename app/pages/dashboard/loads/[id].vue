@@ -377,11 +377,19 @@ useHead({ title: () => `Load ${load.value ? load.value.load_number : ''}` })
 
               <div class="flex items-start justify-between gap-6">
                 <div class="grid gap-3 text-base font-mono">
-                  <div>
-                    <p class="text-xs text-gray-500">Pickup number</p>
-                    <p class="text-highlighted font-bold">
-                      {{ load.pickup_number || 'N/A' }}
-                    </p>
+                  <div class="flex gap-8">
+                    <div>
+                      <p class="text-xs text-gray-500">Pickup number</p>
+                      <p class="text-highlighted font-bold">
+                        {{ load.pickup_number || 'N/A' }}
+                      </p>
+                    </div>
+                    <div>
+                      <p class="text-xs text-gray-500">Delivery number</p>
+                      <p class="text-highlighted font-bold">
+                        {{ load.delivery_number || 'N/A' }}
+                      </p>
+                    </div>
                   </div>
                   <div>
                     <p class="text-xs text-gray-500">Broker</p>
