@@ -332,7 +332,7 @@ useHead({ title: () => `Load ${load.value ? load.value.load_number : ''}` })
             <UButton to="/dashboard/loads" label="Go to Loads List" color="neutral" variant="ghost" />
           </div>
 
-          <div v-else class="print-area space-y-4 overflow-y-auto flex-1 w-full pr-4">
+          <div v-else class="print-area no-scrollbar space-y-4 overflow-y-auto flex-1 w-full">
             
             <!-- HEAD -->
             <UCard variant="soft" class="print-card">
@@ -376,7 +376,7 @@ useHead({ title: () => `Load ${load.value ? load.value.load_number : ''}` })
               </template>
 
               <div class="flex items-start justify-between gap-6">
-                <div class="grid gap-3 text-base font-mono">
+                <div class="grid gap-3 text-sm font-mono">
                   <div class="flex gap-8">
                     <div>
                       <p class="text-xs text-gray-500">Pickup number</p>
@@ -391,17 +391,19 @@ useHead({ title: () => `Load ${load.value ? load.value.load_number : ''}` })
                       </p>
                     </div>
                   </div>
-                  <div>
-                    <p class="text-xs text-gray-500">Broker</p>
-                    <p class="text-highlighted font-bold">
-                      {{ load.broker?.name || 'N/A' }}
-                    </p>
-                  </div>
-                  <div>
-                    <p class="text-xs text-gray-500">Dispatcher</p>
-                    <p class="text-highlighted font-bold">
-                      {{ load.dispatcher?.name || load.dispatcher?.username || 'None' }}
-                    </p>
+                  <div class="flex gap-8">
+                    <div>
+                      <p class="text-xs text-gray-500">Broker</p>
+                      <p class="text-highlighted font-bold">
+                        {{ load.broker?.name || 'N/A' }}
+                      </p>
+                    </div>
+                    <div>
+                      <p class="text-xs text-gray-500">Dispatcher</p>
+                      <p class="text-highlighted font-bold">
+                        {{ load.dispatcher?.name || load.dispatcher?.username || 'None' }}
+                      </p>
+                    </div>
                   </div>
                   <div class="flex flex-col gap-2">
                     <div v-if="load.status_load === 'tonu'">
@@ -457,17 +459,17 @@ useHead({ title: () => `Load ${load.value ? load.value.load_number : ''}` })
                   <UTimeline :items="timelineItems" orientation="horizontal" class="w-full">
                     <!-- Shipper -->
                     <template #shipper-title="{ item }">
-                      <div class="grid min-h-32 gap-2">
-                        <div class="flex flex-col gap-0.5 text-gray-500">
-                          <span class="text-xs uppercase tracking-wider font-semibold">
+                      <div class="grid min-h-36 gap-2">
+                        <div class="flex flex-col gap-0.5 text-gray-500 text-xs">
+                          <span class="uppercase tracking-wider font-semibold">
                             {{ item.title }}
                           </span>
-                          <p class="font-bold text-highlighted">
+                          <p class="text-sm font-bold text-highlighted">
                             {{ item.cityState }}
                           </p>
                           <p class="italic">{{ item.fullAddress }}</p>
                         </div>
-                        <div class="grid gap-1 text-xs font-mono text-highlighted mt-auto">
+                        <div class="flex flex-col gap-1 text-sm font-mono text-highlighted mt-auto">
                           <span class="flex items-center gap-1">
                             <UIcon name="hugeicons:calendar-03" class="w-4 h-4" />
                             {{ item.pickupDate }}
@@ -482,17 +484,17 @@ useHead({ title: () => `Load ${load.value ? load.value.load_number : ''}` })
 
                     <!-- Receiver -->
                     <template #receiver-title="{ item }">
-                      <div class="grid min-h-32 gap-2">
-                        <div class="flex flex-col gap-0.5 text-gray-500">
-                          <span class="text-xs uppercase tracking-wider font-semibold">
+                      <div class="grid min-h-36 gap-2">
+                        <div class="flex flex-col gap-0.5 text-gray-500 text-xs">
+                          <span class="uppercase tracking-wider font-semibold">
                             {{ item.title }}
                           </span>
-                          <p class="font-bold text-highlighted">
+                          <p class="text-sm font-bold text-highlighted">
                             {{ item.cityState }}
                           </p>
                           <p class="italic">{{ item.fullAddress }}</p>
                         </div>
-                        <div class="grid gap-1 text-xs font-mono text-highlighted mt-auto">
+                        <div class="grid gap-1 text-sm font-mono text-highlighted mt-auto">
                           <span class="flex items-center gap-1">
                             <UIcon name="hugeicons:calendar-03" class="w-4 h-4 print-icon" />
                             {{ item.deliveryDate || 'Not yet' }}

@@ -55,6 +55,14 @@
   html {
     scroll-behavior: smooth;
   }
+  /* Утилита для скрытия скроллбара на экране с сохранением прокрутки */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;  /* IE/Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
   .input_trailing {
     @apply text-sm text-muted font-mono;
   }
@@ -82,15 +90,29 @@
 
 /* СТИЛИ ДЛЯ ПЕЧАТИ */
 @media print {
-  body, .dashboard, main, .print-area {
+  * {
+    scrollbar-width: none !important;
+  }
+  ::-webkit-scrollbar {
+    display: none !important;
+  }
+  body, .dashboard, main, .print-area, .dashboard_main {
     background: #ffffff !important;
     color: #000000 !important;
     margin: 0 !important;
     padding: 0 !important;
     width: 100% !important;
     max-width: 100% !important;
-    box-shadow: none !important;
+    height: auto !important;
+    max-height: none !important;
     overflow: visible !important;
+    box-shadow: none !important;
+    display: block !important; /* Flexbox может ломать перенос страниц в Chrome/Firefox */
+  }
+
+  .print-card, .print-file-row, .print-grid > div, [class*="Notes"] {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 
   .print-grid, .print-grid-3, .print-grid-2 { 
