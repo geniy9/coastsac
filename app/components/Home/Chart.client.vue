@@ -29,13 +29,12 @@ const { width } = useElementSize(cardRef);
 
 const data = ref([]);
 
-// Группировка данных на клиенте без повторных сетевых запросов
+// Группировка данных в чарте
 watch(
   [() => props.period, () => props.range, () => props.chartData],
   () => {
     if (!props.range?.start || !props.range?.end) return;
 
-    // Генерируем массив интервалов в зависимости от выбранного периода
     const dates = {
       daily: eachDayOfInterval,
       weekly: eachWeekOfInterval,
@@ -50,28 +49,39 @@ watch(
       if (props.period === "daily") {
         const dateStr = format(date, "yyyy-MM-dd");
         amount = rawLoads
-          .filter(load => load.delivery_date === dateStr)
-          .reduce((sum, load) => sum + (Number(load.original_rate) || 0), 0);
+          .filter(load => load.pickup_date === dateStr)
+          .reduce((sum, load) => {
+            const rate = load.status_load === 'tonu' ? (load.tonu_amount || 0) : (load.original_rate || 0);
+            return sum + (Number(rate) || 0);
+          }, 0);
           
       } else if (props.period === "weekly") {
-        // Определяем границы текущей недели (пн - вс)
         const startOfW = startOfWeek(date, { weekStartsOn: 1 });
         const endOfW = new Date(startOfW);
         endOfW.setDate(endOfW.getDate() + 6);
 
         amount = rawLoads
           .filter(load => {
-            if (!load.delivery_date) return false;
-            const delDate = new Date(load.delivery_date);
-            return delDate >= startOfW && delDate <= endOfW;
+            if (!load.pickup_date) return false;
+            
+            const [year, month, day] = load.pickup_date.split('-').map(Number);
+            const pDate = new Date(year, month - 1, day);
+            
+            return pDate >= startOfW && pDate <= endOfW;
           })
-          .reduce((sum, load) => sum + (Number(load.original_rate) || 0), 0);
+          .reduce((sum, load) => {
+            const rate = load.status_load === 'tonu' ? (load.tonu_amount || 0) : (load.original_rate || 0);
+            return sum + (Number(rate) || 0);
+          }, 0);
           
       } else if (props.period === "monthly") {
         const monthStr = format(date, "yyyy-MM");
         amount = rawLoads
-          .filter(load => load.delivery_date && load.delivery_date.startsWith(monthStr))
-          .reduce((sum, load) => sum + (Number(load.original_rate) || 0), 0);
+          .filter(load => load.pickup_date && load.pickup_date.startsWith(monthStr))
+          .reduce((sum, load) => {
+            const rate = load.status_load === 'tonu' ? (load.tonu_amount || 0) : (load.original_rate || 0);
+            return sum + (Number(rate) || 0);
+          }, 0);
       }
 
       return {

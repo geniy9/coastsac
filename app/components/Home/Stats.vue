@@ -18,6 +18,14 @@ function formatCurrency(value) {
     maximumFractionDigits: 0,
   });
 }
+// Форматирование веса
+function formatWeight(value) {
+  return `${value.toLocaleString("en-US")}`;
+}
+// Форматирование пробега
+function formatMiles(value) {
+  return `${value.toLocaleString("en-US")}`;
+}
 
 const stats = computed(() => {
   if (!props.data) return []
@@ -42,6 +50,18 @@ const stats = computed(() => {
     to: "/dashboard/loads",
     color: 'primary'
   },{
+    title: "Miles",
+    icon: "hugeicons:road-location-01",
+    value: formatMiles(props.data.totalMiles || 0),
+    isClickable: false,
+    color: 'primary'
+  },{
+    title: "Weight (lbs)",
+    icon: "hugeicons:delivery-box-01",
+    value: formatWeight(props.data.totalWeight || 0),
+    isClickable: false,
+    color: 'primary'
+  },{
     title: "Tasks",
     icon: "hugeicons:alert-02",
     value: props.data.activeTasksCount || 0,
@@ -56,7 +76,7 @@ const stats = computed(() => {
     <p class="text-xs text-gray-500">Updating statistics...</p>
   </div>
   
-  <UPageGrid v-else class="lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-px">
+  <UPageGrid v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 sm:gap-6 lg:gap-px">
     <UPageCard
       v-for="(stat, index) in stats"
       :key="index"
