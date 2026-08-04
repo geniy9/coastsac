@@ -3,6 +3,7 @@
 import { UButton, UBadge, UFieldGroup } from '#components'
 import { getPaginationRowModel } from "@tanstack/table-core"
 
+const { formatToCentralTime } = useFuel()
 const emit = defineEmits(['view-card'])
 const { copyBoofer } = useConfig()
 
@@ -112,6 +113,20 @@ const columns = [{
 }, {
   id: "last_activity",
   header: "Last Transaction",
+  // cell: ({ row }) => {
+  //   const tx = row.original.lastTx
+  //   if (!tx || (!tx.merchant_city && !tx.city && !tx.transaction_timestamp)) {
+  //     return h("span", { class: "text-xs text-gray-500 italic" }, "No recent activity")
+  //   }
+  //   const city = tx.merchant_city || tx.city || ""
+  //   const state = tx.merchant_state || tx.state || ""
+  //   const location = [city, state].filter(Boolean).join(", ") || "Unknown"
+  //   const date = tx.transaction_timestamp || tx.transaction_timestamp || ""
+  //   return h("div", { class: "text-xs text-gray-500" }, [
+  //     h("p", { class: "text-highlighted font-medium" }, location),
+  //     date ? h("p", undefined, new Date(date).toLocaleString()) : null
+  //   ])
+  // }
   cell: ({ row }) => {
     const tx = row.original.lastTx
     if (!tx || (!tx.merchant_city && !tx.city && !tx.transaction_timestamp)) {
@@ -120,10 +135,10 @@ const columns = [{
     const city = tx.merchant_city || tx.city || ""
     const state = tx.merchant_state || tx.state || ""
     const location = [city, state].filter(Boolean).join(", ") || "Unknown"
-    const date = tx.transaction_timestamp || tx.transaction_timestamp || ""
+    const date = tx.transaction_timestamp || ""
     return h("div", { class: "text-xs text-gray-500" }, [
       h("p", { class: "text-highlighted font-medium" }, location),
-      date ? h("p", undefined, new Date(date).toLocaleString()) : null
+      date ? h("p", undefined, formatToCentralTime(date)) : null
     ])
   }
 }, {

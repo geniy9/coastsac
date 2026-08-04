@@ -4,7 +4,7 @@ definePageMeta({ layout: 'dashboard' })
 
 const { permissions } = useRolePermissions()
 const client = useStrapiClient()
-const { getCards, getProcessedTransactions } = useFuel()
+const { getCards, getProcessedTransactions, isTxInCentralTimeRange } = useFuel()
 
 const isDetailsOpen = ref(false)
 const selectedCard = ref(null)
@@ -29,11 +29,29 @@ const dateRangeLabel = computed(() => {
   return `${df.format(dateRange.value.start)} - ${df.format(dateRange.value.end)}`;
 });
 
+// const getApiDateParams = (range) => {
+//   if (!range?.start || !range?.end) return {};
+
+//   const startDate = new Date(range.start);
+//   const endDate = new Date(range.end);
+//   startDate.setUTCHours(0, 0, 0, 0);
+//   endDate.setUTCHours(23, 59, 59, 999);
+
+//   return {
+//     start_timestamp: startDate.toISOString(),
+//     end_timestamp: endDate.toISOString(),
+//   };
+// };
 const getApiDateParams = (range) => {
   if (!range?.start || !range?.end) return {};
 
   const startDate = new Date(range.start);
   const endDate = new Date(range.end);
+  
+  // Буферные дни для компенсации разницы часовых поясов
+  startDate.setDate(startDate.getDate() - 1);
+  endDate.setDate(endDate.getDate() + 1);
+
   startDate.setUTCHours(0, 0, 0, 0);
   endDate.setUTCHours(23, 59, 59, 999);
 
@@ -77,7 +95,16 @@ const { data: transactionsResponse, status: txsStatus, refresh: refreshTxs } = a
 )
 
 // Извлекаем массив транзакций из структуры JSON:API
-const transactions = computed(() => transactionsResponse.value?.data || [])
+// const transactions = computed(() => transactionsResponse.value?.data || [])
+const transactions = computed(() => {
+  const rawTxs = transactionsResponse.value?.data || []
+  if (!dateRange.value?.start || !dateRange.value?.end) return rawTxs
+
+  return rawTxs.filter(tx => {
+    const timestamp = tx.attributes?.transaction_timestamp
+    return isTxInCentralTimeRange(timestamp, dateRange.value.start, dateRange.value.end)
+  })
+})
 
 // Суммирование расходов по картам
 const totalSpending = computed(() => {

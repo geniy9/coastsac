@@ -1,5 +1,7 @@
 <!-- components/FuelCard.vue -->
 <script setup>
+const { formatToCentralTime } = useFuel()
+
 const open = defineModel('open', { type: Boolean, default: false })
 const props = defineProps({
   card: {
@@ -175,7 +177,7 @@ const filteredTxs = computed(() => {
                     <tr v-for="tx in filteredTxs" :key="tx.id" 
                       class="border-b border-default last:border-none hover:bg-elevated/10">
                       <td class="p-3 text-gray-500">
-                        {{ tx.attributes?.transaction_timestamp ? new Date(tx.attributes.transaction_timestamp).toLocaleDateString() : 'N/A' }}
+                        {{ tx.attributes?.transaction_timestamp ? formatToCentralTime(tx.attributes.transaction_timestamp, true) : 'N/A' }}
                       </td>
                       <td class="p-3">
                         <p class="font-medium text-highlighted">{{ tx.attributes?.merchant_name }}</p>
