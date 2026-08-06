@@ -266,21 +266,46 @@ const columns = [{
 }]
 
 function getRowItems(row) {
-  return [{
+  const items = [{
     label: "Send Email",
     icon: "hugeicons:mail-send-01",
     onSelect() {
       handleSendSettlements(row.original.documentId)
     }
-  },{
-    label: "Delete",
-    icon: "hugeicons:delete-02",
-    class: "text-red-500 hover:text-red-600",
-    onSelect() {
-      handleDeleteSettlement(row.original.documentId)
-    }
   }]
+
+  const status = row.original.status_settlement
+  // Бухгалтер может удалять только не отправленные (не 'sent'), Admin может удалять всегда
+  const canDelete = permissions.value.isAdmin || (permissions.value.isAccounting && status !== 'sent')
+
+  if (canDelete) {
+    items.push({
+      label: "Delete",
+      icon: "hugeicons:delete-02",
+      class: "text-red-500 hover:text-red-600",
+      onSelect() {
+        handleDeleteSettlement(row.original.documentId)
+      }
+    })
+  }
+  return items
 }
+// function getRowItems(row) {
+//   return [{
+//     label: "Send Email",
+//     icon: "hugeicons:mail-send-01",
+//     onSelect() {
+//       handleSendSettlements(row.original.documentId)
+//     }
+//   },{
+//     label: "Delete",
+//     icon: "hugeicons:delete-02",
+//     class: "text-red-500 hover:text-red-600",
+//     onSelect() {
+//       handleDeleteSettlement(row.original.documentId)
+//     }
+//   }]
+// }
 onBeforeUnmount(() => {
   if (pollingInterval) clearInterval(pollingInterval)
 })

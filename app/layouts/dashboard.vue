@@ -2,7 +2,7 @@
 <script setup>
 useHead({
   titleTemplate: (title) => {
-    return title ? `${title} | C2C Dashboard` : "C2C Dashboard"
+    return title ? `${title} | Coast to Coast` : "Coast to Coast"
   }
 })
 </script>

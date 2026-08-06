@@ -56,25 +56,31 @@ const columns = [{
   cell: ({ row }) => {
     const status = row.original.status_load || 'not_started'
     const statusFactoring = row.original.status_factoring || 'Not Submitted'
+    const statusEmail = row.original.status_email || 'Not Sent'
     return h("div", { class: "flex flex-col items-start" }, [
-      h("div", { class: "flex flex-col" }, [
-        h("span", { class: "text-gray-500 text-xs" }, 'No.:'),
-        h("span", { class: "font-semibold text-highlighted" }, `${row.original.load_number}`)
-      ]),
-      h("div", { class: "flex flex-col gap-1 mt-1" }, [
+      h("span", { class: "font-semibold text-highlighted" }, `${row.original.load_number}`),
+      h("div", { class: "flex flex-col gap-0.5" }, [
         h("div", { class: "text-gray-500 text-[10px]" }, 'Status:'),
         h(UBadge, { 
           color: getStatusColor(status), 
           class: 'uppercase text-[9px]'
         }, () => status.replace('_', ' '))
       ]),
-      h("div", { class: "flex flex-col gap-1 mt-1" }, [
+      h("div", { class: "flex flex-col gap-0.5 mt-1" }, [
         h("div", { class: "text-gray-500 text-[10px]" }, 'Factoring:'),
         h(UBadge, {
           color: statusFactoring === 'sent' ? 'success' : 'neutral',
           variant: statusFactoring === 'sent' ? 'solid' : 'soft',
           class: 'uppercase text-[9px]'
         }, () => statusFactoring === 'sent' ? 'Sent' : 'Not Submitted')
+      ]),
+      h("div", { class: "flex flex-col gap-0.5 mt-1" }, [
+        h("div", { class: "text-gray-500 text-[10px]" }, 'Email:'),
+        h(UBadge, {
+          color: statusEmail === 'sent' ? 'success' : 'neutral',
+          variant: statusEmail === 'sent' ? 'solid' : 'soft',
+          class: 'uppercase text-[9px]'
+        }, () => statusEmail.replace('_', ' '))
       ])
     ])
   }

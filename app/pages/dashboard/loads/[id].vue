@@ -6,6 +6,7 @@ const route = useRoute()
 const loadId = route.params.id
 const { permissions } = useRolePermissions()
 const client = useStrapiClient()
+const user = useStrapiUser()
 const { 
   trailerOptions, 
   getFileUrl,
@@ -31,6 +32,32 @@ const isOpenActions = ref(false)
 
 const isTonuMode = ref(false)
 const tonuAmount = ref(0)
+
+const isOpenSendLoadModal = ref(false)
+const isSendingLoad = ref(false)
+const ccLoadEmail = ref('')
+
+const handleOpenSendLoadModal = () => {
+  ccLoadEmail.value = user.value?.email || ''
+  isOpenSendLoadModal.value = true
+}
+
+const handleSendLoadEmail = async () => {
+  isSendingLoad.value = true
+  try {
+    await client(`/loads/${load.value.documentId}/send-to-driver`, {
+      method: 'POST',
+      body: { ccEmail: ccLoadEmail.value }
+    })
+    toast.add({ title: 'Load confirmation sent to driver', color: 'success' })
+    isOpenSendLoadModal.value = false
+    await handleRefresh()
+  } catch (e) {
+    toast.add({ title: 'Failed to send', description: e.message, color: 'error' })
+  } finally {
+    isSendingLoad.value = false
+  }
+}
 
 watch(isOpenActions, (newVal) => {
   if (!newVal) {
@@ -304,6 +331,13 @@ useHead({ title: () => `Load ${load.value ? load.value.load_number : ''}` })
           <template #right>
             <div class="flex items-center gap-2">
               <UButton 
+                v-if="permissions.canEditLoads && load?.driver?.email"
+                icon="hugeicons:mail-send-02" 
+                label="Send Email"
+                color="info" 
+                variant="soft" 
+                @click="handleOpenSendLoadModal" />
+              <UButton 
                 icon="hugeicons:printer" 
                 color="neutral" 
                 variant="outline" 
@@ -371,6 +405,14 @@ useHead({ title: () => `Load ${load.value ? load.value.load_number : ''}` })
                         </UBadge>
                       </UFieldGroup>
                     </div>
+                  </div>
+                  <div class="flex items-center gap-2 no-print ml-4">
+                    <p class="text-xs text-gray-500">Email Status:</p>
+                    <UBadge 
+                      :color="load.status_email === 'sent' ? 'success' : 'neutral'" 
+                      class="uppercase text-[11px] font-bold">
+                      {{ load.status_email === 'sent' ? 'Sent to Driver' : 'Not Sent' }}
+                    </UBadge>
                   </div>
                 </div>
               </template>
@@ -793,6 +835,45 @@ useHead({ title: () => `Load ${load.value ? load.value.load_number : ''}` })
               <p class="text-sm text-gray-400 italic">
                 No quick actions available for the current status.
               </p>
+            </div>
+          </template>
+        </UModal>
+
+        <!-- SEND PDF TO DRIVER BY EMAIL -->
+        <UModal v-model:open="isOpenSendLoadModal" title="Send Load to Driver" close-icon="hugeicons:cancel-01" :ui="{ content: 'sm:max-w-xs' }">
+          <template #body>
+            <div class="space-y-3">
+              <p class="text-sm text-gray-500">
+                Review the email addresses before dispatching the load details.
+              </p>
+              <UFormField label="Driver's Email">
+                <UInput 
+                  :model-value="load?.driver?.email" 
+                  disabled 
+                  icon="hugeicons:mail-01" 
+                  class="w-full" />
+              </UFormField>
+              <UFormField label="Send CC to (your email)">
+                <UInput 
+                  v-model="ccLoadEmail" 
+                  type="email" 
+                  icon="hugeicons:mail-send-01" 
+                  class="w-full" />
+              </UFormField>
+            </div>
+
+            <div class="flex justify-between gap-2 pt-6">
+              <UButton 
+                label="Cancel" 
+                color="neutral" 
+                variant="soft" 
+                @click="isOpenSendLoadModal = false" />
+              <UButton 
+                label="Confirm & Send" 
+                color="primary" 
+                variant="solid" 
+                :loading="isSendingLoad" 
+                @click="handleSendLoadEmail" />
             </div>
           </template>
         </UModal>
