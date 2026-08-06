@@ -34,7 +34,12 @@ const fetchUsers = async () => {
 }
 const fetchLoads = async () => {
   try {
-    const res = await client('/loads', { query: { pagination: { limit: 100 } } })
+    const res = await client('/loads', { 
+      query: { 
+        pagination: { limit: 100 },
+        sort: ['createdAt:desc']
+      }
+    })
     loadsList.value = res.data || []
   } catch (e) {
     console.error(e)
@@ -66,7 +71,7 @@ const userOptions = computed(() => {
     })
     .map(u => ({ value: u.id, label: u.name || u.username }))
 })
-const loadOptions = computed(() => loadsList.value.map(l => ({ value: l.documentId, label: `Load #${l.load_number}` })))
+const loadOptions = computed(() => loadsList.value.map(l => ({ value: l.documentId, label: `${l.load_number}` })))
 const driverOptions = computed(() => driversList.value.map(d => ({ value: d.documentId, label: `${d.first_name} ${d.last_name}` })))
 
 const onSubmit = async () => {
