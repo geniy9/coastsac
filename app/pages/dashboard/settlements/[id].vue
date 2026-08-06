@@ -14,6 +14,25 @@ const isSending = ref(false)
 const isOpenSendModal = ref(false)
 const ccEmail = ref('')
 
+const isUpdatingPayment = ref(false)
+
+const handleTogglePaymentStatus = async (val) => {
+  isUpdatingPayment.value = true
+  const newStatus = val ? 'paid' : 'unpaid'
+  try {
+    await client(`/settlements/${id}`, {
+      method: 'PUT',
+      body: { data: { payment_status: newStatus } }
+    })
+    toast.add({ title: `Settlement marked as ${newStatus}`, color: 'success' })
+    await refresh()
+  } catch (e) {
+    toast.add({ title: 'Error updating payment status', description: e.message, color: 'error' })
+  } finally {
+    isUpdatingPayment.value = false
+  }
+}
+
 const { data: response, refresh } = await useAsyncData(`settlement-detail-${id}`, () =>
   client(`/settlements/${id}`, {
     query: {
@@ -208,6 +227,20 @@ useHead({
                   <p class="text-xs text-gray-500 font-mono">
                     ID: SETT-{{ settlement.id }}
                   </p>
+                  <UCheckbox 
+                    v-if="permissions.isAccounting || permissions.isAdmin"
+                    :model-value="settlement.payment_status === 'paid'" 
+                    :disabled="isUpdatingPayment"
+                    label="Paid" 
+                    class="no-print"
+                    @update:model-value="handleTogglePaymentStatus" />
+                  <UBadge 
+                    v-else
+                    :color="settlement.payment_status === 'paid' ? 'success' : 'error'"
+                    size="sm"
+                    class="uppercase">
+                    {{ settlement.payment_status || 'unpaid' }}
+                  </UBadge>
                 </div>
                 <div class="grid gap-1">
                   <p class="text-sm font-medium">

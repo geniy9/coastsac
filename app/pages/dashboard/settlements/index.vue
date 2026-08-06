@@ -25,6 +25,30 @@ const limit = ref(25)
 const pagination = ref({ pageIndex: 0, pageSize: 25 })
 const activeJob = ref(null)
 
+const isPaymentModalOpen = ref(false)
+const targetSettlement = ref(null)
+const modalPaymentValue = ref(false)
+const isSavingPaymentStatus = ref(false)
+
+const handleSavePaymentStatus = async () => {
+  if (!targetSettlement.value) return
+  isSavingPaymentStatus.value = true
+  const newStatus = modalPaymentValue.value ? 'paid' : 'unpaid'
+  try {
+    await client(`/settlements/${targetSettlement.value.documentId}`, {
+      method: 'PUT',
+      body: { data: { payment_status: newStatus } }
+    })
+    toast.add({ title: `Settlement marked as ${newStatus}`, color: 'success' })
+    isPaymentModalOpen.value = false
+    refresh()
+  } catch (e) {
+    toast.add({ title: 'Error updating payment status', description: e.message, color: 'error' })
+  } finally {
+    isSavingPaymentStatus.value = false
+  }
+}
+
 // Списки
 const { data: driversResponse } = await useAsyncData('drivers-simple-list', () => 
   client('/drivers', { query: { fields: ['first_name', 'last_name', 'email'] } })
@@ -216,13 +240,21 @@ const columns = [{
   header: "Status",
   cell: ({ row }) => {
     const status = row.original.status_settlement
+    const payStatus = row.original.payment_status || 'unpaid'
     const color = status === 'sent' ? 'success' : (status === 'generated' ? 'info' : 'neutral')
-    return h(UBadge, { 
-      icon: status === 'sent' ? 'hugeicons:mail-01' : 'hugeicons:file-01',
-      color, 
-      variant: "soft", 
-      class: "uppercase"
-    }, () => status)
+    return h("div", { class: "flex flex-col gap-1 items-start" }, [
+      h(UBadge, { 
+        icon: status === 'sent' ? 'hugeicons:mail-01' : 'hugeicons:file-01',
+        color, 
+        variant: "soft", 
+        class: "uppercase text-[10px]"
+      }, () => status),
+      h(UBadge, { 
+        color: payStatus === 'paid' ? 'success' : 'error', 
+        variant: "subtle", 
+        class: "uppercase text-[9px] font-bold"
+      }, () => payStatus)
+    ])
   }
 },{
   id: "gross",
@@ -272,10 +304,17 @@ function getRowItems(row) {
     onSelect() {
       handleSendSettlements(row.original.documentId)
     }
+  }, {
+    label: "Payment Status",
+    icon: "hugeicons:money-send-01",
+    onSelect() {
+      targetSettlement.value = row.original
+      modalPaymentValue.value = row.original.payment_status === 'paid'
+      isPaymentModalOpen.value = true
+    }
   }]
 
   const status = row.original.status_settlement
-  // Бухгалтер может удалять только не отправленные (не 'sent'), Admin может удалять всегда
   const canDelete = permissions.value.isAdmin || (permissions.value.isAccounting && status !== 'sent')
 
   if (canDelete) {
@@ -290,22 +329,6 @@ function getRowItems(row) {
   }
   return items
 }
-// function getRowItems(row) {
-//   return [{
-//     label: "Send Email",
-//     icon: "hugeicons:mail-send-01",
-//     onSelect() {
-//       handleSendSettlements(row.original.documentId)
-//     }
-//   },{
-//     label: "Delete",
-//     icon: "hugeicons:delete-02",
-//     class: "text-red-500 hover:text-red-600",
-//     onSelect() {
-//       handleDeleteSettlement(row.original.documentId)
-//     }
-//   }]
-// }
 onBeforeUnmount(() => {
   if (pollingInterval) clearInterval(pollingInterval)
 })
@@ -398,6 +421,23 @@ useHead({ title: 'Settlements' })
               :table-api="table.tableApi"
               :selected-count="selectedIds.length" />
           </div>
+
+          <UModal v-model:open="isPaymentModalOpen" title="Update Payment Status" close-icon="hugeicons:cancel-01" :ui="{ content: 'sm:max-w-xs' }">
+            <template #body>
+              <div class="space-y-4">
+                <p class="text-sm text-gray-500">
+                  Change payment state for <strong>{{ targetSettlement?.driver ? `${targetSettlement.driver.first_name} ${targetSettlement.driver.last_name}` : 'Driver' }}</strong>'s statement.
+                </p>
+                <UFormField label="Status">
+                  <UCheckbox v-model="modalPaymentValue" label="Mark as Paid" />
+                </UFormField>
+              </div>
+              <div class="flex justify-between gap-2 pt-6">
+                <UButton label="Cancel" color="neutral" variant="soft" @click="isPaymentModalOpen = false" />
+                <UButton label="Save Changes" color="primary" :loading="isSavingPaymentStatus" @click="handleSavePaymentStatus" />
+              </div>
+            </template>
+          </UModal>
 
         </div>
       </template>
