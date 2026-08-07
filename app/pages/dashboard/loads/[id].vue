@@ -392,47 +392,35 @@ useHead({ title: () => `Load ${load.value ? load.value.load_number : ''}` })
                     </UFieldGroup>
                   </div>
                   <div class="flex items-center gap-2 no-print">
-                    <p class="text-xs text-gray-500">Factoring:</p>
-                    <div class="flex items-center gap-1.5">
-                      <UFieldGroup>
-                        <UBadge 
-                          :color="load.status_factoring === 'sent' ? 'success' : 'neutral'" 
-                          class="uppercase text-[11px] font-bold">
-                          {{ load.status_factoring === 'sent' ? 'Sent' : 'Not Submitted' }}
-                        </UBadge>
-                        <UBadge v-if="load.status_factoring === 'sent' && load.factoring_sent_at" class="font-mono" color="neutral" variant="soft">
-                          {{ new Date(load.factoring_sent_at).toLocaleDateString() }}
-                        </UBadge>
-                      </UFieldGroup>
+                    <div class="flex items-center gap-2 no-print">
+                      <p class="text-xs text-gray-500">Factoring:</p>
+                      <div class="flex items-center gap-1.5">
+                        <UFieldGroup>
+                          <UBadge 
+                            :color="load.status_factoring === 'sent' ? 'success' : 'neutral'" 
+                            class="uppercase text-[11px] font-bold">
+                            {{ load.status_factoring === 'sent' ? 'Sent' : 'Not Submitted' }}
+                          </UBadge>
+                          <UBadge v-if="load.status_factoring === 'sent' && load.factoring_sent_at" class="font-mono" color="neutral" variant="soft">
+                            {{ new Date(load.factoring_sent_at).toLocaleDateString() }}
+                          </UBadge>
+                        </UFieldGroup>
+                      </div>
                     </div>
-                  </div>
-                  <div class="flex items-center gap-2 no-print ml-4">
-                    <p class="text-xs text-gray-500">Email Status:</p>
-                    <UBadge 
-                      :color="load.status_email === 'sent' ? 'success' : 'neutral'" 
-                      class="uppercase text-[11px] font-bold">
-                      {{ load.status_email === 'sent' ? 'Sent to Driver' : 'Not Sent' }}
-                    </UBadge>
+                    <div class="flex items-center gap-2 no-print ml-4">
+                      <p class="text-xs text-gray-500">Email Status:</p>
+                      <UBadge 
+                        :color="load.status_email === 'sent' ? 'success' : 'neutral'" 
+                        class="uppercase text-[11px] font-bold">
+                        {{ load.status_email === 'sent' ? 'Sent to Driver' : 'Not Sent' }}
+                      </UBadge>
+                    </div>
                   </div>
                 </div>
               </template>
 
               <div class="flex items-start justify-between gap-6">
                 <div class="grid gap-3 text-sm font-mono">
-                  <div class="flex gap-8">
-                    <div>
-                      <p class="text-xs text-gray-500">Pickup number</p>
-                      <p class="text-highlighted font-bold">
-                        {{ load.pickup_number || 'N/A' }}
-                      </p>
-                    </div>
-                    <div>
-                      <p class="text-xs text-gray-500">Delivery number</p>
-                      <p class="text-highlighted font-bold">
-                        {{ load.delivery_number || 'N/A' }}
-                      </p>
-                    </div>
-                  </div>
                   <div class="flex gap-8">
                     <div>
                       <p class="text-xs text-gray-500">Broker</p>
@@ -454,7 +442,7 @@ useHead({ title: () => `Load ${load.value ? load.value.load_number : ''}` })
                         $ {{ load.tonu_amount || 0 }}
                       </p>
                     </div>
-                    <template v-else>
+                    <div v-else class="flex gap-8">
                       <div v-if="permissions.canViewDriversRate">
                         <p class="text-xs text-gray-500">
                           <span class="no-print">Driver's</span> Rate
@@ -469,12 +457,17 @@ useHead({ title: () => `Load ${load.value ? load.value.load_number : ''}` })
                           $ {{ load.original_rate }}
                         </p>
                       </div>
-                    </template>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center gap-4 font-mono">
+                    <UBadge v-if="load.miles" :label="`DISTANCE: ${load.miles} Miles`" variant="soft" />
+                    <UBadge v-if="load.weight" :label="`WEIGHT:  ${load.weight} Lbs`" variant="soft" />
                   </div>
                 </div>
 
                 <div class="text-right">
-                  <img src="/coast_to_coast_480x200.png" class="w-50" alt="COAST TO COAST INC." />
+                  <img src="/coast_to_coast_480x200.png" class="w-60" alt="COAST TO COAST INC." />
                 </div>
               </div>
             </UCard>
@@ -486,18 +479,7 @@ useHead({ title: () => `Load ${load.value ? load.value.load_number : ''}` })
               <div class="md:col-span-2 space-y-4 print-col-span-2">
                 
                 <!-- ROUTE (Timeline) -->
-                <UCard variant="soft" class="print-card">
-                  <template #header>
-                    <div class="flex items-center justify-between">
-                      <h3 class="font-semibold text-highlighted">
-                        Route
-                      </h3>
-                      <div class="flex items-center gap-2">
-                        <UBadge v-if="load.miles" :label="`${load.miles} Miles`" />
-                        <UBadge  v-if="load.weight" :label="`${load.weight} Lbs`" />
-                      </div>
-                    </div>
-                  </template>
+                <UCard title="Route" variant="soft" class="print-card">
                   <UTimeline :items="timelineItems" orientation="horizontal" class="w-full">
                     <!-- Shipper -->
                     <template #shipper-title="{ item }">
@@ -732,6 +714,25 @@ useHead({ title: () => `Load ${load.value ? load.value.load_number : ''}` })
               </div>
             </div>
 
+            <div class="grid md:grid-cols-2 gap-4">
+              <UCard variant="soft" class="print-card">
+                <h4 class="text-xs text-gray-500 font-semibold uppercase mb-2">
+                  Pickup Number
+                </h4>
+                <p class="text-xs text-highlighted font-mono wrap-anywhere">
+                  {{ load.pickup_number || 'N/A' }}
+                </p>
+              </UCard>
+              <UCard variant="soft" class="print-card">
+                <h4 class="text-xs text-gray-500 font-semibold uppercase mb-2">
+                  Delivery Number
+                </h4>
+                <p class="text-xs text-highlighted font-mono wrap-anywhere">
+                  {{ load.delivery_number || 'N/A' }}
+                </p>
+              </UCard>
+            </div>
+
             <!-- NOTES -->
             <Notes 
               v-if="permissions.canViewNotes"  
@@ -862,7 +863,7 @@ useHead({ title: () => `Load ${load.value ? load.value.load_number : ''}` })
               </UFormField>
             </div>
 
-            <div class="flex justify-between gap-2 pt-6">
+            <div class="dashboard flex justify-between gap-2 pt-6">
               <UButton 
                 label="Cancel" 
                 color="neutral" 

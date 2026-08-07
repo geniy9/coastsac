@@ -413,7 +413,7 @@ const onDelete = async () => {
 <template>
   <UModal v-model:open="open">
     <template #content>
-      <UForm :state="state" @submit="onSubmit" class="grid gap-6 p-6 overflow-y-auto">
+      <UForm :state="state" @submit="onSubmit" class="dashboard grid gap-6 p-6 overflow-y-auto">
         
         <div class="flex items-center justify-between">
           <h3 class="text-lg font-semibold text-highlighted">
