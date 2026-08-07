@@ -249,9 +249,10 @@ const columns = [{
         variant: "soft", 
         class: "uppercase text-[10px]"
       }, () => status),
-      h(UBadge, { 
+      h(UBadge, {
+        icon: payStatus === 'paid' ? 'hugeicons:money-bag-02' : 'hugeicons:money-not-found-01',
         color: payStatus === 'paid' ? 'success' : 'error', 
-        variant: "subtle", 
+        variant: "soft", 
         class: "uppercase text-[9px] font-bold"
       }, () => payStatus)
     ])
@@ -286,8 +287,7 @@ const columns = [{
       h(UDropdownMenu, { 
         content: { align: "center", side: "left" }, 
         items: getRowItems(row) 
-      },
-        () => h(UButton, {
+      }, () => h(UButton, {
           icon: "hugeicons:more-vertical-circle-01",
           color: "neutral",
           variant: "soft",
@@ -426,13 +426,15 @@ useHead({ title: 'Settlements' })
             <template #body>
               <div class="space-y-4">
                 <p class="text-sm text-gray-500">
-                  Change payment state for <strong>{{ targetSettlement?.driver ? `${targetSettlement.driver.first_name} ${targetSettlement.driver.last_name}` : 'Driver' }}</strong>'s statement.
+                  Change payment state for <strong><br />
+                  {{ targetSettlement?.driver ? `${targetSettlement.driver.first_name} ${targetSettlement.driver.last_name}` : 'Driver' }}</strong>'s statement.
                 </p>
                 <UFormField label="Status">
-                  <UCheckbox v-model="modalPaymentValue" label="Mark as Paid" />
+                  <UCheckbox v-model="modalPaymentValue" 
+                    :label="modalPaymentValue ? 'Mark as Unpaid' : 'Mark as Paid'" />
                 </UFormField>
               </div>
-              <div class="flex justify-between gap-2 pt-6">
+              <div class="flex justify-between gap-2 pt-6 dashboard">
                 <UButton label="Cancel" color="neutral" variant="soft" @click="isPaymentModalOpen = false" />
                 <UButton label="Save Changes" color="primary" :loading="isSavingPaymentStatus" @click="handleSavePaymentStatus" />
               </div>

@@ -165,7 +165,7 @@ useHead({
         <UDashboardNavbar title="Settlement Worksheet" class="no-print">
           <template #leading>
             <UDashboardSidebarCollapse />
-            <UButton icon="i-lucide-arrow-left" to="/dashboard/settlements" variant="ghost" />
+            <UButton icon="i-lucide-arrow-left" to="/dashboard/settlements" color="neutral" variant="ghost" />
           </template>
           <template #right>
             <div class="flex items-center gap-2">

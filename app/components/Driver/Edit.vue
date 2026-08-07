@@ -174,7 +174,7 @@ const onSubmit = async () => {
       ...newUploadedDocIds
     ]
 
-    // Санитизация всех числовых полей deductions перед отправкой в Strapi
+    // Санитизация всех числовых полей deductions
     const sanitizedDeductions = {
       eld: state.deductions.eld === '' || state.deductions.eld === null ? 0 : Number(state.deductions.eld),
       insurance: state.deductions.insurance === '' || state.deductions.insurance === null ? 0 : Number(state.deductions.insurance),
@@ -187,7 +187,10 @@ const onSubmit = async () => {
     const payload = {
       data: {
         ...state,
-        deductions: sanitizedDeductions, // Перезаписываем очищенными значениями
+        cdl_expiry: state.cdl_expiry || null,
+        medical_expiry: state.medical_expiry || null,
+        hired_date: state.hired_date || null,
+        deductions: sanitizedDeductions,
         assigned_dispatcher: state.assigned_dispatcher?.id || null,
         extra_info: {
           ...state.extra_info,

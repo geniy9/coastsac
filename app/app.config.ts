@@ -139,94 +139,33 @@ export default defineAppConfig({
 
     pricingPlan: {
       slots: {
-        root: 'relative grid rounded-3xl p-6 lg:p-8 xl:p-10 gap-6',
-        header: '',
-        body: 'flex flex-col min-w-0',
-        footer: 'flex flex-col gap-6 items-center',
-        titleWrapper: 'flex items-center gap-3',
-        title: 'text-highlighted truncate text-2xl sm:text-3xl text-black font-bold',
-        description: 'text-black text-base text-pretty mt-2',
-        priceWrapper: 'flex items-center gap-1',
-        price: 'text-coast text-3xl sm:text-4xl font-bold',
-        discount: 'text-muted line-through text-xl sm:text-2xl',
-        billing: 'flex flex-col justify-between min-w-0',
-        billingPeriod: 'text-zinc-600 truncate text-xs font-medium',
-        billingCycle: 'text-black truncate text-xs font-medium',
-        features: 'flex flex-col gap-3 flex-1 mt-6 grow-0',
-        feature: 'flex items-center gap-2 min-w-0',
-        featureIcon: 'size-5 shrink-0 text-coast',
-        featureTitle: 'text-black text-sm truncate',
+        root: 'rounded-3xl',
+        title: 'text-black font-bold',
+        description: 'text-black',
+        price: 'text-coast font-bold',
+        billingPeriod: 'text-zinc-600',
+        billingCycle: 'text-black',
+        featureIcon: 'text-coast',
+        featureTitle: 'text-black',
         badge: 'rounded-full bg-coast text-white',
-        button: '',
-        tagline: 'text-base font-semibold text-default',
-        terms: 'text-xs/5 text-muted text-center text-balance'
       },
       variants: {
         orientation: {
           horizontal: {
-            root: 'grid-cols-1 lg:grid-cols-3 justify-between divide-y lg:divide-y-0 lg:divide-x divide-default',
-            body: 'lg:col-span-2 pb-6 lg:pb-0 lg:pr-6 justify-center',
-            footer: 'lg:justify-center lg:items-center lg:p-6 lg:max-w-xs lg:w-full lg:mx-auto',
-            features: 'lg:grid lg:grid-cols-2 lg:mt-12'
-          },
-          vertical: {
-            footer: 'justify-end',
-            priceWrapper: 'mt-6'
-          }
-        },
-        variant: {
-          solid: {
-            root: 'bg-inverted',
-            title: 'text-inverted',
-            description: 'text-dimmed',
-            price: 'text-inverted',
-            discount: 'text-dimmed',
-            billingCycle: 'text-dimmed',
-            billingPeriod: 'text-dimmed',
-            featureTitle: 'text-dimmed'
-          },
-          outline: {
-            root: 'bg-default ring ring-default'
-          },
-          soft: {
-            root: 'bg-elevated/50'
-          },
-          subtle: {
-            root: 'bg-elevated/50 ring ring-default'
+            body: 'lg:pr-6',
           }
         },
         highlight: {
           true: {
-            root: 'ring-3 ring-inset ring-coast'
-          }
-        },
-        scale: {
-          true: {
-            root: 'lg:scale-[1.1] lg:z-[1]'
+            root: 'ring-coast'
           }
         }
-      },
-      compoundVariants: [
-        {
-          orientation: 'horizontal',
-          variant: 'soft',
-          class: {
-            root: 'divide-accented'
-          }
-        },
-        {
-          orientation: 'horizontal',
-          variant: 'subtle',
-          class: {
-            root: 'divide-accented'
-          }
-        }
-      ]
+      }
     },
 
     chatMessage: {
       slots: {
-        content: '!px-3 !py-1 !min-h-8 print:bg-elevated/5',
+        content: '!px-3 !py-1 !min-h-6 print:bg-elevated/5 sm:text-sm',
         leading: '!mt-0',
       },
       variants: {
