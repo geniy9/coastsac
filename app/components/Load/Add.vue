@@ -35,6 +35,10 @@ const brokersList = ref([])
 const selectedBrokerModel = ref(null) // (documentId или новое имя)
 const brokerSearchQuery = ref('')
 
+const citiesList = ref([])
+const shipperCitySearchQuery = ref('')
+const receiverCitySearchQuery = ref('')
+
 const pickupType = ref('Strict Appointment') // 'Strict Appointment' | 'FCFS'
 const deliveryType = ref('Strict Appointment') // 'Strict Appointment' | 'FCFS'
 const pickupTimeRange = shallowRef({
@@ -84,9 +88,41 @@ const handleBrokerCreate = (name) => {
   selectedBrokerModel.value = name // v-model связывается с новым именем (строкой)
 }
 
+// Асинхронный поиск городов с дебаунсом
+const fetchCities = useDebounceFn(async (q) => {
+  try {
+    const filterParams = { pagination: { limit: 30 } }
+    if (q) {
+      filterParams.filters = { name: { $containsi: q } }
+    }
+    const res = await client('/cities', { params: filterParams })
+    
+    citiesList.value = (res.data || []).map(c => ({
+      label: c.name,
+      value: c.name // В качестве значения используем имя города, т.к. в схеме Load адрес хранит строку
+    }))
+  } catch (e) {
+    console.error('Failed to load cities:', e)
+  }
+}, 300)
+
+// Добавление нового города в локальный список
+const handleCityCreate = (name, type) => {
+  const newItem = { label: name, value: name }
+  if (!citiesList.value.some(c => c.value === name)) {
+    citiesList.value.push(newItem)
+  }
+  if (type === 'shipper') {
+    state.shipper_address.city = name
+  } else if (type === 'receiver') {
+    state.receiver_address.city = name
+  }
+}
+
 onMounted(async () => {
   await fetchDrivers()
   await fetchBrokers('')
+  await fetchCities('')
 })
 
 const driverOptions = computed(() => {
@@ -341,10 +377,10 @@ const onSubmit = async () => {
               <template #trailing><div class="input_trailing">$</div></template>
             </UInput>
           </UFormField>
-          <UFormField label="Pickup Number" name="pickup_number">
+          <UFormField label="Pickup Number" name="pickup_number" class="col-span-2">
             <UInput v-model="state.pickup_number" placeholder="SO-XXXXXX" class="w-full" />
           </UFormField>
-          <UFormField label="Delivery Number" name="delivery_number">
+          <UFormField label="Delivery Number" name="delivery_number" class="col-span-2">
             <UInput v-model="state.delivery_number" placeholder="XXXXXXXXX" class="w-full" />
           </UFormField>
         </div>
@@ -363,7 +399,18 @@ const onSubmit = async () => {
         <div class="grid gap-4">
           <UFormField label="Shipper City/Sate" name="shipper_address.city" required>
             <UFieldGroup>
-              <UInput v-model="state.shipper_address.city" placeholder="City" required class="w-50" />
+              <USelectMenu
+                v-model="state.shipper_address.city"
+                v-model:search-term="shipperCitySearchQuery"
+                :items="citiesList"
+                value-key="value"
+                label-key="label"
+                ignore-filter
+                create-item="always"
+                class="w-50"
+                placeholder="City"
+                @update:search-term="fetchCities"
+                @create="(val) => handleCityCreate(val, 'shipper')" />
               <USelectMenu v-model="state.shipper_address.state" :items="statesList" class="w-20" />
             </UFieldGroup>
           </UFormField>
@@ -389,7 +436,18 @@ const onSubmit = async () => {
         <div class="grid gap-4">
           <UFormField label="Receiver City/Sate" name="receiver_address.city" required>
             <UFieldGroup>
-              <UInput v-model="state.receiver_address.city" placeholder="City" required class="w-50" />
+              <USelectMenu
+                v-model="state.receiver_address.city"
+                v-model:search-term="receiverCitySearchQuery"
+                :items="citiesList"
+                value-key="value"
+                label-key="label"
+                ignore-filter
+                create-item="always"
+                class="w-50"
+                placeholder="City"
+                @update:search-term="fetchCities"
+                @create="(val) => handleCityCreate(val, 'receiver')" />
               <USelectMenu v-model="state.receiver_address.state" :items="statesList" class="w-20" />
             </UFieldGroup>
           </UFormField>

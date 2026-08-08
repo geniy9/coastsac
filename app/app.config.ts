@@ -44,7 +44,7 @@ export default defineAppConfig({
     selectMenu: {
       variants: {
         fieldGroup: {
-          horizontal: '!rounded-r-md',
+          horizontal: 'first:!rounded-e-none !rounded-e-md',
         },
       }
     },
