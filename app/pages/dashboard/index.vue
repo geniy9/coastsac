@@ -1,7 +1,7 @@
 <!-- pages/dashboard/index.vue -->
 <script setup>
 definePageMeta({ layout: 'dashboard' })
-import { startOfWeek, sub, format } from "date-fns";
+import { startOfWeek, format } from "date-fns";
 const { permissions } = useRolePermissions()
 const { isNotificationsOpen, hasUnread } = useNotifications()
 const client = useStrapiClient()
@@ -16,10 +16,6 @@ const formatDate = (date) => {
   if (!date) return null
   return format(new Date(date), 'yyyy-MM-dd')
 }
-// const formatDate = (date) => {
-//   if (!date) return null
-//   return date instanceof Date ? date.toISOString().split('T')[0] : new Date(date).toISOString().split('T')[0]
-// }
 
 const { data: dashboardData, status } = await useAsyncData("dashboard-data", async () => {
   if (!permissions.value.canViewStats) return
@@ -75,6 +71,11 @@ const { data: dashboardData, status } = await useAsyncData("dashboard-data", asy
             :period="period" 
             :range="range" 
             :chart-data="dashboardData?.chartData || []" 
+            :loading="status === 'pending'" />
+          <HomeDriverStats 
+            :period="period"
+            :range="range"
+            :chart-data="dashboardData?.chartData || []"
             :loading="status === 'pending'" />
         </div>
 
