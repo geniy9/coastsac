@@ -4,6 +4,7 @@ definePageMeta({ layout: 'dashboard' })
 
 const { permissions } = useRolePermissions()
 const client = useStrapiClient()
+const user = useStrapiUser()
 
 const activeTab = ref('active')
 const isAddOpen = ref(false)
@@ -30,8 +31,28 @@ const { data: response, status, refresh } = await useAsyncData('tasks-list', () 
 const tasks = computed(() => response.value?.data || [])
 
 const filteredTasks = computed(() => {
+  const currentUserId = user.value?.id
+  const isAdmin = permissions.value.isAdmin
+
   return tasks.value.filter(task => {
-    return task.category === activeTab.value
+    // 1. Проверяем соответствие вкладке (Active / Completed)
+    if (task.category !== activeTab.value) {
+      return false
+    }
+    // 2. Администратор видит абсолютно все задачи
+    if (isAdmin) {
+      return true
+    }
+    const executors = task.executors || []
+    // 3. Если исполнители не указаны (массив пуст), задачу видят все
+    if (executors.length === 0) {
+      return true
+    }
+    // 4. Иначе проверяем, является ли текущий пользователь создателем или исполнителем
+    const isCreator = task.creator?.id === currentUserId
+    const isExecutor = executors.some(exec => exec.id === currentUserId)
+
+    return isCreator || isExecutor
   })
 })
 const handleRefresh = async () => { await refresh() }

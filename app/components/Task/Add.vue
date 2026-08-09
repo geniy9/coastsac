@@ -1,5 +1,6 @@
 <!-- components/TaskAdd.vue -->
 <script setup>
+import { useDebounceFn } from '@vueuse/core'
 const open = defineModel('open', { type: Boolean, default: false })
 const emit = defineEmits(['success'])
 
@@ -21,8 +22,9 @@ const uploaderRef = ref(null)
 const loading = ref(false)
 
 const usersList = ref([])
-const loadsList = ref([])
 const driversList = ref([])
+const loadsList = ref([])
+const loadSearchQuery = ref('') 
 
 const fetchUsers = async () => {
   try {
@@ -32,19 +34,23 @@ const fetchUsers = async () => {
     console.error(e)
   }
 }
-const fetchLoads = async () => {
+const fetchLoads = useDebounceFn(async (q) => {
   try {
-    const res = await client('/loads', { 
-      query: { 
-        pagination: { limit: 100 },
-        sort: ['createdAt:desc']
-      }
-    })
-    loadsList.value = res.data || []
+    const queryParams = {
+      pagination: { limit: 25 }, 
+      sort: ['createdAt:desc']
+    }
+    if (q) { queryParams.filters = { load_number: { $containsi: q }}}
+    const res = await client('/loads', { params: queryParams })
+    
+    loadsList.value = (res.data || []).map(l => ({
+      value: l.documentId,
+      label: `${l.load_number}`
+    }))
   } catch (e) {
     console.error(e)
   }
-}
+}, 300)
 const fetchDrivers = async () => {
   try {
     const res = await client('/drivers', { query: { pagination: { limit: 100 } } })
@@ -56,11 +62,10 @@ const fetchDrivers = async () => {
 
 onMounted(() => {
   fetchUsers()
-  fetchLoads()
+  fetchLoads('')
   fetchDrivers()
 })
 
-// const userOptions = computed(() => usersList.value.map(u => ({ value: u.id, label: u.name || u.username })))
 const userOptions = computed(() => {
   const employeeRoles = ['admin', 'dispatcher', 'accounting']
   return usersList.value
@@ -71,7 +76,6 @@ const userOptions = computed(() => {
     })
     .map(u => ({ value: u.id, label: u.name || u.username }))
 })
-const loadOptions = computed(() => loadsList.value.map(l => ({ value: l.documentId, label: `${l.load_number}` })))
 const driverOptions = computed(() => driversList.value.map(d => ({ value: d.documentId, label: `${d.first_name} ${d.last_name}` })))
 
 const onSubmit = async () => {
@@ -113,6 +117,7 @@ const onSubmit = async () => {
     state.status_task = 'created'
     state.executors = []
     state.load = null
+    loadSearchQuery.value = ''
     state.driver = null
     uploaderRef.value?.clear()
   } catch (error) {
@@ -160,7 +165,16 @@ const onSubmit = async () => {
 
         <div class="grid grid-cols-2 gap-4">
           <UFormField label="Linked Load" name="load">
-            <USelect v-model="state.load" :items="loadOptions" placeholder="None" class="w-full" />
+            <USelectMenu
+              v-model="state.load"
+              v-model:search-term="loadSearchQuery"
+              :items="loadsList"
+              value-key="value"
+              label-key="label"
+              ignore-filter
+              class="w-full"
+              placeholder="Type load number..."
+              @update:search-term="fetchLoads" />
           </UFormField>
 
           <UFormField label="Linked Driver" name="driver">

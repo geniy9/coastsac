@@ -523,12 +523,6 @@ const onDelete = async () => {
         <USeparator label="Shipper (Pickup)" />
 
         <div class="grid gap-4">
-          <!-- <UFormField label="Shipper City/Sate" name="shipper_address.city" required class="w-full">
-            <UFieldGroup>
-              <UInput v-model="state.shipper_address.city" placeholder="City" required class="w-50" />
-              <USelectMenu v-model="state.shipper_address.state" :items="statesList" class="w-20" />
-            </UFieldGroup>
-          </UFormField> -->
           <UFormField label="Shipper City/Sate" name="shipper_address.city" required class="w-full">
             <UFieldGroup>
               <USelectMenu
@@ -566,12 +560,6 @@ const onDelete = async () => {
         <USeparator label="Receiver (Delivery)" />
 
         <div class="grid gap-4">
-          <!-- <UFormField label="Receiver City/Sate" name="receiver_address.city" required class="w-full">
-            <UFieldGroup>
-              <UInput v-model="state.receiver_address.city" placeholder="City" required class="w-50" />
-              <USelectMenu v-model="state.receiver_address.state" :items="statesList" class="w-20" />
-            </UFieldGroup>
-          </UFormField> -->
           <UFormField label="Receiver City/Sate" name="receiver_address.city" required class="w-full">
             <UFieldGroup>
               <USelectMenu
