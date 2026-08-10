@@ -20,6 +20,7 @@ const state = reactive({
   message: ''
 })
 
+const MAX_EMAIL_SIZE_MB = 20
 const extraFiles = ref([])
 const extraUploaderRef = ref(null)
 const loading = ref(false)
@@ -69,15 +70,18 @@ const extraAttachmentsSizeMB = computed(() => {
   return totalBytes / (1024 * 1024)
 })
 
-const totalAttachmentsCount = computed(() => {
-  return loadAttachmentsStats.value.count + extraFiles.value.length
+// Физический (исходный) размер всех файлов в МБ
+const rawSizeMB = computed(() => {
+  return loadAttachmentsStats.value.sizeMB + extraAttachmentsSizeMB.value
 })
-
 const totalSizeMB = computed(() => {
   return loadAttachmentsStats.value.sizeMB + extraAttachmentsSizeMB.value
 })
-
-const isLimitExceeded = computed(() => totalSizeMB.value > 25)
+const totalAttachmentsCount = computed(() => {
+  return loadAttachmentsStats.value.count + extraFiles.value.length
+})
+const estimatedPayloadSizeMB = computed(() => {  return rawSizeMB.value * 1.37 })
+const isLimitExceeded = computed(() => estimatedPayloadSizeMB.value > MAX_EMAIL_SIZE_MB)
 
 const onSubmit = async () => {
   if (state.emails.length === 0) {
@@ -85,7 +89,7 @@ const onSubmit = async () => {
     return
   }
   if (isLimitExceeded.value) {
-    toast.add({ title: 'Validation Error', description: 'Total attachments size must be under 25MB.', color: 'error' })
+    toast.add({ title: 'Validation Error', description: `Total attachments package exceeds the allowed ${MAX_EMAIL_SIZE_MB}MB SMTP limit.`, color: 'error' })
     return
   }
 
@@ -119,9 +123,10 @@ const onSubmit = async () => {
     extraUploaderRef.value?.clear()
   } catch (error) {
     console.error(error)
+    const serverMessage = error?.data?.error?.details?.details || error?.data?.error?.message
     toast.add({
       title: 'Error',
-      description: error?.message || 'Failed to process factoring',
+      description: serverMessage || error?.message || 'Failed to process factoring',
       color: 'error'
     })
   } finally {
@@ -178,21 +183,21 @@ const onSubmit = async () => {
             <div class="flex justify-between items-center text-xs">
               <span class="text-gray-400">Payload Weight:</span>
               <span :class="['font-mono', isLimitExceeded ? 'text-red-500' : 'text-highlighted']">
-                {{ totalSizeMB.toFixed(2) }} MB / 25 MB
+                {{ estimatedPayloadSizeMB.toFixed(2) }} MB / {{ MAX_EMAIL_SIZE_MB }} MB
               </span>
             </div>
 
             <UProgress 
-              :model-value="Math.min(100, (totalSizeMB / 25) * 100)" 
+              :model-value="Math.min(100, (estimatedPayloadSizeMB / MAX_EMAIL_SIZE_MB) * 100)" 
               :color="isLimitExceeded ? 'error' : 'primary'"
               size="sm" />
 
             <p v-if="isLimitExceeded" class="text-xs text-red-500 font-semibold mt-1">
-              Attachment weight limit exceeded. Please deselect some loads or reduce the size of the uploaded paperwork.
+              Email transmission size limit exceeded. Please deselect some loads or reduce the size of the uploaded custom paperwork.
             </p>
           </div>
 
-          <div class="flex justify-end gap-3 pt-4 border-t border-default">
+          <div class="dashboard flex justify-end gap-3 pt-4 border-t border-default">
             <UButton color="neutral" variant="ghost" label="Cancel" @click="open = false" />
             <UButton 
               type="submit" 
