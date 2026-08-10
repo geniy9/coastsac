@@ -32,7 +32,11 @@ function formatWeight(value) {
   return `${value.toLocaleString("en-US")}`
 }
 
-// Агрегируем общие данные по каждому водителю за период
+function formatMiles(value) {
+  return `${value.toLocaleString("en-US")}`
+}
+
+// Агрегируем данные по каждому водителю с учетом новых колонок
 const driverStats = computed(() => {
   const driversMap = {}
 
@@ -47,6 +51,9 @@ const driverStats = computed(() => {
         name: driverName,
         loadsCount: 0,
         totalWeight: 0,
+        totalMiles: 0,
+        totalCancelled: 0,
+        totalTonu: 0,
         driverGross: 0,
         originalGross: 0,
         loads: []
@@ -54,13 +61,23 @@ const driverStats = computed(() => {
     }
 
     const stats = driversMap[driverId]
-    stats.loadsCount += 1
-    stats.totalWeight += Number(load.weight) || 0
-    stats.driverGross += Number(load.drivers_rate) || 0
+    const status = load.status_load
 
-    const originalRate = load.status_load === 'tonu' ? (load.tonu_amount || 0) : (load.original_rate || 0)
-    stats.originalGross += Number(originalRate) || 0
-    stats.loads.push(load)
+    if (status === 'cancelled') {
+      stats.totalCancelled += 1
+    } else if (status === 'tonu') {
+      stats.totalTonu += 1
+      stats.driverGross += Number(load.drivers_rate) || 0
+      stats.originalGross += Number(load.tonu_amount) || 0
+      stats.loads.push(load) // TONU идет в график, так как у него есть Gross
+    } else {
+      stats.loadsCount += 1
+      stats.totalWeight += Number(load.weight) || 0
+      stats.totalMiles += Number(load.miles) || 0
+      stats.driverGross += Number(load.drivers_rate) || 0
+      stats.originalGross += Number(load.original_rate) || 0
+      stats.loads.push(load)
+    }
   })
 
   return Object.values(driversMap).sort((a, b) => b.originalGross - a.originalGross)
@@ -121,7 +138,6 @@ const chartDataFormatted = computed(() => {
 
       row[driver.id] = amount
     })
-
     return row
   })
 })
@@ -130,22 +146,43 @@ const columns = [{
   accessorKey: "name",
   header: "Driver",
   cell: ({ row }) => h("span", { class: "font-semibold text-highlighted" }, row.original.name)
-}, {
+},{
   accessorKey: "loadsCount",
   header: "Loads Completed",
   meta: { class: { th: 'text-center', td: 'text-center' }},
   cell: ({ row }) => h("span", undefined, row.original.loadsCount)
-}, {
+},{
+  accessorKey: "totalCancelled",
+  header: "Cancelled",
+  meta: { class: { th: 'text-center', td: 'text-center' }},
+  cell: ({ row }) => {
+    const val = row.original.totalCancelled
+    return h("span", { class: val > 0 ? "text-red-500 font-bold" : "text-gray-500" }, val)
+  }
+},{
+  accessorKey: "totalTonu",
+  header: "TONU",
+  meta: { class: { th: 'text-center', td: 'text-center' }},
+  cell: ({ row }) => {
+    const val = row.original.totalTonu
+    return h("span", { class: val > 0 ? "text-amber-500 font-semibold" : "text-gray-500" }, val)
+  }
+},{
+  accessorKey: "totalMiles",
+  header: "Total Miles",
+  meta: { class: { th: 'text-center', td: 'text-center font-mono' }},
+  cell: ({ row }) => h("span", undefined, formatMiles(row.original.totalMiles))
+},{
   accessorKey: "totalWeight",
   header: "Total Weight (lbs)",
-  meta: { class: { th: 'text-center', td: 'text-center' }},
+  meta: { class: { th: 'text-center', td: 'text-center font-mono' }},
   cell: ({ row }) => h("span", undefined, formatWeight(row.original.totalWeight))
-}, {
+},{
   accessorKey: "driverGross",
   header: "Driver's Gross",
   meta: { class: { th: 'text-right', td: 'text-right font-semibold' }},
   cell: ({ row }) => h("span", { class: "text-primary" }, formatCurrency(row.original.driverGross))
-}, {
+},{
   accessorKey: "originalGross",
   header: "Original Gross",
   meta: { class: { th: 'text-right', td: 'text-right font-semibold' }},
@@ -187,7 +224,6 @@ const template = (d) => {
         </div>`
     }
   })
-  
   html += `</div>`
   return html
 }
@@ -229,7 +265,7 @@ const template = (d) => {
     </div>
 
     <div v-else class="p-4">
-      <!-- Табличный вид -->
+      <!-- TABLE -->
       <UTable
         v-if="currentView === 'table'"
         :data="driverStats"
@@ -244,7 +280,7 @@ const template = (d) => {
           separator: 'h-0'
         }" />
 
-      <!-- Графический вид -->
+      <!-- CHART -->
       <div v-else-if="currentView === 'chart'" class="pt-4">
         <VisXYContainer :data="chartDataFormatted" :padding="{ top: 20, bottom: 10 }" class="h-80" :width="width">
           <VisLine 

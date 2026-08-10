@@ -181,7 +181,7 @@ const formatDate = (dateStr) => {
             </div>
           </template>
           <template #leading="{ avatar }">
-            <UAvatar :src="avatar.src" class="no-print" />
+            <UAvatar :src="avatar.src" :alt="avatar.alt" class="no-print" />
           </template>
           <template #content="{ message }">
             <UContextMenu :items="getContextMenuItems(message)" :ui="{ content: 'w-32' }">
