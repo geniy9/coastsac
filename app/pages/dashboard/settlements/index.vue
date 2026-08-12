@@ -6,6 +6,7 @@ import { sub, format, differenceInCalendarDays } from "date-fns"
 
 definePageMeta({ layout: 'dashboard' })
 
+const { imageUrl } = useConfig()
 const { permissions } = useRolePermissions()
 const client = useStrapiClient()
 const toast = useToast()
@@ -62,7 +63,7 @@ const driverItems = computed(() => drivers.value.map(d => ({
 const { data: settlementsResponse, refresh } = await useAsyncData('settlements-list', () =>
   client('/settlements', { 
     query: { 
-      populate: ['driver'],
+      populate: ['driver', 'pdf_file'],
       pagination: { limit: limit.value }
     }
   }), {
@@ -86,8 +87,15 @@ const startPolling = (jobId) => {
       activeJob.value = res.data
       if (['completed', 'failed'].includes(res.data.status_job)) {
         clearInterval(pollingInterval)
+        
+        const isFailed = res.data.status_job === 'failed'
         activeJob.value = null
-        toast.add({ title: 'Bulk Sending Completed', color: 'success' })
+        
+        toast.add({ 
+          title: isFailed ? 'Bulk Sending Failed' : 'Bulk Sending Completed', 
+          color: isFailed ? 'error' : 'success' 
+        })
+        
         refresh()
       }
     } catch (e) {
@@ -256,6 +264,22 @@ const columns = [{
         class: "uppercase text-[9px] font-bold"
       }, () => payStatus)
     ])
+  }
+},{
+  id: "pdf",
+  header: "PDF",
+  cell: ({ row }) => {
+    const pdfFile = row.original.pdf_file
+    if (!pdfFile) {
+      return h("span", { class: "text-gray-500 text-xs font-mono" }, "No PDF")
+    }
+    const fileUrl = `${imageUrl}${pdfFile.url}`
+    return h("a", {
+      href: fileUrl,
+      target: "_blank",
+      class: "flex items-center gap-1.5 text-xs text-primary font-mono hover:underline",
+      onClick: (e) => e.stopPropagation()
+    }, h(UIcon, { name: "hugeicons:document-attachment", class: "w-5 h-5 text-highlighted" }))
   }
 },{
   id: "gross",
