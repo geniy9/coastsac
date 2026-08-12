@@ -20,11 +20,11 @@ const colors = [
   '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'
 ]
 
-function formatCurrency(value) {
+function formatCurrency(value, digits = 0) {
   return value.toLocaleString("en-US", {
     style: "currency",
     currency: "USD",
-    maximumFractionDigits: 0,
+    maximumFractionDigits: digits,
   })
 }
 
@@ -148,7 +148,7 @@ const columns = [{
   cell: ({ row }) => h("span", { class: "font-semibold text-highlighted" }, row.original.name)
 },{
   accessorKey: "loadsCount",
-  header: "Loads Completed",
+  header: "Loads",
   meta: { class: { th: 'text-center', td: 'text-center' }},
   cell: ({ row }) => h("span", undefined, row.original.loadsCount)
 },{
@@ -168,15 +168,24 @@ const columns = [{
     return h("span", { class: val > 0 ? "text-amber-500 font-semibold" : "text-gray-500" }, val)
   }
 },{
+  accessorKey: "totalWeight",
+  header: "Total Weight",
+  meta: { class: { th: 'text-center', td: 'text-center font-mono' }},
+  cell: ({ row }) => h("span", undefined, `${formatWeight(row.original.totalWeight)} lbs`)
+},{
   accessorKey: "totalMiles",
   header: "Total Miles",
   meta: { class: { th: 'text-center', td: 'text-center font-mono' }},
   cell: ({ row }) => h("span", undefined, formatMiles(row.original.totalMiles))
 },{
-  accessorKey: "totalWeight",
-  header: "Total Weight (lbs)",
+  id: "rate_per_mile",
+  header: "Rate per Mile",
   meta: { class: { th: 'text-center', td: 'text-center font-mono' }},
-  cell: ({ row }) => h("span", undefined, formatWeight(row.original.totalWeight))
+  cell: ({ row }) => {
+    const ratePerMile = (row.original.driverGross >= row.original.totalMiles) 
+      ? (row.original.driverGross / row.original.totalMiles) : 0
+    return h("span", undefined, formatCurrency(ratePerMile, 2))
+  }
 },{
   accessorKey: "driverGross",
   header: "Driver's Gross",
