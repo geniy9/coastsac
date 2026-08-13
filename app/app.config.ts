@@ -54,7 +54,7 @@ export default defineAppConfig({
         root: 'flex gap-1.5',
         item: 'group relative flex flex-1 gap-3',
         container: 'relative flex items-center gap-1.5',
-        indicator: 'group-data-[state=completed]:text-inverted group-data-[state=active]:text-inverted text-white  bg-primary dark:bg-white dark:text-primary size-12 text-3xl',
+        indicator: 'group-data-[state=completed]:text-inverted group-data-[state=active]:text-inverted text-white  bg-primary dark:bg-white dark:text-primary size-10 text-3xl',
         separator: 'flex-1 rounded-full bg-primary dark:bg-white',
         wrapper: 'w-full',
         date: 'text-dimmed text-xs/5',

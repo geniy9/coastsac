@@ -52,7 +52,17 @@ const newAdjAmount = ref(0)
 const newAdjType = ref('deduction')
 const isOpenAdjust = ref(false)
 const loadingAdjust = ref(false)
-const loadingDeleteIdx = ref(null) // Индекс удаляемой корректировки
+const loadingDeleteIdx = ref(null)
+
+const formatRoute = (load) => {
+  const shippers = Array.isArray(load.shipper_address) ? load.shipper_address : [load.shipper_address]
+  const receivers = Array.isArray(load.receiver_address) ? load.receiver_address : [load.receiver_address]
+  
+  const shipperCities = shippers.map(s => `${s?.city || 'N/A'}, ${s?.state || 'N/A'}`).join(' / ')
+  const receiverCities = receivers.map(r => `${r?.city || 'N/A'}, ${r?.state || 'N/A'}`).join(' / ')
+  
+  return `${shipperCities} - ${receiverCities}`
+}
 
 const handleAddAdjustment = async () => {
   if (!newAdjReason.value || newAdjAmount.value <= 0) return
@@ -277,7 +287,7 @@ useHead({
                       <span v-if="load.status_load === 'tonu'" class="text-red-500 font-bold text-xs">(TONU)</span>
                     </span>
                     <span class="text-gray-500 text-xs">
-                      {{ `${load.shipper_address?.city || 'N/A'}, ${load.shipper_address?.state || 'N/A'}` }} - {{ `${load.receiver_address?.city || 'N/A'}, ${load.receiver_address?.state || 'N/A'}` }}
+                      {{ formatRoute(load) }}
                     </span>
                   </div>
                   <span class="text-center font-mono">

@@ -40,8 +40,8 @@ const state = reactive({
   category: 'active',
   driver: null,
   broker: '',
-  shipper_address: { city: '', state: 'AL', full_address: '' },
-  receiver_address: { city: '', state: 'AL', full_address: '' },
+  shipper_address: [{ city: '', state: 'AL', full_address: '' }],
+  receiver_address: [{ city: '', state: 'AL', full_address: '' }],
   miles: 0,
   weight: 0
 })
@@ -147,16 +147,22 @@ const fetchCities = useDebounceFn(async (q) => {
     console.error('Failed to load cities:', e)
   }
 }, 300)
-// Добавление созданного города в локальный список выбора
-const handleCityCreate = (name, type) => {
+
+const addShipperAddress = () => state.shipper_address.push({ city: '', state: 'AL', full_address: '' })
+const removeShipperAddress = (idx) => state.shipper_address.splice(idx, 1)
+
+const addReceiverAddress = () => state.receiver_address.push({ city: '', state: 'AL', full_address: '' })
+const removeReceiverAddress = (idx) => state.receiver_address.splice(idx, 1)
+
+const handleCityCreate = (name, type, index) => {
   const newItem = { label: name, value: name }
   if (!citiesList.value.some(c => c.value === name)) {
     citiesList.value.push(newItem)
   }
   if (type === 'shipper') {
-    state.shipper_address.city = name
+    state.shipper_address[index].city = name
   } else if (type === 'receiver') {
-    state.receiver_address.city = name
+    state.receiver_address[index].city = name
   }
 }
 
@@ -176,16 +182,12 @@ watch(() => props.load, (newVal) => {
       status_load: newVal.status_load || 'not_started',
       category: newVal.category || 'active',
       driver: newVal.driver?.documentId || null,
-      shipper_address: {
-        city: newVal.shipper_address?.city || '',
-        state: newVal.shipper_address?.state || 'AL',
-        full_address: newVal.shipper_address?.full_address || ''
-      },
-      receiver_address: {
-        city: newVal.receiver_address?.city || '',
-        state: newVal.receiver_address?.state || 'AL',
-        full_address: newVal.receiver_address?.full_address || ''
-      },
+      shipper_address: newVal.shipper_address && newVal.shipper_address.length 
+        ? JSON.parse(JSON.stringify(newVal.shipper_address)) 
+        : [{ city: '', state: 'AL', full_address: '' }],
+      receiver_address: newVal.receiver_address && newVal.receiver_address.length 
+        ? JSON.parse(JSON.stringify(newVal.receiver_address)) 
+        : [{ city: '', state: 'AL', full_address: '' }],
       miles: newVal.miles || 0,
       weight: newVal.weight || 0
     })
@@ -225,17 +227,21 @@ watch(() => props.load, (newVal) => {
       state.broker = ''
     }
 
-    if (newVal.shipper_address?.city) {
-      const sCity = newVal.shipper_address.city
-      if (!citiesList.value.some(c => c.value === sCity)) {
-        citiesList.value.push({ label: sCity, value: sCity })
-      }
+    if (newVal.shipper_address) {
+      const shippers = Array.isArray(newVal.shipper_address) ? newVal.shipper_address : [newVal.shipper_address]
+      shippers.forEach(s => {
+        if (s?.city && !citiesList.value.some(c => c.value === s.city)) {
+          citiesList.value.push({ label: s.city, value: s.city })
+        }
+      })
     }
-    if (newVal.receiver_address?.city) {
-      const rCity = newVal.receiver_address.city
-      if (!citiesList.value.some(c => c.value === rCity)) {
-        citiesList.value.push({ label: rCity, value: rCity })
-      }
+    if (newVal.receiver_address) {
+      const receivers = Array.isArray(newVal.receiver_address) ? newVal.receiver_address : [newVal.receiver_address]
+      receivers.forEach(r => {
+        if (r?.city && !citiesList.value.some(c => c.value === r.city)) {
+          citiesList.value.push({ label: r.city, value: r.city })
+        }
+      })
     }
     
     rateUploaderRef.value?.clear()
@@ -295,9 +301,17 @@ const onSubmit = async () => {
     }
   }
 
-  if (!state.shipper_address?.city?.trim()) {
-    errors.push("Shipper City is required.")
-  }
+  state.shipper_address.forEach((addr, idx) => {
+    if (!addr.city?.trim()) {
+      errors.push(`Shipper City #${idx + 1} is required.`)
+    }
+  })
+  state.receiver_address.forEach((addr, idx) => {
+    if (!addr.city?.trim()) {
+      errors.push(`Receiver City #${idx + 1} is required.`)
+    }
+  })
+
   if (!state.pickup_date) {
     errors.push("Pickup Date is required.")
   }
@@ -312,9 +326,6 @@ const onSubmit = async () => {
     }
   }
 
-  if (!state.receiver_address?.city?.trim()) {
-    errors.push("Receiver City is required.")
-  }
   if (state.miles === undefined || state.miles === null || state.miles === '') {
     errors.push("Total Miles is required.")
   }
@@ -363,7 +374,6 @@ const onSubmit = async () => {
       }
     }
 
-    // Подготовка времени в зависимости от типа
     const pickup_time_val = pickupType.value === 'FCFS' && pickupTimeRange.value?.start
       ? `${pickupTimeRange.value.start.toString()}.000`
       : (state.pickup_time ? `${state.pickup_time.toString()}.000` : null)
@@ -384,9 +394,14 @@ const onSubmit = async () => {
       return dateStr && dateStr.trim() !== '' ? dateStr : null;
     }
 
+    const cleanShipperAddress = state.shipper_address.map(({ id, ...rest }) => rest)
+    const cleanReceiverAddress = state.receiver_address.map(({ id, ...rest }) => rest)
+
     const payload = {
       data: {
         ...state,
+        shipper_address: cleanShipperAddress,
+        receiver_address: cleanReceiverAddress,
         pickup_date: cleanDate(state.pickup_date),
         delivery_date: cleanDate(state.delivery_date),
         pickup_time: pickup_time_val,
@@ -523,75 +538,69 @@ const onDelete = async () => {
         <USeparator label="Shipper (Pickup)" />
 
         <div class="grid gap-4">
-          <UFormField label="Shipper City/Sate" name="shipper_address.city" required class="w-full">
-            <UFieldGroup>
-              <USelectMenu
-                v-model="state.shipper_address.city"
-                v-model:search-term="shipperCitySearchQuery"
-                :items="citiesList"
-                value-key="value"
-                label-key="label"
-                ignore-filter
-                create-item="always"
-                class="w-50"
-                placeholder="City"
-                @update:search-term="fetchCities"
-                @create="(val) => handleCityCreate(val, 'shipper')" />
-              <USelectMenu v-model="state.shipper_address.state" :items="statesList" class="w-20" />
-            </UFieldGroup>
-          </UFormField>
-          <UFormField label="Full Address" name="shipper_address.full_address">
-            <UInput v-model="state.shipper_address.full_address" class="w-full" />
-          </UFormField>
-          <UFormField label="Pickup Type">
-            <URadioGroup v-model="pickupType" :items="['Strict Appointment', 'FCFS']" />
-          </UFormField>
-          <div class="grid grid-cols-2 gap-4">
-            <UFormField label="Pickup Date" name="pickup_date" required>
-              <UInput v-model="state.pickup_date" type="date" class="w-full" required />
+          <div v-for="(addr, index) in state.shipper_address" :key="index" class="border border-default/40 p-4 rounded-lg relative grid gap-4">
+            <div class="flex justify-between items-center">
+              <span class="text-xs font-semibold text-gray-500">
+                Stop #{{ index + 1 }}
+              </span>
+              <UButton v-if="state.shipper_address.length > 1" icon="hugeicons:delete-02" color="error" variant="ghost" size="xs" @click="removeShipperAddress(index)" />
+            </div>
+            <UFormField label="Shipper City/State" required>
+              <UFieldGroup>
+                <USelectMenu
+                  v-model="addr.city"
+                  v-model:search-term="shipperCitySearchQuery"
+                  :items="citiesList"
+                  value-key="value"
+                  label-key="label"
+                  ignore-filter
+                  create-item="always"
+                  class="w-50"
+                  placeholder="City"
+                  @update:search-term="fetchCities"
+                  @create="(val) => handleCityCreate(val, 'shipper', index)" />
+                <USelectMenu v-model="addr.state" :items="statesList" class="w-20" />
+              </UFieldGroup>
             </UFormField>
-            <UFormField :label="pickupType === 'FCFS' ? 'Pickup Time Range' : 'Pickup Time'" name="pickup_time" required class="w-full">
-              <UInputTime v-if="pickupType === 'FCFS'" range v-model="pickupTimeRange" :hour-cycle="24" />
-              <UInputTime v-else v-model="state.pickup_time" :hour-cycle="24" />
+            <UFormField label="Full Address">
+              <UInput v-model="addr.full_address" class="w-full" />
             </UFormField>
           </div>
+          <UButton icon="hugeicons:add-01" label="Add Shipper Stop" variant="soft" color="neutral" class="w-full" @click="addShipperAddress" />
         </div>
 
         <USeparator label="Receiver (Delivery)" />
 
         <div class="grid gap-4">
-          <UFormField label="Receiver City/Sate" name="receiver_address.city" required class="w-full">
-            <UFieldGroup>
-              <USelectMenu
-                v-model="state.receiver_address.city"
-                v-model:search-term="receiverCitySearchQuery"
-                :items="citiesList"
-                value-key="value"
-                label-key="label"
-                ignore-filter
-                create-item="always"
-                class="w-50"
-                placeholder="City"
-                @update:search-term="fetchCities"
-                @create="(val) => handleCityCreate(val, 'receiver')" />
-              <USelectMenu v-model="state.receiver_address.state" :items="statesList" class="w-20" />
-            </UFieldGroup>
-          </UFormField>
-          <UFormField label="Full Address" name="receiver_address.full_address">
-            <UInput v-model="state.receiver_address.full_address" class="w-full" />
-          </UFormField>
-          <UFormField label="Delivery Type">
-            <URadioGroup v-model="deliveryType" :items="['Strict Appointment', 'FCFS']" />
-          </UFormField>
-          <div class="grid grid-cols-2 gap-4">
-            <UFormField label="Delivery Date" name="delivery_date">
-              <UInput v-model="state.delivery_date" type="date" class="w-full" />
+          <div v-for="(addr, index) in state.receiver_address" :key="index" class="border border-default/40 p-4 rounded-lg relative grid gap-4">
+            <div class="flex justify-between items-center">
+              <span class="text-xs font-semibold text-gray-500">
+                Stop #{{ index + 1 }}
+              </span>
+              <UButton v-if="state.receiver_address.length > 1" icon="hugeicons:delete-02" color="error" variant="ghost" size="xs" @click="removeReceiverAddress(index)" />
+            </div>
+            <UFormField label="Receiver City/State" required>
+              <UFieldGroup>
+                <USelectMenu
+                  v-model="addr.city"
+                  v-model:search-term="receiverCitySearchQuery"
+                  :items="citiesList"
+                  value-key="value"
+                  label-key="label"
+                  ignore-filter
+                  create-item="always"
+                  class="w-50"
+                  placeholder="City"
+                  @update:search-term="fetchCities"
+                  @create="(val) => handleCityCreate(val, 'receiver', index)" />
+                <USelectMenu v-model="addr.state" :items="statesList" class="w-20" />
+              </UFieldGroup>
             </UFormField>
-            <UFormField :label="deliveryType === 'FCFS' ? 'Delivery Time Range' : 'Delivery Time'" name="delivery_time" class="w-full">
-              <UInputTime v-if="deliveryType === 'FCFS'" range v-model="deliveryTimeRange" :hour-cycle="24" />
-              <UInputTime v-else v-model="state.delivery_time" :hour-cycle="24" />
+            <UFormField label="Full Address">
+              <UInput v-model="addr.full_address" class="w-full" />
             </UFormField>
           </div>
+          <UButton icon="hugeicons:add-01" label="Add Receiver Stop" variant="soft" color="neutral" class="w-full" @click="addReceiverAddress" />
         </div>
 
         <USeparator label="Rate Confirmation" />

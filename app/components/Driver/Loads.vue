@@ -1,3 +1,4 @@
+// components/DriverLoads.vue
 <script setup>
 const props = defineProps({
   driverId: { type: String, required: true },

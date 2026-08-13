@@ -89,22 +89,32 @@ const columns = [{
   header: "Route",
   meta: { class: { td: 'cursor-pointer' }},
   cell: ({ row }) => {
-    const shipper = row.original.shipper_address
-    const receiver = row.original.receiver_address
+    // Безопасно извлекаем первый элемент из массивов адресов
+    const shippers = Array.isArray(row.original.shipper_address) ? row.original.shipper_address : [row.original.shipper_address]
+    const receivers = Array.isArray(row.original.receiver_address) ? row.original.receiver_address : [row.original.receiver_address]
+    
+    const shipper = shippers[0] || {}
+    const receiver = receivers[0] || {}
+    
     const status = row.original.status_load
     const miles = status === 'tonu' ? 0 : row.original.miles
     const weight = row.original.weight
+    
+    // Добавим счетчик дополнительных остановок (+X stops), если они есть
+    const additionalShippers = shippers.length > 1 ? ` (+${shippers.length - 1} stops)` : ''
+    const additionalReceivers = receivers.length > 1 ? ` (+${receivers.length - 1} stops)` : ''
+
     return h("div", { class: "flex flex-col items-start text-xs text-gray-500" }, [
       h("span", undefined, [
         'From: ',
-        h("span", { class: "text-highlighted" }, `${shipper?.city || '-'}, ${shipper?.state || '-'}`)
+        h("span", { class: "text-highlighted" }, `${shipper?.city || '-'}, ${shipper?.state || '-'}${additionalShippers}`)
       ]),
       h(UTooltip, { text: shipper?.full_address }, () =>
         h('span', { class: "cursor-pointer" }, truncate(shipper?.full_address, 20) || '')
       ),
       h("span", { class: "mt-2" }, [
         'To: ',
-        h("span", { class: "text-highlighted" }, `${receiver?.city || '-'}, ${receiver?.state || '-'}`)
+        h("span", { class: "text-highlighted" }, `${receiver?.city || '-'}, ${receiver?.state || '-'}${additionalReceivers}`)
       ]),
       h(UTooltip, { text: receiver?.full_address }, () =>
         h('span', { class: "cursor-pointer" }, truncate(receiver?.full_address, 20) || '')
@@ -119,6 +129,37 @@ const columns = [{
       ]),
     ])
   }
+  // cell: ({ row }) => {
+  //   const shipper = row.original.shipper_address
+  //   const receiver = row.original.receiver_address
+  //   const status = row.original.status_load
+  //   const miles = status === 'tonu' ? 0 : row.original.miles
+  //   const weight = row.original.weight
+  //   return h("div", { class: "flex flex-col items-start text-xs text-gray-500" }, [
+  //     h("span", undefined, [
+  //       'From: ',
+  //       h("span", { class: "text-highlighted" }, `${shipper?.city || '-'}, ${shipper?.state || '-'}`)
+  //     ]),
+  //     h(UTooltip, { text: shipper?.full_address }, () =>
+  //       h('span', { class: "cursor-pointer" }, truncate(shipper?.full_address, 20) || '')
+  //     ),
+  //     h("span", { class: "mt-2" }, [
+  //       'To: ',
+  //       h("span", { class: "text-highlighted" }, `${receiver?.city || '-'}, ${receiver?.state || '-'}`)
+  //     ]),
+  //     h(UTooltip, { text: receiver?.full_address }, () =>
+  //       h('span', { class: "cursor-pointer" }, truncate(receiver?.full_address, 20) || '')
+  //     ),
+  //     h("span", { class: "mt-2" }, [
+  //       h("span", { class: "text-highlighted font-semibold" }, miles || '0'), 
+  //       ' Miles'
+  //     ]),
+  //     h("span", { class: "mt-2" }, [
+  //       h("span", { class: "text-highlighted font-semibold" }, weight || '0'), 
+  //       ' lbs'
+  //     ]),
+  //   ])
+  // }
 },
 {
   id: "pickup",

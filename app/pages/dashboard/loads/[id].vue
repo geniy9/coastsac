@@ -91,8 +91,8 @@ const isDelivered = computed(() => !!load.value?.delivery_date)
 const timelineItems = computed(() => {
   if (!load.value) return []
 
-  const shipper = load.value.shipper_address
-  const receiver = load.value.receiver_address
+  const shippers = Array.isArray(load.value.shipper_address) ? load.value.shipper_address : [load.value.shipper_address]
+  const receivers = Array.isArray(load.value.receiver_address) ? load.value.receiver_address : [load.value.receiver_address]
   const active = isDelivered.value
 
   const pTime = load.value.pickup_time ? load.value.pickup_time.slice(0, 5) : null
@@ -103,35 +103,49 @@ const timelineItems = computed(() => {
   const dTimeEnd = load.value.delivery_time_end ? load.value.delivery_time_end.slice(0, 5) : null
   const displayDeliveryTime = dTimeEnd ? `${dTime} - ${dTimeEnd}` : dTime
 
-  return [{
-    title: 'Shipper',
-    icon: 'hugeicons:delivery-box-01',
-    slot: 'shipper',
-    cityState: `${shipper?.city || 'N/A'}, ${shipper?.state || 'N/A'}`,
-    fullAddress: shipper?.full_address || 'No full address specified',
-    pickupDate: load.value.pickup_date || '-',
-    time: displayPickupTime,
-    ui: {
-      indicator: 'text-white bg-primary dark:bg-primary dark:text-black border-2 border-primary print:text-gray-500',
-      separator: active 
-        ? 'bg-primary print:bg-gray-500 flex-1 rounded-full' 
-        : 'bg-gray-300 dark:bg-gray-500 flex-1 rounded-full'
-    }
-  },{
-    title: 'Receiver',
-    icon: 'hugeicons:dropbox',
-    slot: 'receiver',
-    cityState: `${receiver?.city || 'N/A'}, ${receiver?.state || 'N/A'}`,
-    fullAddress: receiver?.full_address || 'No full address specified',
-    deliveryDate: load.value.delivery_date || 'Not yet',
-    time: displayDeliveryTime,
-    ui: {
-      indicator: active
-        ? 'text-white bg-primary dark:bg-primary dark:text-black border-2 border-primary print:text-gray-500'
-        : 'text-gray-400 bg-transparent dark:bg-transparent border-2 border-gray-300 dark:border-gray-500 dark:text-gray-500',
-      separator: 'hidden'
-    }
-  }]
+  const items = []
+
+  // (Shippers)
+  shippers.forEach((shipper, idx) => {
+    items.push({
+      title: shippers.length > 1 ? `Shipper #${idx + 1}` : 'Shipper',
+      icon: 'hugeicons:delivery-box-01',
+      slot: `shipper-${idx}`,
+      cityState: `${shipper?.city || 'N/A'}, ${shipper?.state || 'N/A'}`,
+      fullAddress: shipper?.full_address || '',
+      pickupDate: idx === 0 ? (load.value.pickup_date || '-') : '',
+      time: idx === 0 ? displayPickupTime : '',
+      ui: {
+        indicator: 'text-white bg-primary dark:bg-primary dark:text-black border-2 border-primary print:text-gray-500',
+        separator: active || (idx < shippers.length - 1)
+          ? 'bg-primary print:bg-gray-500 flex-1 rounded-full' 
+          : 'bg-gray-300 dark:bg-gray-500 flex-1 rounded-full'
+      }
+    })
+  })
+  // (Receivers)
+  receivers.forEach((receiver, idx) => {
+    const isLast = idx === receivers.length - 1
+    items.push({
+      title: receivers.length > 1 ? `Receiver #${idx + 1}` : 'Receiver',
+      icon: 'hugeicons:dropbox',
+      slot: `receiver-${idx}`,
+      cityState: `${receiver?.city || 'N/A'}, ${receiver?.state || 'N/A'}`,
+      fullAddress: receiver?.full_address || '',
+      deliveryDate: isLast ? (load.value.delivery_date || '') : '',
+      time: isLast ? displayDeliveryTime : '',
+      ui: {
+        indicator: active
+          ? 'text-white bg-primary dark:bg-primary dark:text-black border-2 border-primary print:text-gray-500'
+          : 'text-gray-400 bg-transparent dark:bg-transparent border-2 border-gray-300 dark:border-gray-500 dark:text-gray-500',
+        separator: !isLast
+          ? (active ? 'bg-primary print:bg-gray-500 flex-1 rounded-full' : 'bg-gray-300 dark:bg-gray-500 flex-1 rounded-full')
+          : 'hidden'
+      }
+    })
+  })
+
+  return items
 })
 
 const handleRefresh = async () => { await refresh() }
@@ -472,249 +486,187 @@ useHead({ title: () => `Load ${load.value ? load.value.load_number : ''}` })
               </div>
             </UCard>
 
-            <!-- BODY -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 print-grid">
-              
-              <!-- LEFT COL -->
-              <div class="md:col-span-2 space-y-4 print-col-span-2">
-                
-                <!-- ROUTE (Timeline) -->
-                <UCard title="Route" variant="soft" class="print-card">
-                  <UTimeline :items="timelineItems" orientation="horizontal" class="w-full">
-                    <!-- Shipper -->
-                    <template #shipper-title="{ item }">
-                      <div class="grid min-h-36 gap-2">
-                        <div class="flex flex-col gap-0.5 text-gray-500 text-xs">
-                          <span class="uppercase tracking-wider font-semibold">
-                            {{ item.title }}
-                          </span>
-                          <p class="text-sm font-bold text-highlighted">
-                            {{ item.cityState }}
-                          </p>
-                          <p class="italic">{{ item.fullAddress }}</p>
-                        </div>
-                        <div class="flex flex-col gap-1 text-sm font-mono text-highlighted mt-auto">
-                          <span class="flex items-center gap-1">
-                            <UIcon name="hugeicons:calendar-03" class="w-4 h-4" />
-                            {{ item.pickupDate }}
-                          </span>
-                          <span v-if="item.time" class="flex items-center gap-1">
-                            <UIcon name="hugeicons:clock-01" class="w-4 h-4" />
-                            {{ item.time }}
-                          </span>
-                        </div>
-                      </div>
-                    </template>
+            <!-- ROUTE -->
+            <UCard title="Route" variant="soft" class="print-card">
+              <UTimeline :items="timelineItems" 
+                :orientation="timelineItems.length > 5 ? 'vertical' : 'horizontal'" class="w-full">
+                <template v-for="item in timelineItems" :key="item.slot" #[`${item.slot}-title`]="{ item: currentItem }">
+                  <TimelineCard 
+                    :title="currentItem.title"
+                    :city-state="currentItem.cityState"
+                    :full-address="currentItem.fullAddress"
+                    :date="currentItem.pickupDate || currentItem.deliveryDate"
+                    :time="currentItem.time" />
+                </template>
+              </UTimeline>
+            </UCard>
 
-                    <!-- Receiver -->
-                    <template #receiver-title="{ item }">
-                      <div class="grid min-h-36 gap-2">
-                        <div class="flex flex-col gap-0.5 text-gray-500 text-xs">
-                          <span class="uppercase tracking-wider font-semibold">
-                            {{ item.title }}
-                          </span>
-                          <p class="text-sm font-bold text-highlighted">
-                            {{ item.cityState }}
-                          </p>
-                          <p class="italic">{{ item.fullAddress }}</p>
-                        </div>
-                        <div class="grid gap-1 text-sm font-mono text-highlighted mt-auto">
-                          <span class="flex items-center gap-1">
-                            <UIcon name="hugeicons:calendar-03" class="w-4 h-4 print-icon" />
-                            {{ item.deliveryDate || 'Not yet' }}
-                          </span>
-                          <span v-if="item.deliveryDate != 'Not yet' && item.time" class="flex items-center gap-1">
-                            <UIcon name="hugeicons:clock-01" class="w-4 h-4 print-icon" />
-                            {{ item.time }}
-                          </span>
-                        </div>
-                      </div>
-                    </template>
-                  </UTimeline>
-                </UCard>
-
-                <!-- DOCS -->
-                <UCard variant="soft" class="no-print">
-                  <template #header>
-                    <h2 class="font-semibold text-highlighted">
-                      Attachments
-                    </h2>
-                  </template>
-                  
-                  <div class="space-y-6">
-                    <div>
-                      <h4 class="text-xs text-gray-500 font-semibold uppercase mb-2">
-                        Rate Confirmation
-                      </h4>
-                      <div v-if="load.doc_rate_confirmation?.length" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div v-for="file in load.doc_rate_confirmation" :key="file.id" 
-                          class="flex items-center gap-3 p-2 border border-primary/20 rounded-lg hover:border-primary/50 transition cursor-pointer group print-file-row"
-                          @click="handleFileClick(file)">
-                          <div class="w-12 h-12 shrink-0 rounded-md overflow-hidden flex items-center justify-center">
-                            <img v-if="isImageFile(file)" :src="thumbImg(file)" class="w-full h-full object-cover" />
-                            <UIcon v-else :name="getFileIcon(file)" class="w-8 h-8 text-primary print-icon" />
-                          </div>
-                          <div class="min-w-0 flex-1">
-                            <p class="text-xs font-semibold text-highlighted truncate group-hover:text-primary transition">
-                              {{ file.name || file.url.split('/').pop() }}
-                            </p>
-                            <p class="text-xs text-gray-500 uppercase mt-1 font-mono">
-                              {{ getMime(file) }}
-                            </p>
-                          </div>
-                          <UButton 
-                            icon="hugeicons:download-01" 
-                            variant="soft" 
-                            size="sm" 
-                            title="Download"
-                            class="no-print"
-                            @click.stop="downloadFile(getFileUrl(file))" />
-                        </div>
-                      </div>
-                      <p v-else class="text-xs text-gray-500 italic">No Rate Confirmation uploaded.</p>
-                    </div>
-
-                    <USeparator />
-
-                    <div>
-                      <h4 class="text-xs text-gray-500 font-semibold uppercase mb-2">
-                        Proof of Delivery
-                      </h4>
-                      <div v-if="load.doc_pod_bol?.length" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div v-for="file in load.doc_pod_bol" :key="file.id" 
-                          class="flex items-center gap-3 p-2 border border-primary/20 rounded-lg hover:border-primary/50 transition cursor-pointer group print-file-row"
-                          @click="handleFileClick(file)">
-                          <div class="w-12 h-12 shrink-0 rounded-md overflow-hidden flex items-center justify-center">
-                            <img v-if="isImageFile(file)" :src="thumbImg(file)" class="w-full h-full object-cover" />
-                            <UIcon v-else :name="getFileIcon(file)" class="w-8 h-8 text-primary" />
-                          </div>
-                          <div class="min-w-0 flex-1">
-                            <p class="text-xs font-semibold text-highlighted truncate group-hover:text-primary transition">
-                              {{ file.name || file.url.split('/').pop() }}
-                            </p>
-                            <p class="text-xs text-gray-500 uppercase mt-1 font-mono">
-                              {{ getMime(file) }}
-                            </p>
-                          </div>
-                          <UButton 
-                            icon="hugeicons:download-01" 
-                            variant="soft" 
-                            size="sm" 
-                            title="Download"
-                            class="no-print"
-                            @click.stop="downloadFile(getFileUrl(file))" />
-                        </div>
-                      </div>
-                      <p v-else class="text-xs text-gray-500 italic">No POD/BOL documents uploaded yet.</p>
+            <!-- DRIVER -->
+            <UCard variant="soft" class="print-card">
+              <template #header>
+                <ULink v-if="load.driver" :to="`/dashboard/drivers/${load.driver.documentId}`" class="flex items-center justify-between w-full gap-3">
+                  <p class="font-bold text-highlighted">
+                    {{ load.driver.first_name }} {{ load.driver.last_name }}
+                  </p>
+                  <p class="text-xs text-gray-500">
+                    {{ load.driver.email || 'No email' }}
+                  </p>
+                </ULink>
+              </template>
+              <div v-if="load.driver" class="flex flex-col gap-4 w-full">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm font-mono">
+                  <div>
+                    <p class="text-xs text-gray-500">Truck No.</p>
+                    <UFieldGroup v-if="load.driver.truck_number">
+                      <UButton :label="load.driver.truck_number" variant="link" size="sm" />
+                      <UButton 
+                        icon="hugeicons:copy-01" 
+                        variant="link" 
+                        size="sm"
+                        class="no-print"
+                        @click="copyBoofer(load.driver.truck_number)" />
+                    </UFieldGroup>
+                    <p v-else class="italic text-gray-500">N/A</p>
+                  </div>
+                  <div>
+                    <p class="text-xs text-gray-500">Trailer No.</p>
+                    <UFieldGroup v-if="load.driver.trailer_number">
+                      <UButton :label="load.driver.trailer_number" variant="link" size="sm" />
+                      <UButton 
+                        icon="hugeicons:copy-01" 
+                        variant="link" 
+                        size="sm"
+                        class="no-print"
+                        @click="copyBoofer(load.driver.trailer_number)" />
+                    </UFieldGroup>
+                    <p v-else class="italic text-gray-500">N/A</p>
+                  </div>
+                  <div>
+                    <p class="text-xs text-gray-500">Trailer Type</p>
+                    <div class="flex items-center gap-1 text-sm font-semibold text-highlighted capitalize">
+                      <UIcon :name="getTrailerIcon(load.driver.trailer)" class="w-5 h-5 text-primary print-icon" />
+                      {{ getTrailerLabel(load.driver.trailer) }}
                     </div>
                   </div>
-
-                  <UAccordion v-if="accordionItems.length"
-                    :items="accordionItems" 
-                    trailing-icon="hugeicons:add-01"
-                    class="no-print mt-4">
-                    <template #rate-conf-upload>
-                      <div class="p-4 space-y-4 bg-muted/20 border border-default rounded-lg">
-                        <UploaderFiles 
-                          ref="rateUploaderPageRef" 
-                          label="Rate Confirmation" />
-                        <div class="flex justify-end">
-                          <UButton 
-                            label="Upload Rate Confirmation" 
-                            color="primary" 
-                            :loading="uploadingPageRate" 
-                            @click="handleUploadPageRate" />
-                        </div>
-                      </div>
-                    </template>
-
-                    <template #pod-upload>
-                      <div class="p-4 space-y-2 bg-muted/20 border border-default rounded-lg">
-                        <UploaderFiles ref="podUploaderPageRef" label="Proof of Delivery (POD / BOL)" />
-                        <div class="flex justify-end">
-                          <UButton 
-                            label="Upload POD/BOL" 
-                            color="primary" 
-                            :loading="uploadingPagePod" 
-                            @click="handleUploadPagePod" />
-                        </div>
-                      </div>
-                    </template>
-                  </UAccordion>
-                </UCard>
+                  <div>
+                    <p class="text-xs text-gray-500">Phone</p>
+                    <p class="text-highlighted text-sm">
+                      {{ load.driver.phone || 'N/A' }}
+                    </p>
+                  </div>
+                </div>
               </div>
+              <div v-else class="text-center p-4">
+                <p class="text-sm text-red-500 font-semibold">Unassigned</p>
+                <p class="text-xs text-gray-500 mt-1">This load has no dispatcher/driver link.</p>
+              </div>
+            </UCard>
 
-              <!-- RIGHT COL -->
-              <div class="space-y-4">
-                
-                <!-- Driver -->
-                <UCard variant="soft" title="Driver" class="print-card">
-                  <div v-if="load.driver" class="flex flex-col gap-4">
-                    <ULink :to="`/dashboard/drivers/${load.driver.documentId}`" class="flex items-center gap-3">
-                      <UAvatar 
-                        v-if="thumbImg(load.driver?.user_account?.avatar)"
-                        :src="thumbImg(load.driver?.user_account?.avatar)" 
-                        :alt="`${load.driver.first_name} ${load.driver.last_name}`"
-                        size="2xl"
-                        class="border border-primary print-avatar" />
-                      <div>
-                        <p class="font-bold text-highlighted">
-                          {{ load.driver.first_name }} {{ load.driver.last_name }}
+            <!-- DOCS -->
+            <UCard title="Attachments" variant="soft" class="no-print">
+              <div class="space-y-6">
+                <div>
+                  <h4 class="text-xs text-gray-500 font-semibold uppercase mb-2">
+                    Rate Confirmation
+                  </h4>
+                  <div v-if="load.doc_rate_confirmation?.length" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div v-for="file in load.doc_rate_confirmation" :key="file.id" 
+                      class="flex items-center gap-3 p-2 border border-primary/20 rounded-lg hover:border-primary/50 transition cursor-pointer group print-file-row"
+                      @click="handleFileClick(file)">
+                      <div class="w-12 h-12 shrink-0 rounded-md overflow-hidden flex items-center justify-center">
+                        <img v-if="isImageFile(file)" :src="thumbImg(file)" class="w-full h-full object-cover" />
+                        <UIcon v-else :name="getFileIcon(file)" class="w-8 h-8 text-primary print-icon" />
+                      </div>
+                      <div class="min-w-0 flex-1">
+                        <p class="text-xs font-semibold text-highlighted truncate group-hover:text-primary transition">
+                          {{ file.name || file.url.split('/').pop() }}
                         </p>
-                        <p class="text-xs text-gray-500">
-                          {{ load.driver.email || 'No email' }}
+                        <p class="text-xs text-gray-500 uppercase mt-1 font-mono">
+                          {{ getMime(file) }}
                         </p>
                       </div>
-                    </ULink>
-                    <div class="space-y-2 text-xs font-mono">
-                      <div class="flex justify-between items-center">
-                        <span class="text-gray-500">Truck Number</span>
-                        <UFieldGroup v-if="load.driver.truck_number">
-                          <UButton :label="load.driver.truck_number" variant="soft" size="sm" />
-                          <UButton 
-                            icon="hugeicons:copy-01" 
-                            variant="soft" 
-                            size="sm"
-                            class="no-print"
-                            @click="copyBoofer(load.driver.truck_number)" />
-                        </UFieldGroup>
-                        <span v-else class="italic text-gray-500">N/A</span>
-                      </div>
-                      <div class="flex justify-between items-center">
-                        <span class="text-gray-500">Trailer Number</span>
-                        <UFieldGroup v-if="load.driver.trailer_number">
-                          <UButton :label="load.driver.trailer_number" variant="soft" size="sm" />
-                          <UButton 
-                            icon="hugeicons:copy-01" 
-                            variant="soft" 
-                            size="sm"
-                            class="no-print"
-                            @click="copyBoofer(load.driver.trailer_number)" />
-                        </UFieldGroup>
-                        <span v-else class="italic text-gray-500">N/A</span>
-                      </div>
-                      <div class="flex justify-between items-center py-1">
-                        <span class="text-gray-500">Trailer Type</span>
-                        <div class="flex items-center gap-1 text-sm font-semibold text-highlighted capitalize">
-                          <UIcon :name="getTrailerIcon(load.driver.trailer)" class="w-5 h-5 text-primary print-icon" />
-                          {{ getTrailerLabel(load.driver.trailer) }}
-                        </div>
-                      </div>
-                      <div class="flex justify-between items-center">
-                        <span class="text-gray-500">Phone</span>
-                        <span class="text-highlighted text-sm">{{ load.driver.phone || '-' }}</span>
-                      </div>
+                      <UButton 
+                        icon="hugeicons:download-01" 
+                        variant="soft" 
+                        size="sm" 
+                        title="Download"
+                        class="no-print"
+                        @click.stop="downloadFile(getFileUrl(file))" />
                     </div>
                   </div>
-                  <div v-else class="text-center p-4">
-                    <p class="text-sm text-red-500 font-semibold">Unassigned</p>
-                    <p class="text-xs text-gray-500 mt-1">This load has no dispatcher/driver link.</p>
-                  </div>
-                </UCard>
-              </div>
-            </div>
+                  <p v-else class="text-xs text-gray-500 italic">No Rate Confirmation uploaded.</p>
+                </div>
 
-            <div class="grid md:grid-cols-2 gap-4">
+                <USeparator />
+
+                <div>
+                  <h4 class="text-xs text-gray-500 font-semibold uppercase mb-2">
+                    Proof of Delivery
+                  </h4>
+                  <div v-if="load.doc_pod_bol?.length" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div v-for="file in load.doc_pod_bol" :key="file.id" 
+                      class="flex items-center gap-3 p-2 border border-primary/20 rounded-lg hover:border-primary/50 transition cursor-pointer group print-file-row"
+                      @click="handleFileClick(file)">
+                      <div class="w-12 h-12 shrink-0 rounded-md overflow-hidden flex items-center justify-center">
+                        <img v-if="isImageFile(file)" :src="thumbImg(file)" class="w-full h-full object-cover" />
+                        <UIcon v-else :name="getFileIcon(file)" class="w-8 h-8 text-primary" />
+                      </div>
+                      <div class="min-w-0 flex-1">
+                        <p class="text-xs font-semibold text-highlighted truncate group-hover:text-primary transition">
+                          {{ file.name || file.url.split('/').pop() }}
+                        </p>
+                        <p class="text-xs text-gray-500 uppercase mt-1 font-mono">
+                          {{ getMime(file) }}
+                        </p>
+                      </div>
+                      <UButton 
+                        icon="hugeicons:download-01" 
+                        variant="soft" 
+                        size="sm" 
+                        title="Download"
+                        class="no-print"
+                        @click.stop="downloadFile(getFileUrl(file))" />
+                    </div>
+                  </div>
+                  <p v-else class="text-xs text-gray-500 italic">No POD/BOL documents uploaded yet.</p>
+                </div>
+              </div>
+
+              <UAccordion v-if="accordionItems.length"
+                :items="accordionItems" 
+                trailing-icon="hugeicons:add-01"
+                class="no-print mt-4">
+                <template #rate-conf-upload>
+                  <div class="p-4 space-y-4 bg-muted/20 border border-default rounded-lg">
+                    <UploaderFiles 
+                      ref="rateUploaderPageRef" 
+                      label="Rate Confirmation" />
+                    <div class="flex justify-end">
+                      <UButton 
+                        label="Upload Rate Confirmation" 
+                        color="primary" 
+                        :loading="uploadingPageRate" 
+                        @click="handleUploadPageRate" />
+                    </div>
+                  </div>
+                </template>
+
+                <template #pod-upload>
+                  <div class="p-4 space-y-2 bg-muted/20 border border-default rounded-lg">
+                    <UploaderFiles ref="podUploaderPageRef" label="Proof of Delivery (POD / BOL)" />
+                    <div class="flex justify-end">
+                      <UButton 
+                        label="Upload POD/BOL" 
+                        color="primary" 
+                        :loading="uploadingPagePod" 
+                        @click="handleUploadPagePod" />
+                    </div>
+                  </div>
+                </template>
+              </UAccordion>
+            </UCard>
+
+            <div class="grid grid-cols-2 gap-4 print-grid-2">
               <UCard variant="soft" class="print-card">
                 <h4 class="text-xs text-gray-500 font-semibold uppercase mb-2">
                   Pickup Number
