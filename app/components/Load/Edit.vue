@@ -14,7 +14,7 @@ const emit = defineEmits(['success'])
 const client = useStrapiClient()
 const toast = useToast()
 const { permissions } = useRolePermissions()
-const { statesList, loadStatusOptions, imageUrl, getMime } = useConfig()
+const { statesList, loadStatusOptions, categoryOptions, imageUrl, getMime } = useConfig()
 
 const parseTime = (timeStr) => {
   if (!timeStr) return null
@@ -486,13 +486,15 @@ const onDelete = async () => {
         <USeparator label="General Info" />
 
         <div class="grid grid-cols-2 gap-4">
-          <UFormField label="Load Number" name="load_number" required>
+          <UFormField label="Load Number" name="load_number" required class="col-span-2">
             <UInput v-model="state.load_number" required class="w-full" />
           </UFormField>
           <UFormField label="Status" name="status_load">
-            <USelect v-model="state.status_load" :items="loadStatusOptions" class="w-full capitalize" />
+            <USelect v-model="state.status_load" :items="loadStatusOptions" class="w-full" />
           </UFormField>
-          <!-- TONU Amount if status "tonu" -->
+          <UFormField label="Category" name="category">
+            <USelect v-model="state.category" :items="categoryOptions" class="w-full" />
+          </UFormField>
           <UFormField v-if="state.status_load === 'tonu'" label="TONU Amount" name="tonu_amount" required class="col-span-2">
             <UInput v-model.number="state.tonu_amount" type="number" required class="w-full">
               <template #trailing><div class="input_trailing">$</div></template>
@@ -527,10 +529,10 @@ const onDelete = async () => {
               <template #trailing><div class="input_trailing">$</div></template>
             </UInput>
           </UFormField>
-          <UFormField label="Pickup Number" name="pickup_number">
+          <UFormField label="Pickup Number" name="pickup_number" class="col-span-2">
             <UInput v-model="state.pickup_number" placeholder="SO-XXXXXX" class="w-full" />
           </UFormField>
-          <UFormField label="Delivery Number" name="delivery_number">
+          <UFormField label="Delivery Number" name="delivery_number" class="col-span-2">
             <UInput v-model="state.delivery_number" placeholder="XXXXXXXXX" class="w-full" />
           </UFormField>
         </div>
@@ -568,6 +570,18 @@ const onDelete = async () => {
           </div>
           <UButton icon="hugeicons:add-01" label="Add Shipper Stop" variant="soft" color="neutral" class="w-full" @click="addShipperAddress" />
         </div>
+        <UFormField label="Pickup Type">
+          <URadioGroup v-model="pickupType" :items="['Strict Appointment', 'FCFS']" />
+        </UFormField>
+        <div class="grid grid-cols-2 gap-4">
+          <UFormField label="Pickup Date" name="pickup_date" required>
+            <UInput v-model="state.pickup_date" type="date" class="w-full" required />
+          </UFormField>
+          <UFormField :label="pickupType === 'FCFS' ? 'Pickup Time Range' : 'Pickup Time'" name="pickup_time" required class="w-full">
+            <UInputTime v-if="pickupType === 'FCFS'" range v-model="pickupTimeRange" :hour-cycle="24" />
+            <UInputTime v-else v-model="state.pickup_time" :hour-cycle="24" />
+          </UFormField>
+        </div>
 
         <USeparator label="Receiver (Delivery)" />
 
@@ -601,6 +615,18 @@ const onDelete = async () => {
             </UFormField>
           </div>
           <UButton icon="hugeicons:add-01" label="Add Receiver Stop" variant="soft" color="neutral" class="w-full" @click="addReceiverAddress" />
+        </div>
+        <UFormField label="Delivery Type">
+          <URadioGroup v-model="deliveryType" :items="['Strict Appointment', 'FCFS']" />
+        </UFormField>
+        <div class="grid grid-cols-2 gap-4">
+          <UFormField label="Delivery Date" name="delivery_date">
+            <UInput v-model="state.delivery_date" type="date" class="w-full" />
+          </UFormField>
+          <UFormField :label="deliveryType === 'FCFS' ? 'Delivery Time Range' : 'Delivery Time'" name="delivery_time" class="w-full">
+            <UInputTime v-if="deliveryType === 'FCFS'" range v-model="deliveryTimeRange" :hour-cycle="24" />
+            <UInputTime v-else v-model="state.delivery_time" :hour-cycle="24" />
+          </UFormField>
         </div>
 
         <USeparator label="Rate Confirmation" />

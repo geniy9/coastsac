@@ -461,28 +461,6 @@ const onSubmit = async () => {
           </div>
           <UButton icon="hugeicons:add-01" label="Add Shipper Stop" variant="soft" color="neutral" class="w-full" @click="addShipperAddress" />
         </div>
-        <!-- <div class="grid gap-4">
-          <UFormField label="Shipper City/Sate" name="shipper_address.city" required>
-            <UFieldGroup>
-              <USelectMenu
-                v-model="state.shipper_address.city"
-                v-model:search-term="shipperCitySearchQuery"
-                :items="citiesList"
-                value-key="value"
-                label-key="label"
-                ignore-filter
-                create-item="always"
-                class="w-50"
-                placeholder="City"
-                @update:search-term="fetchCities"
-                @create="(val) => handleCityCreate(val, 'shipper')" />
-              <USelectMenu v-model="state.shipper_address.state" :items="statesList" class="w-20" />
-            </UFieldGroup>
-          </UFormField>
-          <UFormField label="Full Address" name="shipper_address.full_address">
-            <UInput v-model="state.shipper_address.full_address" class="w-full" />
-          </UFormField>
-        </div> -->
         <UFormField label="Pickup Type">
           <URadioGroup v-model="pickupType" :items="['Strict Appointment', 'FCFS']" />
         </UFormField>
@@ -527,41 +505,18 @@ const onSubmit = async () => {
           </div>
           <UButton icon="hugeicons:add-01" label="Add Receiver Stop" variant="soft" color="neutral" class="w-full" @click="addReceiverAddress" />
         </div>
-        <!-- <div class="grid gap-4">
-          <UFormField label="Receiver City/Sate" name="receiver_address.city" required>
-            <UFieldGroup>
-              <USelectMenu
-                v-model="state.receiver_address.city"
-                v-model:search-term="receiverCitySearchQuery"
-                :items="citiesList"
-                value-key="value"
-                label-key="label"
-                ignore-filter
-                create-item="always"
-                class="w-50"
-                placeholder="City"
-                @update:search-term="fetchCities"
-                @create="(val) => handleCityCreate(val, 'receiver')" />
-              <USelectMenu v-model="state.receiver_address.state" :items="statesList" class="w-20" />
-            </UFieldGroup>
+        <UFormField label="Delivery Type">
+          <URadioGroup v-model="deliveryType" :items="['Strict Appointment', 'FCFS']" />
+        </UFormField>
+        <div class="grid grid-cols-2 gap-4">
+          <UFormField label="Delivery Date" name="delivery_date">
+            <UInput v-model="state.delivery_date" type="date" class="w-full" />
           </UFormField>
-          <UFormField label="Full Address" name="receiver_address.full_address">
-            <UInput v-model="state.receiver_address.full_address" class="w-full" />
+          <UFormField :label="deliveryType === 'FCFS' ? 'Delivery Time Range' : 'Delivery Time'" name="delivery_time">
+            <UInputTime v-if="deliveryType === 'FCFS'" range v-model="deliveryTimeRange" :hour-cycle="24" />
+            <UInputTime v-else v-model="state.delivery_time" :hour-cycle="24" />
           </UFormField>
-
-          <UFormField label="Delivery Type">
-            <URadioGroup v-model="deliveryType" :items="['Strict Appointment', 'FCFS']" />
-          </UFormField>
-          <div class="grid grid-cols-2 gap-4">
-            <UFormField label="Delivery Date" name="delivery_date">
-              <UInput v-model="state.delivery_date" type="date" class="w-full" />
-            </UFormField>
-            <UFormField :label="deliveryType === 'FCFS' ? 'Delivery Time Range' : 'Delivery Time'" name="delivery_time">
-              <UInputTime v-if="deliveryType === 'FCFS'" range v-model="deliveryTimeRange" :hour-cycle="24" />
-              <UInputTime v-else v-model="state.delivery_time" :hour-cycle="24" />
-            </UFormField>
-          </div>
-        </div> -->
+        </div>
 
         <USeparator label="Distance / Weight" />
 
