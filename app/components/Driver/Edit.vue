@@ -32,6 +32,7 @@ const state = reactive({
   driver_number: '',
   notes: '',
   truck_number: '',
+  vin_code: '',
   trailer: 'van',
   trailer_number: '',
   fuel_card_number: '',
@@ -108,6 +109,7 @@ watch(() => props.driver, (newVal) => {
       driver_number: newVal.driver_number || '',
       notes: newVal.notes || '',
       truck_number: newVal.truck_number || '',
+      vin_code: newVal.vin_code || '',
       trailer: newVal.trailer || 'van',
       trailer_number: newVal.trailer_number || '',
       fuel_card_number: newVal.fuel_card_number || '',
@@ -404,9 +406,12 @@ const onDelete = async () => {
               <template #trailing><div class="input_trailing">%</div></template>
             </UInput>
           </UFormField>
-          <UFormField label="Track number" name="truck_number" class="col-span-2">
+          <UFormField label="Track number" name="truck_number">
             <UInput v-model="state.truck_number" class="w-full" />
           </UFormField>
+          <UFormField label="VIN code" name="vin_code">
+              <UInput v-model="state.vin_code" class="w-full" placeholder="1HGCR2F8XHA000000" />
+            </UFormField>
           <UFormField label="Trailer type" name="trailer">
             <USelect v-model="state.trailer" :items="trailerOptions" class="w-full" />
           </UFormField>
@@ -478,7 +483,7 @@ const onDelete = async () => {
           <UTextarea v-model="state.notes" class="w-full" />
         </UFormField>
 
-        <div class="flex justify-between items-center pt-4">
+        <div class="dashboard flex justify-between items-center pt-4">
           <div>
             <UButton 
               v-if="permissions.canDeleteDrivers" 

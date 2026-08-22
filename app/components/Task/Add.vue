@@ -186,7 +186,7 @@ const onSubmit = async () => {
 
         <UploaderFiles ref="uploaderRef" label="Attachments (max 20MB)" />
 
-        <div class="flex justify-end gap-3 pt-4">
+        <div class="dashboard flex justify-end gap-3 pt-4">
           <UButton color="neutral" variant="ghost" label="Cancel" @click="open = false" />
           <UButton type="submit" color="primary" label="Create Task" :loading="loading" />
         </div>

@@ -368,6 +368,18 @@ useHead({
                       </UFieldGroup>
                       <p v-else class="text-xs text-gray-500 italic">N/A</p>
                     </div>
+                    <div class="flex justify-between items-center">
+                      <span class="text-xs text-gray-500">VIN code</span>
+                      <UFieldGroup v-if="driver.vin_code">
+                        <UButton :label="driver.vin_code" variant="soft" size="sm" />
+                        <UButton 
+                          icon="hugeicons:copy-01" 
+                          variant="soft" 
+                          size="sm"
+                          @click="copyBoofer(driver.vin_code)" />
+                      </UFieldGroup>
+                      <p v-else class="text-xs text-gray-500 italic">N/A</p>
+                    </div>
                   </div>
                 </UCard>
 

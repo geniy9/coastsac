@@ -26,6 +26,7 @@ const state = reactive({
   driver_number: '',
   notes: '',
   truck_number: '',
+  vin_code: '',
   trailer: 'van',
   trailer_number: '',
   fuel_card_number: '',
@@ -133,6 +134,7 @@ const onSubmit = async () => {
       driver_number: '',
       notes: '',
       truck_number: '',
+      vin_code: '',
       trailer: 'van',
       trailer_number: '',
       fuel_card_number: '',
@@ -284,8 +286,11 @@ const onSubmit = async () => {
                 <template #trailing><div class="input_trailing">%</div></template>
               </UInput>
             </UFormField>
-            <UFormField label="Track number" name="truck_number" class="col-span-2">
+            <UFormField label="Track number" name="truck_number">
               <UInput v-model="state.truck_number" class="w-full" />
+            </UFormField>
+            <UFormField label="VIN code" name="vin_code">
+              <UInput v-model="state.vin_code" class="w-full" placeholder="1HGCR2F8XHA000000" />
             </UFormField>
             <UFormField label="Trailer type" name="trailer">
               <USelect v-model="state.trailer" :items="trailerOptions" class="w-full" />
