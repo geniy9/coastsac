@@ -50,6 +50,13 @@ const settlement = computed(() => response.value?.data || null)
 const newAdjReason = ref('')
 const newAdjAmount = ref(0)
 const newAdjType = ref('deduction')
+
+const newAdjFrequency = ref('temporary')
+const frequencyOptions = [
+  { value: 'temporary', label: 'Temporary' },
+  { value: 'permanent', label: 'Permanent' }
+]
+
 const isOpenAdjust = ref(false)
 const loadingAdjust = ref(false)
 const loadingDeleteIdx = ref(null)
@@ -72,10 +79,10 @@ const handleAddAdjustment = async () => {
   adjs.push({
     reason: newAdjReason.value,
     amount: newAdjAmount.value,
-    type: newAdjType.value
+    type: newAdjType.value,
+    is_permanent: newAdjFrequency.value === 'permanent' 
   })
 
-  // Перерасчет Net Payout
   const diff = newAdjAmount.value * (newAdjType.value === 'deduction' ? -1 : 1)
   const newNet = Number(settlement.value.net_payout || 0) + diff
   const newDeductions = Number(settlement.value.total_deductions || 0) + (newAdjType.value === 'deduction' ? newAdjAmount.value : 0)
@@ -94,6 +101,7 @@ const handleAddAdjustment = async () => {
     toast.add({ title: 'Adjustment Added', color: 'success' })
     newAdjReason.value = ''
     newAdjAmount.value = 0
+    newAdjFrequency.value = 'temporary'
     refresh()
   } catch (e) {
     toast.add({ title: 'Failed to update', description: e.message, color: 'error' })
@@ -201,6 +209,10 @@ useHead({
                   <USelect 
                     v-model="newAdjType" 
                     :items="[{value: 'deduction', label: 'Deduction'},{value: 'bonus', label: 'Bonus'}]" class="w-30" />
+                  <USelect 
+                    v-model="newAdjFrequency" 
+                    :items="frequencyOptions" 
+                    class="w-32" />
                 </UFieldGroup>
                 <div class="flex justify-between gap-2">
                   <UButton 
@@ -351,7 +363,14 @@ useHead({
               </h3>
               <div class="grid gap-2 bg-elevated/20 p-3 text-sm font-mono text-highlighted">
                 <div v-for="(adj, idx) in settlement.custom_adjustments" :key="idx" class="flex items-center justify-between">
-                  <span>{{ adj.reason }}</span>
+                  <div class="flex items-center gap-2">
+                    <span>{{ adj.reason }}</span>
+                    <UBadge 
+                      :label="adj.is_permanent ? 'Permanent' : 'Temporary'" 
+                      :color="adj.is_permanent ? 'warning' : 'neutral'" 
+                      variant="subtle" 
+                      size="xs" />
+                  </div>
                   <div class="flex items-center gap-3">
                     <span :class="adj.type === 'deduction' ? 'text-red-500' : 'text-green-500'">
                       $ {{ adj.type === 'deduction' ? '-' : '+' }}{{ adj.amount }}

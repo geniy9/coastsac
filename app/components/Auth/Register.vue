@@ -40,8 +40,7 @@ const handleRegister = async () => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-4 w-xs mx-auto">
-    <!-- Блок успешной регистрации -->
+  <div class="flex flex-col gap-4">
     <div v-if="registrationSuccess" class="grid gap-4">
       <h2 class="text-2xl font-bold text-center">
         Registration Successful!

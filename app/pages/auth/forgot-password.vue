@@ -5,7 +5,5 @@ definePageMeta({
 })
 </script>
 <template>
-  <div class="min-h-screen flex items-center justify-center">
-    <AuthForgotPassword />
-  </div>
+  <AuthForgotPassword />
 </template>

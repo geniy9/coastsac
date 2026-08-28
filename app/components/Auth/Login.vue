@@ -74,9 +74,8 @@ const handleLogin = async () => {
   }
 };
 </script>
-
 <template>
-  <div class="flex flex-col gap-4 w-xs mx-auto">
+  <div class="flex flex-col gap-4 w-full">
     <h2 class="text-2xl font-bold text-center">
       {{ require2fa ? 'Two-Factor Auth' : 'Login' }}
     </h2>

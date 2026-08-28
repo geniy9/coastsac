@@ -129,6 +129,7 @@ const handleCreateSettlement = async () => {
         total_fuel: calc.fuel_expense,
         total_deductions: calc.total_deductions,
         net_payout: calc.net_payout,
+        custom_adjustments: calc.custom_adjustments || [],
         status_settlement: 'draft'
       }
     }
