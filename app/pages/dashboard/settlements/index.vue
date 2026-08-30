@@ -1,7 +1,6 @@
 <!-- pages/dashboard/settlements/index.vue -->
 <script setup>
 import { UButton, UDropdownMenu, UCheckbox, UBadge } from '#components'
-import { getPaginationRowModel } from "@tanstack/table-core"
 import { sub, format, differenceInCalendarDays } from "date-fns"
 
 definePageMeta({ layout: 'dashboard' })
@@ -9,9 +8,11 @@ definePageMeta({ layout: 'dashboard' })
 const { imageUrl } = useConfig()
 const { permissions } = useRolePermissions()
 const client = useStrapiClient()
+const apiStore = useApiStore()
 const toast = useToast()
 const router = useRouter()
 
+const pagination = ref({ pageIndex: 0, pageSize: apiStore.defaultPageSize })
 const selectedDriver = ref(null)
 const range = shallowRef({
   start: sub(new Date(), { days: 7 }),
@@ -20,10 +21,7 @@ const range = shallowRef({
 const isCreating = ref(false)
 const bulkInterval = ref(10)
 const isDeleting = ref(false)
-const table = useTemplateRef("table")
 const rowSelection = ref({})
-const limit = ref(25)
-const pagination = ref({ pageIndex: 0, pageSize: 25 })
 const activeJob = ref(null)
 
 const isPaymentModalOpen = ref(false)
@@ -64,15 +62,18 @@ const { data: settlementsResponse, refresh } = await useAsyncData('settlements-l
   client('/settlements', { 
     query: { 
       populate: ['driver', 'pdf_file'],
-      pagination: { limit: limit.value }
+      'pagination[page]': pagination.value.pageIndex + 1,
+      'pagination[pageSize]': pagination.value.pageSize,
     }
   }), {
     lazy: true,
-    watch: [limit],
-    default: () => ({ data: [] })
+    watch: [pagination],
+    default: () => ({ data: [], meta: { pagination: { total: 0 } } })
   }
 )
 const settlements = computed(() => settlementsResponse.value?.data || [])
+const totalSettlements = computed(() => settlementsResponse.value?.meta?.pagination?.total || 0)
+
 const jobProgress = computed(() => {
   if (!activeJob.value) return 0
   return Math.round((activeJob.value.processed_items / activeJob.value.total_items) * 100)
@@ -422,12 +423,9 @@ useHead({ title: 'Settlements' })
           </div>
 
           <!-- SETTLEMENTS -->
-          <div class="flex-1 flex flex-col min-h-0 space-y-4">
+          <div class="flex flex-col gap-4 pb-12">
             <UTable
-              ref="table"
               v-model:row-selection="rowSelection"
-              v-model:pagination="pagination"
-              :pagination-options="{ getPaginationRowModel: getPaginationRowModel() }"
               class="shrink-0 flex-1 overflow-auto"
               :data="settlements"
               :columns="columns"
@@ -441,9 +439,8 @@ useHead({ title: 'Settlements' })
                 separator: 'h-0'
               }" />
             <TablePagination 
-              v-if="table?.tableApi"
-              v-model:limit="limit"
-              :table-api="table.tableApi"
+              v-model:pagination="pagination"
+              :total="totalSettlements"
               :selected-count="selectedIds.length" />
           </div>
 

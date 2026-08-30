@@ -1,7 +1,6 @@
 <!-- components/TaskList.vue -->
 <script setup>
 import { UAvatar, UAvatarGroup, UBadge, UButton, UFieldGroup } from '#components'
-import { getPaginationRowModel } from "@tanstack/table-core"
 const { thumbImg, getStatusColor, formatDate, formatTime } = useConfig()
 
 const props = defineProps({
@@ -9,14 +8,19 @@ const props = defineProps({
     type: Array,
     required: true
   },
+  total: {
+    type: Number,
+    default: 0
+  },
   loading: {
     type: Boolean,
     default: false
   }
 })
-const limit = defineModel('limit', { type: Number, default: 25 })
-const pagination = ref({ pageIndex: 0, pageSize: 25 })
-const table = useTemplateRef("table")
+const pagination = defineModel('pagination', {
+  type: Object,
+  default: () => ({ pageIndex: 0, pageSize: 25 })
+})
 
 const columns = [{
   accessorKey: "subject",
@@ -73,11 +77,8 @@ const columns = [{
 }]
 </script>
 <template>
-  <div class="flex-1 flex flex-col min-h-0 space-y-4">
+  <div class="flex flex-col gap-4 pb-12">
     <UTable
-      ref="table"
-      v-model:pagination="pagination"
-      :pagination-options="{ getPaginationRowModel: getPaginationRowModel() }"
       class="shrink-0 flex-1 overflow-auto"
       :data="tasks"
       :columns="columns"
@@ -90,9 +91,6 @@ const columns = [{
         td: 'border-b border-default',
         separator: 'h-0'
       }" />
-    <TablePagination 
-      v-if="table?.tableApi"
-      v-model:limit="limit"
-      :table-api="table.tableApi" />
+    <TablePagination v-model:pagination="pagination" :total="total" />
   </div>
 </template>

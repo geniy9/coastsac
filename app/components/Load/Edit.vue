@@ -29,6 +29,7 @@ const state = reactive({
   load_number: '',
   pickup_number: '',
   delivery_number: '',
+  additional_notes: '',
   drivers_rate: 0,
   original_rate: 0,
   tonu_amount: 0,
@@ -172,6 +173,7 @@ watch(() => props.load, (newVal) => {
       load_number: newVal.load_number || '',
       pickup_number: newVal.pickup_number || '',
       delivery_number: newVal.delivery_number || '',
+      additional_notes: newVal.additional_notes || '',
       drivers_rate: newVal.drivers_rate || 0,
       original_rate: newVal.original_rate || 0,
       tonu_amount: newVal.tonu_amount || 0,
@@ -695,6 +697,16 @@ const onDelete = async () => {
             </UInput>
           </UFormField>
         </div>
+
+        <USeparator label="Additional Information" />
+
+        <UFormField label="Additional Notes" name="additional_notes">
+          <UTextarea 
+            v-model="state.additional_notes" 
+            placeholder="Special instructions, gate codes, loading directions, etc." 
+            :rows="3" 
+            class="w-full" />
+        </UFormField>
 
         <div class="flex justify-between items-center pt-4">
           <div>

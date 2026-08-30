@@ -1,7 +1,6 @@
 <!-- components/UserList.vue -->
 <script setup>
 import { UButton, UDropdownMenu, UCheckbox, UBadge, UAvatar, USelect, USwitch, UIcon } from '#components'
-import { getPaginationRowModel } from "@tanstack/table-core";
 const { getAvatar } = useConfig()
 
 const props = defineProps({
@@ -9,10 +8,18 @@ const props = defineProps({
     type: Array,
     required: true
   },
+  total: {
+    type: Number,
+    default: 0
+  },
   loading: {
     type: Boolean,
     default: false
   }
+})
+const pagination = defineModel('pagination', {
+  type: Object,
+  default: () => ({ pageIndex: 0, pageSize: 25 })
 })
 
 const emit = defineEmits(['refresh'])
@@ -23,10 +30,7 @@ const currentUser = useStrapiUser()
 const roles = ref([])
 const updatingUserId = ref(null)
 const togglingBlockId = ref(null)
-const table = useTemplateRef("table")
 
-const limit = defineModel('limit', { type: Number, default: 25 })
-const pagination = ref({ pageIndex: 0, pageSize: 25 })
 
 const columnFilters = ref([{ id: "email", value: "" }])
 const columnVisibility = ref()
@@ -256,9 +260,10 @@ const confirmDelete = async () => {
 }
 
 const emailSearch = computed({
-  get: () => table.value?.tableApi?.getColumn("email")?.getFilterValue() || "",
+  get: () => columnFilters.value.find(f => f.id === 'email')?.value || '',
   set: (value) => {
-    table.value?.tableApi?.getColumn("email")?.setFilterValue(value || undefined);
+    const filter = columnFilters.value.find(f => f.id === 'email')
+    if (filter) filter.value = value || ''
   }
 })
 </script>
@@ -275,12 +280,9 @@ const emailSearch = computed({
     </div>
 
     <UTable
-      ref="table"
       v-model:column-filters="columnFilters"
       v-model:column-visibility="columnVisibility"
       v-model:row-selection="rowSelection"
-      v-model:pagination="pagination"
-      :pagination-options="{ getPaginationRowModel: getPaginationRowModel() }"
       class="shrink-0 flex-1 overflow-auto"
       :data="users"
       :columns="columns"
@@ -293,11 +295,9 @@ const emailSearch = computed({
         td: 'border-b border-default',
         separator: 'h-0'
       }" />
-
     <TablePagination 
-      v-if="table?.tableApi"
-      v-model:limit="limit"
-      :table-api="table.tableApi"
+      v-model:pagination="pagination"
+      :total="total"
       :selected-count="Object.keys(rowSelection).length" />
 
     <!-- CONFIRM DELETE -->

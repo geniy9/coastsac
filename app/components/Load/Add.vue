@@ -14,6 +14,7 @@ const state = reactive({
   load_number: '',
   pickup_number: '',
   delivery_number: '',
+  additional_notes: '',
   drivers_rate: 0,
   original_rate: 0,
   pickup_date: new Date().toISOString().split('T')[0],
@@ -204,12 +205,7 @@ const onSubmit = async () => {
       errors.push(`Receiver City #${idx + 1} is required.`)
     }
   })
-  // if (!state.shipper_address?.city?.trim()) {
-  //   errors.push("Shipper City is required.")
-  // }
-  // if (!state.receiver_address?.city?.trim()) {
-  //   errors.push("Receiver City is required.")
-  // }
+
   if (!state.pickup_date) {
     errors.push("Pickup Date is required.")
   }
@@ -224,7 +220,6 @@ const onSubmit = async () => {
       errors.push("Pickup Time is required.")
     }
   }
-
   
   if (state.miles === undefined || state.miles === null || state.miles === '') {
     errors.push("Total Miles is required.")
@@ -290,6 +285,7 @@ const onSubmit = async () => {
         load_number: state.load_number,
         pickup_number: state.pickup_number,
         delivery_number: state.delivery_number,
+        additional_notes: state.additional_notes || null,
         drivers_rate: state.drivers_rate,
         original_rate: state.original_rate,
         pickup_date: state.pickup_date,
@@ -329,6 +325,7 @@ const onSubmit = async () => {
       load_number: '',
       pickup_number: '',
       delivery_number: '',
+      additional_notes: '',
       drivers_rate: 0,
       original_rate: 0,
       pickup_date: new Date().toISOString().split('T')[0],
@@ -538,6 +535,16 @@ const onSubmit = async () => {
             </UInput>
           </UFormField>
         </div>
+
+        <USeparator label="Additional Information" />
+
+        <UFormField label="Additional Notes" name="additional_notes">
+          <UTextarea 
+            v-model="state.additional_notes" 
+            placeholder="Special instructions, gate codes, loading directions, etc." 
+            :rows="3" 
+            class="w-full" />
+        </UFormField>
 
         <div class="flex justify-end gap-3 pt-4">
           <UButton color="neutral" variant="ghost" label="Cancel" @click="open = false" />

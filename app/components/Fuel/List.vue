@@ -167,7 +167,7 @@ const columnFilters = ref([{ id: "card_number", value: "" }])
 const pagination = ref({ pageIndex: 0, pageSize: 15 })
 </script>
 <template>
-  <div class="flex flex-col gap-4">
+  <div class="flex flex-col gap-4 pb-12">
     <div class="flex items-center justify-between">
       <UInput
         v-model="cardSearchFilter"

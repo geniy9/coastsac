@@ -3,22 +3,32 @@
 definePageMeta({ layout: 'dashboard' })
 const { permissions } = useRolePermissions()
 const client = useStrapiClient()
+const apiStore = useApiStore()
 
+const pagination = ref({ pageIndex: 0, pageSize: apiStore.defaultPageSize })
 const isOpen = ref(false)
-const limit = ref(25)
 
-const { data: users, status, refresh } = await useAsyncData('users', () => 
-  client('/users', {
-    query: {
-      populate: ['role', 'driver', 'avatar'],
-      limit: limit.value
-    }
-  }), {
-    lazy: true,
-    watch: [limit],
-    default: () => []
-  }
-)
+// ЗАМЕНИТЬ useAsyncData НА:
+const { data: response, status, refresh } = await useAsyncData('users', async () => {
+  const [data, total] = await Promise.all([
+    client('/users', {
+      query: {
+        populate: ['role', 'driver', 'avatar'],
+        start: pagination.value.pageIndex * pagination.value.pageSize,
+        limit: pagination.value.pageSize
+      }
+    }),
+    client('/users/count')
+  ])
+  return { data: data || [], total: total || 0 }
+}, {
+  lazy: true,
+  watch: [pagination],
+  default: () => ({ data: [], total: 0 })
+})
+
+const users = computed(() => response.value?.data || [])
+const totalUsers = computed(() => response.value?.total || 0)
 
 const rolesInfo = [{ 
   title: 'Admin', 
@@ -68,10 +78,11 @@ useHead({ title: 'Team Management' })
       </template>
 
       <template #body>
-        <div class="flex-1 flex flex-col min-h-0" v-if="permissions.isAdmin">
+        <div class="flex flex-col" v-if="permissions.isAdmin">
           <UserList 
             :users="users" 
-            v-model:limit="limit"
+            :total="totalUsers"
+            v-model:pagination="pagination"
             :loading="status === 'pending'"
             @refresh="handleRefresh" />
         </div>

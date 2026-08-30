@@ -1,12 +1,11 @@
 <!-- pages/dashboard/loads/index.vue -->
 <script setup>
-definePageMeta({ 
-  layout: 'dashboard'
-})
+definePageMeta({ layout: 'dashboard' })
 
 const { permissions } = useRolePermissions()
 const client = useStrapiClient()
 const user = useStrapiUser()
+const apiStore = useApiStore()
 
 const isAddOpen = ref(false)
 const isEditOpen = ref(false)
@@ -18,9 +17,11 @@ const tabs = [
   { label: 'Next', value: 'next', icon: 'hugeicons:truck-return' },
   { label: 'Completed', value: 'completed', icon: 'hugeicons:checkmark-circle-03' }
 ]
+const search = ref('')
+const debouncedSearch = refDebounced(search, 300)
 
 const rowSelection = ref({})
-const limit = ref(25)
+const pagination = ref({ pageIndex: 0, pageSize: apiStore.defaultPageSize })
 
 const { data: response, status, refresh } = await useAsyncData('loads', () => {
   const query = {
@@ -33,10 +34,14 @@ const { data: response, status, refresh } = await useAsyncData('loads', () => {
       'shipper_address', 
       'receiver_address'
     ],
-    pagination: { limit: limit.value },
+    'filters[category][$eq]': activeTab.value,
+    'pagination[page]': pagination.value.pageIndex + 1,
+    'pagination[pageSize]': pagination.value.pageSize,
     sort: ['pickup_date:desc']
   }
-
+  if (debouncedSearch.value) {
+    query['filters[load_number][$containsi]'] = debouncedSearch.value
+  }
   if (permissions.value.isDriver) {
     query['filters[driver][user_account][id][$eq]'] = user.value?.id
   }
@@ -44,19 +49,16 @@ const { data: response, status, refresh } = await useAsyncData('loads', () => {
   return client('/loads', { query })
 }, {
   lazy: true,
-  watch: [limit],
-  default: () => ({ data: [] })
+  watch: [activeTab, pagination, debouncedSearch],
+  default: () => ({ data: [], meta: { pagination: { total: 0 } } })
 })
 
 const loads = computed(() => response.value?.data || [])
-
-const filteredLoads = computed(() => {
-  return loads.value.filter(load => load.category === activeTab.value)
-})
+const totalLoads = computed(() => response.value?.meta?.pagination?.total || 0)
 
 const selectedLoads = computed(() => {
   return Object.keys(rowSelection.value)
-    .map(index => filteredLoads.value[Number(index)])
+    .map(index => loads.value[Number(index)])
     .filter(load => load && load.status_load === 'unloaded')
 })
 
@@ -69,7 +71,13 @@ const handleFactoringSuccess = async () => {
   await handleRefresh()
 }
 
-watch(activeTab, () => { rowSelection.value = {} })
+watch(activeTab, () => { 
+  rowSelection.value = {}
+  pagination.value.pageIndex = 0
+})
+watch(debouncedSearch, () => {
+  pagination.value.pageIndex = 0
+})
 const handleRefresh = async () => { await refresh() }
 useHead({ title: 'Loads' })
 </script>
@@ -107,9 +115,11 @@ useHead({ title: 'Loads' })
 
           <div class="flex-1 flex flex-col min-h-0">
             <LoadList 
+              v-model:search="search"
               v-model:row-selection="rowSelection"
-              v-model:limit="limit"
-              :loads="filteredLoads" 
+              v-model:pagination="pagination"
+              :loads="loads" 
+              :total="totalLoads"
               :loading="status === 'pending'"
               :current-category="activeTab"
               @add="isAddOpen = true"

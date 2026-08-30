@@ -1,7 +1,6 @@
 <!-- components/DriverList.vue -->
 <script setup>
 import { UAvatar, UButton, UDropdownMenu, UCheckbox, UBadge, USwitch } from '#components'
-import { getPaginationRowModel } from "@tanstack/table-core";
 const client = useStrapiClient()
 const { thumbImg, getExpiryColor } = useConfig()
 const emit = defineEmits(['edit', 'refresh'])
@@ -12,20 +11,25 @@ const props = defineProps({
     type: Array,
     required: true
   },
+  total: {
+    type: Number,
+    default: 0
+  },
   loading: {
     type: Boolean,
     default: false
   }
 })
+const pagination = defineModel('pagination', {
+  type: Object,
+  default: () => ({ pageIndex: 0, pageSize: 25 })
+})
 
-const table = useTemplateRef("table")
 const columnFilters = ref([{ id: "email", value: "" }])
 const columnVisibility = ref()
 const rowSelection = ref({})
 const roles = ref([])
 const togglingAccessId = ref(null)
-const limit = defineModel('limit', { type: Number, default: 25 })
-const pagination = ref({ pageIndex: 0, pageSize: 25 })
 
 onMounted(async () => {
   try {
@@ -172,7 +176,7 @@ const columns = [{
         h(UAvatar, { src: avatarSrc, alt: displayName, size: "md" }),
         h("div", undefined, [
           h("p", { class: "font-medium text-highlighted" }, displayName),
-          h("p", { class: "text-xs text-gray-500" }, row.original.phone || 'No phone')
+          h("p", { class: "text-xs text-gray-500 text-wrap" }, row.original.phone || 'No phone')
         ])
       ]),
       h("span", { class: "text-xs text-gray-500" }, row.original.email || ''),
@@ -253,14 +257,14 @@ const columns = [{
   cell: ({ row }) => {
     const cdl = row.original.cdl_expiry || '-'
     const medical = row.original.medical_expiry || '-'
-    return h("div", { class: "flex flex-col gap-1 text-xs" }, [
-      h("div", { class: "flex items-center gap-1" }, [
-        h(UBadge, { color: getExpiryColor(cdl), variant: 'soft', size: 'sm' }, () => cdl),
+    return h("div", { class: "grid gap-1 text-xs" }, [
+      h("div", { class: "grid gap-1" }, [
         h("p", { class: "text-gray-500" }, `CDL`),
+        h(UBadge, { color: getExpiryColor(cdl), variant: 'soft', size: 'sm' }, () => cdl),
       ]),
-      h("div", { class: "flex items-center gap-1" }, [
+      h("div", { class: "grid gap-1" }, [
+        h("p", { class: "text-gray-500" }, `Medical`),
         h(UBadge, { color: getExpiryColor(medical), variant: 'soft', size: 'sm' }, () => medical),
-        h("p", { class: "text-gray-500" }, `Medical`)
       ])
     ])
   }
@@ -329,14 +333,15 @@ const handleRowClick = (event, row) => {
 }
 
 const emailSearch = computed({
-  get: () => table.value?.tableApi?.getColumn("email")?.getFilterValue() || "",
+  get: () => columnFilters.value.find(f => f.id === 'email')?.value || '',
   set: (value) => {
-    table.value?.tableApi?.getColumn("email")?.setFilterValue(value || undefined);
+    const filter = columnFilters.value.find(f => f.id === 'email')
+    if (filter) filter.value = value || ''
   }
 })
 </script>
 <template>
-  <div class="flex-1 flex flex-col min-h-0 space-y-4">
+  <div class="flex flex-col gap-4 pb-12">
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-1.5">
         <UInput
@@ -348,12 +353,9 @@ const emailSearch = computed({
     </div>
 
     <UTable
-      ref="table"
       v-model:column-filters="columnFilters"
       v-model:column-visibility="columnVisibility"
       v-model:row-selection="rowSelection"
-      v-model:pagination="pagination"
-      :pagination-options="{ getPaginationRowModel: getPaginationRowModel() }"
       class="shrink-0 flex-1 overflow-auto"
       :data="drivers"
       :columns="columns"
@@ -368,9 +370,8 @@ const emailSearch = computed({
         separator: 'h-0'
       }" />
     <TablePagination 
-      v-if="table?.tableApi"
-      v-model:limit="limit"
-      :table-api="table.tableApi"
+      v-model:pagination="pagination"
+      :total="total"
       :selected-count="Object.keys(rowSelection).length" />
   </div>
 </template>

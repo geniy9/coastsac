@@ -80,7 +80,7 @@ const handleLogin = async () => {
       {{ require2fa ? 'Two-Factor Auth' : 'Login' }}
     </h2>
 
-    <!-- Форма ввода OTP (Шаг 2) -->
+    <!-- OTP -->
     <div v-if="require2fa" class="grid gap-4 text-center">
       <p class="text-sm text-gray-600 dark:text-gray-400">
         Enter the 6-digit verification code from your Google Authenticator app.
@@ -115,7 +115,7 @@ const handleLogin = async () => {
         :title="error" />
     </div>
 
-    <!-- Стандартная форма авторизации -->
+    <!-- AUTH FORM -->
     <UForm v-else :state="state" :schema="schema" @submit="handleLogin" class="grid gap-2">
       <UFormField label="Email" name="identifier">
         <UInput v-model="state.identifier" type="email" placeholder="you@example.com" class="w-full" />
@@ -135,14 +135,14 @@ const handleLogin = async () => {
         :title="error" />
     </UForm>
 
-    <div class="text-center mt-2">
-      <p class="text-sm">
-        Don't have an account yet?
-        <ULink to="/auth/register" class="font-medium ml-1">
+    <div class="text-sm text-center space-y-1">
+      <p>Don't have an account yet?</p>
+      <p>
+        <ULink to="/auth/register" class="font-medium ml-1 text-primary">
           Create an account
         </ULink>
       </p>
-      <ULink to="/auth/forgot-password" class="text-sm font-medium">
+      <ULink to="/auth/forgot-password" class="font-medium text-primary">
         Forgot your password?
       </ULink>
     </div>

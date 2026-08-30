@@ -32,18 +32,17 @@ const handleForgotPassword = async () => {
 </script>
 <template>
   <div class="flex flex-col gap-4 w-full">
-    <h2 class="text-2xl font-bold text-center">
-      Forgot your password?
-    </h2>
-
     <div v-if="successMessage" class="p-4 bg-green-100 text-green-800 rounded-md text-center">
       {{ successMessage }}
     </div>
     <UForm v-else :state="state" :schema="schema" @submit.prevent="handleForgotPassword">
-      <p class="text-sm text-white mb-4">
+      <h2 class="text-2xl font-bold text-center">
+        Forgot your password?
+      </h2>
+      <p class="text-sm text-white mb-4 text-center">
         Enter your email address to reset your password
       </p>
-      <UFormField label="Email" name="email" class="mb-6">
+      <UFormField label="Email" name="email" class="mb-4">
         <UInput v-model="state.email" type="email" placeholder="you@example.com" class="w-full" />
       </UFormField>
 
@@ -60,10 +59,8 @@ const handleForgotPassword = async () => {
         :title="error" />
     </UForm>
 
-    <div class="text-center">
-      <ULink to="/auth/login" class="text-sm font-medium">
-        Return to entrance
-      </ULink>
-    </div>
+    <ULink to="/auth/login" class="text-center text-sm font-medium text-primary">
+      Return to entrance
+    </ULink>
   </div>
 </template>

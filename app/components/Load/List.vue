@@ -1,7 +1,6 @@
 <!-- components/LoadList.vue -->
 <script setup>
 import { UButton, UDropdownMenu, UCheckbox, UBadge, UTooltip, UIcon } from '#components'
-import { getPaginationRowModel } from "@tanstack/table-core";
 const { imageUrl, getMime, truncate, getStatusColor } = useConfig()
 const { permissions } = useRolePermissions()
 const emit = defineEmits(['edit', 'refresh'])
@@ -10,6 +9,10 @@ const props = defineProps({
   loads: {
     type: Array,
     required: true
+  },
+  total: {
+    type: Number,
+    default: 0
   },
   loading: {
     type: Boolean,
@@ -21,16 +24,17 @@ const props = defineProps({
   }
 })
 
-const table = useTemplateRef("table")
-const columnFilters = ref([{ id: "load_number", value: "" }])
 const columnVisibility = ref()
 const rowSelection = defineModel('rowSelection', { type: Object, default: () => ({}) })
 
 const expandedRateCon = ref({})
 const expandedPodBol = ref({})
 
-const limit = defineModel('limit', { type: Number, default: 25 })
-const pagination = ref({ pageIndex: 0, pageSize: 25 })
+const search = defineModel('search', { type: String, default: '' })
+const pagination = defineModel('pagination', {
+  type: Object,
+  default: () => ({ pageIndex: 0, pageSize: 25 })
+})
 
 const columns = [{
   id: "select",
@@ -129,37 +133,6 @@ const columns = [{
       ]),
     ])
   }
-  // cell: ({ row }) => {
-  //   const shipper = row.original.shipper_address
-  //   const receiver = row.original.receiver_address
-  //   const status = row.original.status_load
-  //   const miles = status === 'tonu' ? 0 : row.original.miles
-  //   const weight = row.original.weight
-  //   return h("div", { class: "flex flex-col items-start text-xs text-gray-500" }, [
-  //     h("span", undefined, [
-  //       'From: ',
-  //       h("span", { class: "text-highlighted" }, `${shipper?.city || '-'}, ${shipper?.state || '-'}`)
-  //     ]),
-  //     h(UTooltip, { text: shipper?.full_address }, () =>
-  //       h('span', { class: "cursor-pointer" }, truncate(shipper?.full_address, 20) || '')
-  //     ),
-  //     h("span", { class: "mt-2" }, [
-  //       'To: ',
-  //       h("span", { class: "text-highlighted" }, `${receiver?.city || '-'}, ${receiver?.state || '-'}`)
-  //     ]),
-  //     h(UTooltip, { text: receiver?.full_address }, () =>
-  //       h('span', { class: "cursor-pointer" }, truncate(receiver?.full_address, 20) || '')
-  //     ),
-  //     h("span", { class: "mt-2" }, [
-  //       h("span", { class: "text-highlighted font-semibold" }, miles || '0'), 
-  //       ' Miles'
-  //     ]),
-  //     h("span", { class: "mt-2" }, [
-  //       h("span", { class: "text-highlighted font-semibold" }, weight || '0'), 
-  //       ' lbs'
-  //     ]),
-  //   ])
-  // }
 },
 {
   id: "pickup",
@@ -365,19 +338,13 @@ const handleRowClick = (event, row) => {
   }
 }
 
-const searchFilter = computed({
-  get: () => table.value?.tableApi?.getColumn("load_number")?.getFilterValue() || "",
-  set: (value) => {
-    table.value?.tableApi?.getColumn("load_number")?.setFilterValue(value || undefined);
-  }
-})
 </script>
 <template>
-  <div class="flex-1 flex flex-col min-h-0 space-y-4">
+  <div class="flex flex-col gap-4 pb-12">
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-1.5">
         <UInput
-          v-model="searchFilter"
+          v-model="search"
           class="max-w-sm"
           icon="i-lucide-search"
           placeholder="Search by load number..." />
@@ -386,12 +353,8 @@ const searchFilter = computed({
 
     <ClientOnly>
       <UTable
-        ref="table"
-        v-model:column-filters="columnFilters"
         v-model:column-visibility="columnVisibility"
         v-model:row-selection="rowSelection"
-        v-model:pagination="pagination"
-        :pagination-options="{ getPaginationRowModel: getPaginationRowModel() }"
         class="shrink-0 flex-1 overflow-auto"
         :data="loads"
         :columns="columns"
@@ -406,10 +369,9 @@ const searchFilter = computed({
           separator: 'h-0'
         }" />
       <TablePagination 
-        v-if="table?.tableApi"
-        v-model:limit="limit"
-        :table-api="table.tableApi"
-        :selected-count="Object.keys(rowSelection).length" />
+        v-model:pagination="pagination"
+        :total="total" 
+        :selected-count="Object.keys(rowSelection)?.length" />
 
     </ClientOnly>
   </div>

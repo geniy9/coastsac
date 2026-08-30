@@ -57,7 +57,7 @@ const handleRegister = async () => {
       </UButton>
     </div>
 
-    <!-- Форма регистрации -->
+    <!-- REGISTER -->
     <div v-else class="flex flex-col gap-4">
       <h2 class="text-2xl font-bold text-center">
         Registration
@@ -89,13 +89,11 @@ const handleRegister = async () => {
           :title="error" />
       </UForm>
 
-      <div class="text-center mt-2">
-        <p class="text-sm">
-          Already have an account?
-          <ULink to="/auth/login" class="font-medium ml-1">
-            Login
-          </ULink>
-        </p>
+      <div class="text-sm text-center">
+        <p>Already have an account?</p>
+        <ULink to="/auth/login" class="font-medium ml-1 text-primary">
+          Login
+        </ULink>
       </div>
     </div>
   </div>

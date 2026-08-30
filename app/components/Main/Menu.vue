@@ -9,11 +9,12 @@ defineProps({
 
 const teams = ref([{
   label: 'Dashboard',
-  onSelect() { selectedTeam.value = team },
+  icon: "hugeicons:dashboard-square-02",
+  to: '/dashboard',
   visible: true
 },{
   label: 'Light Freight',
-  src: '/32.png',
+  src: '/lf.svg',
   to: '/',
   visible: true
 },{
@@ -25,12 +26,18 @@ const teams = ref([{
   label: 'Manage team',
   icon: 'i-lucide-cog',
   to: '/dashboard/team',
-  onSelect() { selectedTeam.value = team },
   visible: permissions.value.isAdmin
 }])
 
 const selectedTeam = ref(teams.value[0])
-const items = computed(() => teams.value?.filter(item => item.visible))
+const items = computed(() => 
+  teams.value
+    ?.filter(item => item.visible)
+    .map(item => ({
+      ...item,
+      onSelect: () => { selectedTeam.value = item }
+    }))
+)
 </script>
 <template>
   <UDropdownMenu

@@ -1,10 +1,8 @@
 <!-- components/TablePagination.vue -->
 <script setup>
+const apiStore = useApiStore()
+
 const props = defineProps({
-  tableApi: {
-    type: Object,
-    default: null
-  },
   selectedCount: {
     type: Number,
     default: 0
@@ -20,81 +18,55 @@ const props = defineProps({
   total: {
     type: Number,
     default: 0
+  },
+  pageSizeOptions: {
+    type: Array,
+    default: undefined
   }
 })
+const pagination = defineModel('pagination', {
+  type: Object,
+  default: () => ({ pageIndex: 0, pageSize: 25 })
+})
+const limitItems = computed(() => props.pageSizeOptions || apiStore.pageSizeOptions)
+const isVisible = computed(() => props.total > 0)
 
-const limit = defineModel('limit', { type: Number, default: 25 })
-const page = defineModel('page', { type: Number, default: 1 })
-
-const totalRows = computed(() => {
-  if (props.tableApi) {
-    return props.tableApi.getFilteredRowModel()?.rows?.length || 0
-  }
-  return props.total
-})
-const pageIndex = computed(() => {
-  if (props.tableApi) {
-    return props.tableApi.getState()?.pagination?.pageIndex ?? 0
-  }
-  return page.value - 1
-})
-const pageSize = computed(() => {
-  if (props.tableApi) {
-    return props.tableApi.getState()?.pagination?.pageSize ?? 25
-  }
-  return limit.value
-})
-const isVisible = computed(() => {
-  if (props.showLimit) {
-    return totalRows.value > 25
-  }
-  return totalRows.value > pageSize.value
-})
-const setPage = (p) => {
-  if (props.tableApi) {
-    props.tableApi.setPageIndex(p - 1)
-  } else {
-    page.value = p
+const onLimitChange = (newLimit) => {
+  pagination.value = {
+    pageIndex: 0,
+    pageSize: Number(newLimit)
   }
 }
-
-watch(() => props.tableApi, (api) => {
-    if (api) api.setPageSize(limit.value)
-  },
-  { immediate: true }
-)
-if (props.showLimit) {
-  watch(limit, (newVal) => {
-    if (props.tableApi) {
-      props.tableApi.setPageSize(newVal)
-      props.tableApi.setPageIndex(0)
-    }
-  })
+const onPageChange = (newPage) => {
+  pagination.value = {
+    ...pagination.value,
+    pageIndex: newPage - 1
+  }
 }
 </script>
 <template>
-  <ClientOnly>
-    <div v-if="isVisible" class="flex items-center justify-between gap-3 mt-auto">
-      <div class="flex items-center gap-4 text-sm text-muted">
-        <USelectMenu 
-          v-if="showLimit" 
-          v-model="limit" 
-          :items="[25, 50, 100]" 
-          class="w-16" 
-          size="sm" />
-        <span>
-          <template v-if="totalLabel">{{ totalLabel }}: {{ totalRows }}</template>
-          <template v-else>Selected: {{ selectedCount }} of {{ totalRows }}</template>
-        </span>
-      </div>
-      <div class="flex items-center gap-1.5">
-        <UPagination 
-          size="sm"
-          :default-page="pageIndex + 1"
-          :items-per-page="pageSize"
-          :total="totalRows"
-          @update:page="setPage" />
-      </div>
+  <div v-if="isVisible" class="flex items-center justify-between gap-3 mt-auto">
+    <div class="flex items-center gap-4 text-sm text-muted">
+      <USelectMenu 
+        v-if="showLimit" 
+        :model-value="pagination.pageSize" 
+        :items="limitItems" 
+        class="w-16" 
+        size="sm"
+        @update:model-value="onLimitChange" />
+      <span>
+        <template v-if="totalLabel">{{ totalLabel }}: {{ total }}</template>
+        <template v-else>Selected: {{ selectedCount }} of {{ total }}</template>
+      </span>
     </div>
-  </ClientOnly>
+    <div class="flex items-center gap-1.5">
+      <UPagination 
+        v-if="total > pagination.pageSize"
+        size="sm"
+        :page="pagination.pageIndex + 1"
+        :items-per-page="pagination.pageSize"
+        :total="total"
+        @update:page="onPageChange" />
+    </div>
+  </div>
 </template>

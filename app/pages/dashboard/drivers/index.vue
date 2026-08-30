@@ -1,16 +1,16 @@
 <!-- pages/dashboard/drivers/index.vue -->
 <script setup>
-definePageMeta({ 
-  layout: 'dashboard'
-})
+definePageMeta({ layout: 'dashboard' })
 
 const { permissions } = useRolePermissions()
 const client = useStrapiClient()
+const apiStore = useApiStore()
+
+const pagination = ref({ pageIndex: 0, pageSize: apiStore.defaultPageSize })
 
 const isAddOpen = ref(false)
 const isEditOpen = ref(false)
 const selectedDriver = ref(null)
-const limit = ref(25)
 
 const { data: response, status, refresh } = await useAsyncData('drivers', () => 
   client('/drivers', {
@@ -21,16 +21,18 @@ const { data: response, status, refresh } = await useAsyncData('drivers', () =>
         'user_account.avatar',
         'extra_info.docs'
       ],
-      pagination: { limit: limit.value },
+      'pagination[page]': pagination.value.pageIndex + 1,
+      'pagination[pageSize]': pagination.value.pageSize,
       sort: ['createdAt:desc']
     }
   }), {
     lazy: true,
-    watch: [limit],
-    default: () => ({ data: [] })
+    watch: [pagination],
+    default: () => ({ data: [], meta: { pagination: { total: 0 } } })
   }
 )
 const drivers = computed(() => response.value?.data || [])
+const totalDrivers = computed(() => response.value?.meta?.pagination?.total || 0)
 
 const handleEdit = (driver) => {
   selectedDriver.value = driver
@@ -62,7 +64,8 @@ useHead({ title: 'Drivers' })
         <div class="flex-1 flex flex-col min-h-0" v-if="permissions.canViewDrivers">
           <DriverList 
             :drivers="drivers" 
-            v-model:limit="limit"
+            :total="totalDrivers"
+            v-model:pagination="pagination"
             :loading="status === 'pending'"
             @edit="handleEdit"
             @refresh="handleRefresh" />

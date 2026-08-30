@@ -10,7 +10,7 @@ useHead({
 
     <div class="absolute inset-0" />
 
-    <div class="relative z-10 w-full max-w-3xl backdrop-blur-xl bg-black/40 rounded-3xl p-6 sm:p-10 shadow-2xl text-white">
+    <div class="relative z-10 w-full max-w-2xl backdrop-blur-sm bg-black/20 rounded-3xl p-6 sm:p-8 shadow-2xl text-white">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
         
         <div class="flex flex-col items-center justify-center text-center p-4 md:border-r border-white/10">
@@ -18,12 +18,11 @@ useHead({
             src="/c2c_white.svg" 
             alt="Coast to Coast" 
             class="max-w-28 md:max-w-36 h-auto drop-shadow-md" />
-          <p class="mt-3 text-xs sm:text-sm text-gray-300 tracking-wider uppercase font-medium">
+          <p class="mt-3 text-xs sm:text-sm text-white tracking-wider uppercase">
             Coast to Coast Logistics
           </p>
         </div>
 
-        <!-- Контент / Формы -->
         <div class="w-full flex justify-center">
           <main class="w-full max-w-sm">
             <slot />
