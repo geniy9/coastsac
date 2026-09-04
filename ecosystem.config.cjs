@@ -4,7 +4,6 @@ module.exports = {
     {
       name: 'coast-to-coast',
       script: './server/index.mjs',
-      cwd: '/var/www/coastsac.com/html',
       exec_mode: 'cluster',
       instances: 1,
       env: {
