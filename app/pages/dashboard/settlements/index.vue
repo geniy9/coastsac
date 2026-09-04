@@ -106,7 +106,7 @@ const startPolling = (jobId) => {
   }, 3000)
 }
 
-// Запустить расчет и сохранить в драфт
+// CALC & SAVE DRAFT
 const handleCreateSettlement = async () => {
   if (!selectedDriver.value || !range.value?.start || !range.value?.end) {
     toast.add({ title: 'Validation Error', description: 'Please fill all fields', color: 'error' })
