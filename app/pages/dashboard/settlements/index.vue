@@ -64,6 +64,7 @@ const { data: settlementsResponse, refresh } = await useAsyncData('settlements-l
       populate: ['driver', 'pdf_file'],
       'pagination[page]': pagination.value.pageIndex + 1,
       'pagination[pageSize]': pagination.value.pageSize,
+      sort: ['createdAt:desc']
     }
   }), {
     lazy: true,

@@ -700,7 +700,7 @@ const onDelete = async () => {
 
         <USeparator label="Additional Information" />
 
-        <UFormField label="Additional Notes" name="additional_notes">
+        <UFormField label="Driver’s Notes" name="additional_notes">
           <UTextarea 
             v-model="state.additional_notes" 
             placeholder="Special instructions, gate codes, loading directions, etc." 

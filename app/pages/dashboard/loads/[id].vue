@@ -688,7 +688,7 @@ useHead({ title: () => `Load ${load.value ? load.value.load_number : ''}` })
             <!-- ADDITIONAL NOTES -->
             <UCard v-if="load.additional_notes" variant="soft" class="print-card">
               <h4 class="text-xs text-gray-500 font-semibold uppercase mb-2">
-                Additional Notes
+                Driver’s Notes
               </h4>
               <p class="text-xs text-highlighted whitespace-pre-line font-mono">
                 {{ load.additional_notes }}
