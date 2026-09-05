@@ -15,7 +15,7 @@ watch(isNotificationsOpen, async (isOpen) => {
 const linkToEntity = (uri) => {
   if (uri?.load) return `/dashboard/loads/${uri.load?.documentId}`
   if (uri?.task) return `/dashboard/tasks/${uri.task?.documentId}`
-  return
+  return '/dashboard/notes'
 }
 </script>
 <template>

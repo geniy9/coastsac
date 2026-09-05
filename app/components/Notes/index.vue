@@ -145,7 +145,8 @@ const formatDate = (dateStr) => {
 }
 </script>
 <template>
-  <UCard variant="soft" class="flex flex-col print-card">
+  <UCard variant="soft" class="flex flex-col print-card" 
+    :ui="{ body: 'flex-1 flex flex-col min-h-0' }">
     <template #header>
       <div class="flex items-center justify-between">
         <h3 class="font-semibold text-highlighted">
@@ -157,7 +158,10 @@ const formatDate = (dateStr) => {
       </div>
     </template>
 
-    <div class="flex-1 min-h-40 max-h-[60vh] flex flex-col justify-between">
+    <div 
+      class="flex-1 min-h-0 flex flex-col justify-between"
+      :class="(taskId || loadId) ? 'max-h-[60vh]' : ''"
+    >
       <!-- Scrollable Message List -->
       <div class="flex-1 min-h-0 overflow-y-auto pr-1">
         <div v-if="!notes || notes.length === 0" class="h-full flex flex-col items-center justify-center p-6 text-center text-gray-500 text-sm gap-2 no-print">
@@ -194,7 +198,7 @@ const formatDate = (dateStr) => {
       </div>
 
       <!-- Message Input -->
-      <div class="mt-2 pt-2 no-print">
+      <div class="mt-2 pt-2 shrink-0 no-print">
         <div class="flex gap-2">
           <UChatPrompt
             v-model="messageText"

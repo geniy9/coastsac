@@ -39,6 +39,11 @@ const links = computed(() => {
     to: "/dashboard/tasks",
     visible: permissions.value.canViewTasks
   },{
+    label: "Notes",
+    icon: "hugeicons:message-01",
+    to: "/dashboard/notes",
+    visible: permissions.value.canViewNotes
+  },{
     label: "Settings",
     to: "/dashboard/settings",
     icon: "hugeicons:account-setting-01",
